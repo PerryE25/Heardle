@@ -9,10 +9,16 @@ import UIKit
 
 class GameViewController: UIViewController {
 
+    // Add gradient with Sptofy's green
     override func viewDidLoad() {
         super.viewDidLoad()
 
-        // Do any additional setup after loading the view.
+        // Add gradient like on spotify's music player
+        let gradient = CAGradientLayer()
+        gradient.frame = view.bounds
+        gradient.colors = [UIColor.spotifyGreen.cgColor, UIColor.black.cgColor]
+        gradient.locations = [0.0, 0.65]
+        view.layer.insertSublayer(gradient, at: 0)
     }
     
     // this is Perry's favorite screen :D
