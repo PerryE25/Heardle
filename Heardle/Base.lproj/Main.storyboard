@@ -452,7 +452,7 @@
             <objects>
                 <viewController id="W5u-df-bDa" customClass="PreviousAttemptsViewController" customModule="Heardle" customModuleProvider="target" sceneMemberID="viewController">
                     <view key="view" contentMode="scaleToFill" id="CY9-Hq-t9A">
-                        <rect key="frame" x="0.0" y="0.0" width="440" height="884"/>
+                        <rect key="frame" x="0.0" y="0.0" width="440" height="894"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" text="attempts" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Lic-VG-QoS">
@@ -566,6 +566,7 @@
         </scene>
     </scenes>
     <inferredMetricsTieBreakers>
+        <segue reference="5Dg-mI-tR2"/>
         <segue reference="6gZ-qm-buQ"/>
         <segue reference="GKt-vI-IEd"/>
         <segue reference="vTf-Wq-VJa"/>
