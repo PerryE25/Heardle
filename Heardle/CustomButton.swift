@@ -3,18 +3,27 @@
 //  Heardle
 //
 //  Created by Ehimuh, Perry on 7/1/26.
+//  Project: Heardle
+//  Team Number: 3
+//  Team Members: Jeremiah Franklin, Victor Sanchez, Haroon Memon, Perry Ehimuh
+//  Course: CS371L
 //
 
 import UIKit
 
+// A custom button class to allow for circular buttons
+@IBDesignable
 class CustomButton: UIButton {
 
-    /*
-    // Only override draw() if you perform custom drawing.
-    // An empty implementation adversely affects performance during animation.
-    override func draw(_ rect: CGRect) {
-        // Drawing code
+    @IBInspectable var cornerRadius: CGFloat = 0 {
+        didSet {
+            layer.cornerRadius = cornerRadius
+        }
     }
-    */
+    
+    override func layoutSubviews() {
+        super.layoutSubviews()
+        layer.cornerRadius = cornerRadius
+    }
 
 }

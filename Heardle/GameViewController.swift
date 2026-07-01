@@ -15,7 +15,7 @@ class GameViewController: UIViewController {
 
     
     @IBOutlet weak var playButton: UIButton!
-    
+        
     // Add gradient with Sptofy's green
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -26,25 +26,31 @@ class GameViewController: UIViewController {
         gradient.colors = [UIColor.spotifyGreen.cgColor, UIColor.black.cgColor]
         gradient.locations = [0.0, 0.65]
         view.layer.insertSublayer(gradient, at: 0)
+        
+        playButton.layer.cornerRadius = playButton.bounds.height / 2
     }
     
     override func viewDidLayoutSubviews() {
         super.viewDidLayoutSubviews()
         
-        playButton.layer.cornerRadius = playButton.bounds.height / 2
+        let button = playButton as! CustomButton
+        var configuration = UIButton.Configuration.filled()
+        configuration.title = ""
+        configuration.baseBackgroundColor = .white
+        configuration.image = UIImage(systemName: "play.fill")
+        configuration.baseForegroundColor = .black
+        button.configuration = configuration
+        button.cornerRadius = button.bounds.height / 2
+
+        
     }
     
     // this is Perry's favorite screen :D
     
 
-    /*
-    // MARK: - Navigation
-
-    // In a storyboard-based application, you will often want to do a little preparation before navigation
-    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-        // Get the new view controller using segue.destination.
-        // Pass the selected object to the new view controller.
+    
+    @IBAction func playButtonPressed(_ sender: Any) {
+        print("playButton should work!")
     }
-    */
-
+    
 }
