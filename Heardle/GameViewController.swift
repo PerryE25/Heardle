@@ -9,6 +9,9 @@ import UIKit
 
 class GameViewController: UIViewController {
 
+    
+    @IBOutlet weak var playButton: UIButton!
+    
     // Add gradient with Sptofy's green
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -19,6 +22,12 @@ class GameViewController: UIViewController {
         gradient.colors = [UIColor.spotifyGreen.cgColor, UIColor.black.cgColor]
         gradient.locations = [0.0, 0.65]
         view.layer.insertSublayer(gradient, at: 0)
+    }
+    
+    override func viewDidLayoutSubviews() {
+        super.viewDidLayoutSubviews()
+        
+        playButton.layer.cornerRadius = playButton.bounds.height / 2
     }
     
     // this is Perry's favorite screen :D
