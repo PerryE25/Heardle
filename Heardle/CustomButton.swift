@@ -21,6 +21,12 @@ class CustomButton: UIButton {
         }
     }
     
+    @IBInspectable var borderColor: CGColor = UIColor.clear.cgColor {
+        didSet {
+            layer.borderColor = borderColor
+        }
+    }
+    
     override func layoutSubviews() {
         super.layoutSubviews()
         layer.cornerRadius = cornerRadius

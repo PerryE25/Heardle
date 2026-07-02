@@ -15,7 +15,10 @@ class GameViewController: UIViewController {
 
     
     @IBOutlet weak var playButton: UIButton!
-        
+    @IBOutlet weak var rulesButton: UIButton!
+    @IBOutlet weak var prevAttemptsButton: UIButton!
+    @IBOutlet weak var submitButton: UIButton!
+    
     // Add gradient with Sptofy's green
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -27,9 +30,15 @@ class GameViewController: UIViewController {
         gradient.locations = [0.0, 0.65]
         view.layer.insertSublayer(gradient, at: 0)
         
-        playButton.layer.cornerRadius = playButton.bounds.height / 2
+//        playButton.layer.cornerRadius = playButton.bounds.height / 2
+        
+        
     }
     
+    // configure playbutton to be a circle
+    // configure rules & attempt buttons to be glass like
+    // configure submit button to not be clicked if haven't
+    // picked song initally and capusle shaped
     override func viewDidLayoutSubviews() {
         super.viewDidLayoutSubviews()
         
@@ -42,7 +51,29 @@ class GameViewController: UIViewController {
         button.configuration = configuration
         button.cornerRadius = button.bounds.height / 2
 
+        let rulesButt = rulesButton as! CustomButton
+        configuration = UIButton.Configuration.clearGlass()
+        configuration.image = UIImage(systemName: "questionmark.circle.dashed")
+        configuration.baseForegroundColor = .white
+        configuration.baseBackgroundColor = .clear
+        rulesButt.configuration = configuration
+        let attemptsButton = prevAttemptsButton as! CustomButton
+        configuration = UIButton.Configuration.clearGlass()
+        configuration.baseForegroundColor = .white
+        configuration.title = "Attempt 0 / 6 "
+        configuration.image = UIImage(systemName: "info.circle")
+        configuration.imagePlacement = .trailing
+        attemptsButton.configuration = configuration
         
+        let submit = submitButton as! CustomButton
+        configuration = UIButton.Configuration.filled()
+        configuration.title = "SUBMIT"
+        configuration.cornerStyle = .capsule
+        submit.configuration = configuration
+        submit.titleLabel?.font = UIFont(name: "Arial Rounded MT Bold", size: 25.0)
+        submit.alpha = 0.20
+        submit.isUserInteractionEnabled = false
+        submit.cornerRadius = 50
     }
     
     // this is Perry's favorite screen :D
