@@ -65,20 +65,51 @@ class GameViewController: UIViewController {
         configuration.imagePlacement = .trailing
         attemptsButton.configuration = configuration
         
+        noGuessSubmitConfig()
+    }
+    
+    // Default submit button of unclickable and hard to see
+    private func noGuessSubmitConfig() {
         let submit = submitButton as! CustomButton
-        configuration = UIButton.Configuration.filled()
+        var configuration = UIButton.Configuration.filled()
         configuration.title = "SUBMIT"
+        configuration.baseBackgroundColor = .systemGray
         configuration.cornerStyle = .capsule
         submit.configuration = configuration
-        submit.titleLabel?.font = UIFont(name: "Arial Rounded MT Bold", size: 25.0)
+        submit.titleLabel?.font = UIFont(name: "Arial Rounded MT Bold", size: 20.0)
         submit.alpha = 0.20
         submit.isUserInteractionEnabled = false
         submit.cornerRadius = 50
     }
     
-    // this is Perry's favorite screen :D
+    // When guess is valid, make submit button clickable and green
+    private func validGuessSubmitConfig() {
+        let submit = submitButton as! CustomButton
+        var configuration = UIButton.Configuration.filled()
+        configuration.title = "SUBMIT"
+        configuration.baseBackgroundColor = .spotifyGreen
+        configuration.cornerStyle = .capsule
+        submit.configuration = configuration
+        submit.titleLabel?.font = UIFont(name: "Arial Rounded MT Bold", size: 20.0)
+        submit.alpha = 1.0
+        submit.isUserInteractionEnabled = true
+        submit.cornerRadius = 50
+    }
     
-
+    // Make submit button red and warn player that
+    // they already guessed this song
+    private func alreadyGuessSubmitConfig() {
+        let submit = submitButton as! CustomButton
+        var configuration = UIButton.Configuration.filled()
+        configuration.title = "ALREADY GUESSED"
+        configuration.baseBackgroundColor = .systemRed
+        configuration.cornerStyle = .capsule
+        submit.configuration = configuration
+        submit.titleLabel?.font = UIFont(name: "Arial Rounded MT Bold", size: 20.0)
+        submit.alpha = 1.0
+        submit.isUserInteractionEnabled = true
+        submit.cornerRadius = 50
+    }
     
     @IBAction func playButtonPressed(_ sender: Any) {
         print("playButton should work!")
