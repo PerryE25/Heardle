@@ -393,6 +393,9 @@
                                 <color key="tintColor" systemColor="systemBackgroundColor"/>
                                 <state key="normal" title="Button"/>
                                 <buttonConfiguration key="configuration" style="plain" image="forward.end" catalog="system"/>
+                                <connections>
+                                    <action selector="skipButtonPressed:" destination="q1k-Zy-Y3Z" eventType="touchUpInside" id="fpJ-LS-ecX"/>
+                                </connections>
                             </button>
                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="6Uf-Zl-47K" userLabel="Unlock Song Button">
                                 <rect key="frame" x="95" y="568" width="75" height="75"/>
@@ -506,6 +509,13 @@
                                     </segue>
                                 </connections>
                             </button>
+                            <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" ambiguous="YES" translatesAutoresizingMaskIntoConstraints="NO" id="9F5-O5-5tx">
+                                <rect key="frame" x="-22" y="120" width="482.66666666666663" height="362"/>
+                                <constraints>
+                                    <constraint firstAttribute="height" constant="362" id="06e-L1-rSw"/>
+                                    <constraint firstAttribute="width" constant="482.66666666666663" id="GqM-2P-V2r"/>
+                                </constraints>
+                            </imageView>
                         </subviews>
                         <viewLayoutGuide key="safeArea" id="efy-QW-tw7"/>
                         <constraints>
@@ -515,6 +525,7 @@
                             <constraint firstItem="k3h-V9-8MO" firstAttribute="top" secondItem="bB0-DB-3s7" secondAttribute="bottom" constant="8" symbolic="YES" id="5gX-3z-YYe"/>
                             <constraint firstItem="bB0-DB-3s7" firstAttribute="leading" secondItem="hM5-Re-5Wx" secondAttribute="leading" id="AXr-1S-lbU"/>
                             <constraint firstItem="bB0-DB-3s7" firstAttribute="centerX" secondItem="SZs-Ab-te7" secondAttribute="centerX" id="Aob-Io-4ei"/>
+                            <constraint firstItem="9F5-O5-5tx" firstAttribute="bottom" secondItem="Bgu-3D-u24" secondAttribute="bottom" id="B6Z-0B-CWC"/>
                             <constraint firstItem="9eB-VM-qbf" firstAttribute="leading" secondItem="efy-QW-tw7" secondAttribute="leading" constant="42" id="DN8-tk-dqZ"/>
                             <constraint firstItem="efy-QW-tw7" firstAttribute="bottom" secondItem="s19-Go-LBJ" secondAttribute="bottom" constant="32" id="Dgl-a8-ufi"/>
                             <constraint firstItem="9eB-VM-qbf" firstAttribute="top" secondItem="xfi-0K-wHl" secondAttribute="bottom" constant="18" id="EaJ-TH-i6t"/>
@@ -526,6 +537,8 @@
                             <constraint firstItem="6Uf-Zl-47K" firstAttribute="leading" secondItem="hJB-J1-uts" secondAttribute="trailing" constant="15" id="RFT-u6-sbD"/>
                             <constraint firstItem="bB0-DB-3s7" firstAttribute="top" secondItem="Bgu-3D-u24" secondAttribute="bottom" constant="51" id="TC4-XJ-jL4"/>
                             <constraint firstItem="k3h-V9-8MO" firstAttribute="leading" relation="greaterThanOrEqual" secondItem="feB-VX-A76" secondAttribute="trailing" constant="8" symbolic="YES" id="TM2-Xb-Gfs"/>
+                            <constraint firstItem="9F5-O5-5tx" firstAttribute="top" secondItem="Bgu-3D-u24" secondAttribute="top" id="TsI-ed-nC3"/>
+                            <constraint firstItem="9F5-O5-5tx" firstAttribute="leading" secondItem="SZs-Ab-te7" secondAttribute="leadingMargin" constant="-42" id="U07-ZQ-bdO"/>
                             <constraint firstItem="hM5-Re-5Wx" firstAttribute="leading" secondItem="efy-QW-tw7" secondAttribute="leading" constant="42" id="Wlg-C5-lCs"/>
                             <constraint firstItem="s19-Go-LBJ" firstAttribute="leading" secondItem="efy-QW-tw7" secondAttribute="leading" constant="42" id="XZK-Vo-sru"/>
                             <constraint firstItem="feB-VX-A76" firstAttribute="leading" secondItem="efy-QW-tw7" secondAttribute="leading" constant="44" id="Zwf-NN-9qw"/>
@@ -541,12 +554,16 @@
                             <constraint firstItem="2n5-c6-sle" firstAttribute="top" secondItem="bB0-DB-3s7" secondAttribute="bottom" constant="31" id="uQM-0j-B9D"/>
                             <constraint firstItem="G6i-u5-LtF" firstAttribute="top" secondItem="efy-QW-tw7" secondAttribute="top" constant="15" id="vfM-3d-Z1n"/>
                             <constraint firstItem="6Uf-Zl-47K" firstAttribute="leading" secondItem="efy-QW-tw7" secondAttribute="leading" constant="95" id="yqg-0E-jWz"/>
+                            <constraint firstItem="9F5-O5-5tx" firstAttribute="centerX" secondItem="SZs-Ab-te7" secondAttribute="centerX" id="zl8-9S-VBW"/>
                         </constraints>
                     </view>
                     <connections>
                         <outlet property="currentTime" destination="feB-VX-A76" id="ZYF-Z3-EN1"/>
                         <outlet property="maxTime" destination="k3h-V9-8MO" id="KTW-92-2aX"/>
                         <outlet property="mysteryAlbum" destination="Bgu-3D-u24" id="yqy-Vn-YjT"/>
+                        <outlet property="mysteryAlbumCenterXConstraint" destination="tb0-nP-hkH" id="bcG-fE-YZk"/>
+                        <outlet property="nextMysteryAlbum" destination="9F5-O5-5tx" id="Vj7-bE-Oeo"/>
+                        <outlet property="nextMysteryAlbumCenterXConstraint" destination="zl8-9S-VBW" id="e71-RJ-GAD"/>
                         <outlet property="playButton" destination="2n5-c6-sle" id="vzh-BO-LJL"/>
                         <outlet property="prevAttemptsButton" destination="G6i-u5-LtF" id="0Gv-sF-Aln"/>
                         <outlet property="progressBar" destination="bB0-DB-3s7" id="FRp-04-7sr"/>
@@ -598,7 +615,7 @@
             <objects>
                 <viewController id="ie4-nW-c44" customClass="WrongGuessViewController" customModule="Heardle" customModuleProvider="target" sceneMemberID="viewController">
                     <view key="view" contentMode="scaleToFill" id="FN6-W9-hbv">
-                        <rect key="frame" x="0.0" y="0.0" width="440" height="884"/>
+                        <rect key="frame" x="0.0" y="0.0" width="440" height="894"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" text="wrong guess" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="tOh-7w-X52">
@@ -743,6 +760,7 @@
         </scene>
     </scenes>
     <inferredMetricsTieBreakers>
+        <segue reference="5Dg-mI-tR2"/>
         <segue reference="6gZ-qm-buQ"/>
         <segue reference="GKt-vI-IEd"/>
         <segue reference="vTf-Wq-VJa"/>

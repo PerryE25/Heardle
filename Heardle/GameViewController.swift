@@ -18,6 +18,9 @@ class GameViewController: UIViewController, UISearchBarDelegate {
     @IBOutlet weak var prevAttemptsButton: UIButton!
     @IBOutlet weak var submitButton: UIButton!
     @IBOutlet weak var mysteryAlbum: UIImageView!
+    @IBOutlet weak var mysteryAlbumCenterXConstraint: NSLayoutConstraint!
+    @IBOutlet weak var nextMysteryAlbum: UIImageView!
+    @IBOutlet weak var nextMysteryAlbumCenterXConstraint: NSLayoutConstraint!
     @IBOutlet weak var progressBar: UIProgressView!
     @IBOutlet weak var currentTime: UILabel!
     @IBOutlet weak var maxTime: UILabel!
@@ -44,6 +47,22 @@ class GameViewController: UIViewController, UISearchBarDelegate {
         selectedSong.layer.cornerRadius = 10
         selectedSong.layer.sublayers?[0].cornerRadius = 10
         songSearchBar.delegate = self
+        
+        updateOffScreenAlbum()
+    }
+    
+    // make mystery album fade in
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        
+        // set the mystery albums initial alpha
+        nextMysteryAlbum.alpha = 0.0
+    }
+    
+    // make the next mystery album to be on right side of screen
+    func updateOffScreenAlbum() {
+        let screenWidth = view.frame.width
+        nextMysteryAlbumCenterXConstraint.constant = screenWidth
     }
     
     // Change play to pause and vice versa
@@ -53,6 +72,35 @@ class GameViewController: UIViewController, UISearchBarDelegate {
         } else {
             CustomButton.playButtonConfig(systemName: "play.fill", playButton)
         }
+    }
+    
+    
+    @IBAction func skipButtonPressed(_ sender: Any) {
+        view.layoutIfNeeded()
+        nextMysteryAlbum.image = mysteryAlbum.image
+        
+        // animate the alpha
+        // and the center x constraints
+        let screenWidth = view.frame.width
+        self.nextMysteryAlbumCenterXConstraint.constant = 0
+        self.mysteryAlbumCenterXConstraint.constant -= screenWidth
+        UIView.animate(
+            withDuration: 0.5,
+            delay: 0,
+            animations: {
+                self.mysteryAlbum.alpha = 0.0
+                self.nextMysteryAlbum.alpha = 1.0
+                
+                self.view.layoutIfNeeded()
+            },
+            completion: {_ in
+                swap(&self.mysteryAlbum,
+                     &self.nextMysteryAlbum)
+                swap(&self.mysteryAlbumCenterXConstraint, &self.nextMysteryAlbumCenterXConstraint)
+                
+                self.updateOffScreenAlbum()
+                
+        })
     }
     
     // When searched, remove keyboard, like textfield return pressed
