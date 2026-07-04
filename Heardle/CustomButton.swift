@@ -90,9 +90,7 @@ class CustomButton: UIButton {
     }
     
     // Make the play button config
-    static func playButtonConfig(systemName: String, _ playButton: UIButton) {
-        print("Setting button to \(systemName)")
-        
+    static func playButtonConfig(systemName: String, _ playButton: UIButton) {       
         let button = playButton as! CustomButton
         var configuration = UIButton.Configuration.filled()
         configuration.title = ""
