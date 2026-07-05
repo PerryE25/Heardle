@@ -15,10 +15,12 @@ import UIKit
 extension UIColor {
     
     // Spotify's green is #1DB954
-    class var spotifyGreen: UIColor {
-        let hexSpotifygreen = 0x1DB954
-        return UIColor.rgb(fromHex: hexSpotifygreen)
-    }
+    
+    // Done in Assets.xcassets
+    //class var spotifyGreen: UIColor {
+        //let hexSpotifygreen = 0x1DB954
+        //return UIColor.rgb(fromHex: hexSpotifygreen)
+    //}
     
     // Hex to RGB is #RRGGBB given the hex value,
     // return the rgb version of the color
