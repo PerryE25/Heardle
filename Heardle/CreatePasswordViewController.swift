@@ -13,10 +13,47 @@ import UIKit
 
 class CreatePasswordViewController: UIViewController {
 
+    @IBOutlet weak var passwordField: UITextField!
+    @IBOutlet weak var nextButton: UIButton!
+    let eyeButton = UIButton(type: .system)
+
     override func viewDidLoad() {
         super.viewDidLoad()
 
-        // Do any additional setup after loading the view.
+        passwordField.isSecureTextEntry = true
+        eyeButton.setImage(UIImage(systemName: "eye"), for: .normal)
+        eyeButton.tintColor = .white
+        eyeButton.sizeToFit()
+        eyeButton.addAction(UIAction(handler: togglePasswordAction), for: .touchUpInside)
+        passwordField.rightView = eyeButton
+        passwordField.rightViewMode = .always
+
+        nextButton.isEnabled = false
+
+    }
+
+    private func togglePasswordAction(_ action: UIAction) {
+        passwordField.isSecureTextEntry.toggle()
+        let symbol = passwordField.isSecureTextEntry ? "eye" : "eye.slash"
+        eyeButton.setImage(UIImage(systemName: symbol), for: .normal)
+    }
+
+    private func checkNextEnabled() {
+        let isValid = (passwordField.text?.count ?? 0) >= 8
+        nextButton.isEnabled = isValid ? true : false
+        nextButton.backgroundColor = isValid ? .spotifyGreen : .spotifyGrey
+        nextButton.titleLabel?.textColor = isValid ? .white : .black
+
+
+    }
+
+    @IBAction func passwordFieldEditingChanged(_ sender: UITextField) {
+        checkNextEnabled()
+    }
+
+    
+    @IBAction func nextButtonPressed(_ sender: Any) {
+        performSegue(withIdentifier: "passwordToHomeSegue", sender: nil)
     }
     
 

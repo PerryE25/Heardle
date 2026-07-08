@@ -6,6 +6,13 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXBuildFile section */
+		8A2198382FFC517400E60A9B /* FirebaseAuth in Frameworks */ = {isa = PBXBuildFile; productRef = 8A2198372FFC517400E60A9B /* FirebaseAuth */; };
+		8A21983A2FFC517400E60A9B /* FirebaseCore in Frameworks */ = {isa = PBXBuildFile; productRef = 8A2198392FFC517400E60A9B /* FirebaseCore */; };
+		8A21983C2FFC517400E60A9B /* FirebaseFirestore in Frameworks */ = {isa = PBXBuildFile; productRef = 8A21983B2FFC517400E60A9B /* FirebaseFirestore */; };
+		8A2198432FFC565E00E60A9B /* SpotifyLogin in Frameworks */ = {isa = PBXBuildFile; productRef = 8A2198422FFC565E00E60A9B /* SpotifyLogin */; };
+/* End PBXBuildFile section */
+
 /* Begin PBXFileReference section */
 		6C7CA3602FF351C90052676F /* Heardle.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Heardle.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
@@ -36,6 +43,10 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				8A21983A2FFC517400E60A9B /* FirebaseCore in Frameworks */,
+				8A2198382FFC517400E60A9B /* FirebaseAuth in Frameworks */,
+				8A21983C2FFC517400E60A9B /* FirebaseFirestore in Frameworks */,
+				8A2198432FFC565E00E60A9B /* SpotifyLogin in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -78,6 +89,10 @@
 			);
 			name = Heardle;
 			packageProductDependencies = (
+				8A2198372FFC517400E60A9B /* FirebaseAuth */,
+				8A2198392FFC517400E60A9B /* FirebaseCore */,
+				8A21983B2FFC517400E60A9B /* FirebaseFirestore */,
+				8A2198422FFC565E00E60A9B /* SpotifyLogin */,
 			);
 			productName = Heardle;
 			productReference = 6C7CA3602FF351C90052676F /* Heardle.app */;
@@ -107,6 +122,10 @@
 			);
 			mainGroup = 6C7CA3572FF351C90052676F;
 			minimizedProjectReferenceProxies = 1;
+			packageReferences = (
+				8A2198362FFC517400E60A9B /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */,
+				8A2198412FFC565E00E60A9B /* XCRemoteSwiftPackageReference "ios-auth" */,
+			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 6C7CA3612FF351C90052676F /* Products */;
 			projectDirPath = "";
@@ -345,6 +364,48 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		8A2198362FFC517400E60A9B /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/firebase/firebase-ios-sdk";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 12.15.0;
+			};
+		};
+		8A2198412FFC565E00E60A9B /* XCRemoteSwiftPackageReference "ios-auth" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/spotify/ios-auth.git";
+			requirement = {
+				branch = main;
+				kind = branch;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		8A2198372FFC517400E60A9B /* FirebaseAuth */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 8A2198362FFC517400E60A9B /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseAuth;
+		};
+		8A2198392FFC517400E60A9B /* FirebaseCore */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 8A2198362FFC517400E60A9B /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseCore;
+		};
+		8A21983B2FFC517400E60A9B /* FirebaseFirestore */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 8A2198362FFC517400E60A9B /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseFirestore;
+		};
+		8A2198422FFC565E00E60A9B /* SpotifyLogin */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 8A2198412FFC565E00E60A9B /* XCRemoteSwiftPackageReference "ios-auth" */;
+			productName = SpotifyLogin;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = 6C7CA3582FF351C90052676F /* Project object */;
 }
