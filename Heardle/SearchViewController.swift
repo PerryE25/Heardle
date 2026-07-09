@@ -60,9 +60,6 @@ class SearchViewController: UIViewController, UITableViewDelegate, UITableViewDa
         } catch { print(error) }
         
         cell.contentConfiguration = content
-        cell.imageView?.contentMode = .scaleAspectFit
-        cell.imageView?.frame.size = CGSize(width: 25, height: 25)
-        
         
         return cell
     }

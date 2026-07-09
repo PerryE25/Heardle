@@ -495,6 +495,9 @@
                                 <color key="tintColor" systemColor="systemBackgroundColor"/>
                                 <state key="normal" title="Button"/>
                                 <buttonConfiguration key="configuration" style="plain" image="music.note" catalog="system" title="+"/>
+                                <connections>
+                                    <action selector="unlockMore:" destination="q1k-Zy-Y3Z" eventType="touchUpInside" id="64F-nb-cul"/>
+                                </connections>
                             </button>
                             <button opaque="NO" userInteractionEnabled="NO" alpha="0.29999999999999999" contentMode="scaleToFill" ambiguous="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="gpc-Lh-qQI" customClass="CustomButton" customModule="Heardle" customModuleProvider="target">
                                 <rect key="frame" x="141.33333333333337" y="833" width="282" height="57"/>
@@ -507,8 +510,11 @@
                                 <buttonConfiguration key="configuration" style="filled" title="SUBMIT">
                                     <fontDescription key="titleFontDescription" name="ArialRoundedMTBold" family="Arial Rounded MT Bold" pointSize="25"/>
                                 </buttonConfiguration>
+                                <connections>
+                                    <action selector="submitGuess:" destination="q1k-Zy-Y3Z" eventType="touchUpInside" id="Z1F-KA-hRt"/>
+                                </connections>
                             </button>
-                            <view alpha="0.80000000000000004" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="9eB-VM-qbf">
+                            <view alpha="0.5" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="9eB-VM-qbf">
                                 <rect key="frame" x="42" y="671" width="382" height="69"/>
                                 <subviews>
                                     <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="music.note" catalog="system" translatesAutoresizingMaskIntoConstraints="NO" id="1jl-6H-8MO">
@@ -539,6 +545,9 @@
                                         <color key="tintColor" systemColor="systemGreenColor"/>
                                         <state key="normal" title="Button"/>
                                         <buttonConfiguration key="configuration" style="plain" image="xmark.circle" catalog="system"/>
+                                        <connections>
+                                            <action selector="dismissSelectedSong:" destination="q1k-Zy-Y3Z" eventType="touchUpInside" id="rN5-Vr-3Yj"/>
+                                        </connections>
                                     </button>
                                 </subviews>
                                 <color key="backgroundColor" systemColor="systemGrayColor"/>
@@ -566,7 +575,7 @@
                                 <state key="normal" title="Button"/>
                                 <buttonConfiguration key="configuration" style="plain" title="u win"/>
                                 <connections>
-                                    <segue destination="Cdx-EA-8HK" kind="presentation" identifier="EndGameToResultsSegueID" modalPresentationStyle="fullScreen" id="5Dg-mI-tR2"/>
+                                    <segue destination="Cdx-EA-8HK" kind="presentation" identifier="GameOverSegue" modalPresentationStyle="fullScreen" id="5Dg-mI-tR2"/>
                                 </connections>
                             </button>
                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="xfi-0K-wHl">
@@ -696,7 +705,7 @@
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                                 <color key="backgroundColor" systemColor="systemBackgroundColor"/>
                                 <prototypes>
-                                    <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" insetsLayoutMarginsFromSafeArea="NO" selectionStyle="blue" accessoryType="disclosureIndicator" hidesAccessoryWhenEditing="NO" indentationLevel="1" indentationWidth="0.0" textLabel="6In-9N-Xg9" detailTextLabel="ajJ-eF-5WG" imageView="YJf-n8-5I2" style="IBUITableViewCellStyleSubtitle" id="8e3-Xg-xuK">
+                                    <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" insetsLayoutMarginsFromSafeArea="NO" selectionStyle="blue" accessoryType="disclosureIndicator" hidesAccessoryWhenEditing="NO" indentationLevel="1" indentationWidth="0.0" reuseIdentifier="SongCell" textLabel="6In-9N-Xg9" detailTextLabel="ajJ-eF-5WG" imageView="YJf-n8-5I2" style="IBUITableViewCellStyleSubtitle" id="8e3-Xg-xuK">
                                         <rect key="frame" x="0.0" y="50" width="400" height="51"/>
                                         <autoresizingMask key="autoresizingMask"/>
                                         <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" insetsLayoutMarginsFromSafeArea="NO" tableViewCell="8e3-Xg-xuK" id="zR0-Rd-sKU">
@@ -738,7 +747,7 @@
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                                 <state key="normal" title="Button"/>
                                 <buttonConfiguration key="configuration" style="plain" title="Cancel">
-                                    <color key="baseForegroundColor" white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                    <color key="baseForegroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                 </buttonConfiguration>
                                 <connections>
                                     <action selector="onCancelButtonPressed:" destination="7xo-yk-pkO" eventType="touchUpInside" id="SNX-BF-xwf"/>

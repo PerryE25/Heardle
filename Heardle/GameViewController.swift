@@ -34,6 +34,15 @@ class GameViewController: UIViewController, SearchViewDelegate {
     @IBOutlet weak var searchView: SearchView!
     
     let searchSegueID = "SearchSongSegue"
+    var currentAttempts = 0 {
+        didSet {
+            prevAttemptsButton.setTitle("Attempt \(currentAttempts) / 6 ", for: .normal)
+            if self.currentAttempts == 6 {
+                performSegue(withIdentifier: "GameOverSegue", sender: self)
+            }
+        }
+    }
+    var prevGuesses: [Song] = []
     
     // MARK: - Song sample setup
     
@@ -64,16 +73,15 @@ class GameViewController: UIViewController, SearchViewDelegate {
             let data = try Data(contentsOf: fURL)
             
         } catch { print(error) }
+        
+        songs = []
+        prevGuesses = []
         let song2 = Song(name: "Thriller", artist: "Michael Jackson", album: "Thriller", audiuoURL: aUrl, albumArt: fURL)
         songs.append(song2)
         let song3 = Song(name: "Billie Jean", artist: "Michael Jackson", album: "Thriller", audiuoURL: bUrl, albumArt: gURL)
         songs.append(song3)
         let song1 = Song(name: "Beat It", artist: "Michael Jackson", album: "Thriller", audiuoURL: cUrl, albumArt: hURL)
         songs.append(song1)
-        
-        
-        
-        
         
 
         // Add gradient like on spotify's music player
@@ -83,6 +91,7 @@ class GameViewController: UIViewController, SearchViewDelegate {
         gradient.locations = [0.0, 0.65]
         view.layer.insertSublayer(gradient, at: 0)
         
+        currentAttempts = 0
         CustomButton.playButtonConfig(systemName: "play.fill", playButton)
         CustomButton.noGuessSubmitConfig(submitButton)
         CustomButton.rulesButtonConfig(rulesButton)
@@ -100,7 +109,14 @@ class GameViewController: UIViewController, SearchViewDelegate {
         
         // set the mystery albums initial alpha
         nextMysteryAlbum.alpha = 0.0
+        showSelectedSearch()
+    }
+    
+    // Show the selected search and update submit button accordingly
+    // submit can be not present or valid or already guessed
+    private func showSelectedSearch() {
         if let chosenSong = selectedSearch {
+            selectedSong.alpha = 1
             selectedSong.subviews[3].isHidden = false
             let songLabel = selectedSong.subviews[1] as! UILabel
             songLabel.text = chosenSong.name
@@ -112,7 +128,22 @@ class GameViewController: UIViewController, SearchViewDelegate {
                 let img = UIImage(data: data)
                 imageView.image = img
             } catch { print(error) }
+            if prevGuesses.contains(chosenSong) {
+                CustomButton.alreadyGuessSubmitConfig(submitButton)
+            } else {
+                CustomButton.validGuessSubmitConfig(submitButton)
+            }
             
+        } else {
+            selectedSong.alpha = 0.35
+            selectedSong.subviews[3].isHidden = true
+            let songLabel = selectedSong.subviews[1] as! UILabel
+            songLabel.text = "Song Name"
+            let albumLabel = selectedSong.subviews[2] as! UILabel
+            albumLabel.text = "Artist"
+            let imageView = selectedSong.subviews[0] as! UIImageView
+            imageView.image = UIImage(systemName: "music.note")
+            CustomButton.noGuessSubmitConfig(submitButton)
         }
     }
     
@@ -191,6 +222,12 @@ class GameViewController: UIViewController, SearchViewDelegate {
         nextMysteryAlbumCenterXConstraint.constant = screenWidth
     }
     
+    
+    @IBAction func unlockMore(_ sender: Any) {
+        currentAttempts += 1
+    }
+    
+    
     // Change play to pause and vice versa
     @IBAction func playButtonPressed(_ sender: Any) {
         // Pass this fileURL into your framework / function
@@ -226,6 +263,9 @@ class GameViewController: UIViewController, SearchViewDelegate {
     
     @IBAction func skipButtonPressed(_ sender: Any) {
         view.layoutIfNeeded()
+        currentAttempts = 0
+        selectedSearch = nil
+        showSelectedSearch()
         songIdx = (songIdx + 1) % songs.count
         
         
@@ -252,6 +292,25 @@ class GameViewController: UIViewController, SearchViewDelegate {
                 
         })
         setupAudioPlayer(song: songs[songIdx])
+    }
+    
+    
+    @IBAction func submitGuess(_ sender: Any) {
+        if let answer = selectedSearch {
+            prevGuesses.append(answer)
+            if answer == songs[songIdx] {
+                performSegue(withIdentifier: "GameOverSegue", sender: self)
+            }
+        }
+        currentAttempts += 1
+        selectedSearch = nil
+        showSelectedSearch()
+        
+    }
+    
+    @IBAction func dismissSelectedSong(_ sender: Any) {
+        selectedSearch = nil
+        showSelectedSearch()
     }
     
 }
