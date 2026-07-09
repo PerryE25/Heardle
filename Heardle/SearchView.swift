@@ -7,14 +7,22 @@
 
 import UIKit
 
+protocol SearchViewDelegate: AnyObject {
+    func searchViewDidTapSearch(_ searchView: SearchView)
+}
+
 class SearchView: UIView {
 
-    /*
-    // Only override draw() if you perform custom drawing.
-    // An empty implementation adversely affects performance during animation.
-    override func draw(_ rect: CGRect) {
-        // Drawing code
+    weak var delegate: SearchViewDelegate?
+    
+    override func awakeFromNib() {
+        super.awakeFromNib()
+        
+        let tap = UITapGestureRecognizer(target: self, action: #selector(didTapSearch))
+        addGestureRecognizer(tap)
     }
-    */
 
+    @objc private func didTapSearch() {
+        delegate?.searchViewDidTapSearch(self)
+    }
 }

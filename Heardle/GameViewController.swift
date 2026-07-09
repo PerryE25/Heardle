@@ -12,9 +12,11 @@
 import UIKit
 import AVFoundation
 
-// A Game screen for playing one Heardle round
-class GameViewController: UIViewController, UISearchBarDelegate {
+var songs: [Song] = []
 
+// A Game screen for playing one Heardle round
+class GameViewController: UIViewController, SearchViewDelegate {
+    
     @IBOutlet weak var playButton: UIButton!
     @IBOutlet weak var rulesButton: UIButton!
     @IBOutlet weak var prevAttemptsButton: UIButton!
@@ -29,10 +31,12 @@ class GameViewController: UIViewController, UISearchBarDelegate {
     @IBOutlet weak var unlockSongButton: UIButton!
     @IBOutlet weak var skipSongButton: UIButton!
     @IBOutlet weak var selectedSong: UIView!
-    @IBOutlet weak var songSearchBar: UISearchBar!
+    @IBOutlet weak var searchView: SearchView!
+    
+    let searchSegueID = "SearchSongSegue"
     
     // MARK: - Song sample setup
-    var songs: [Song] = []
+    
     var songIdx = 0
     
     
@@ -44,9 +48,9 @@ class GameViewController: UIViewController, UISearchBarDelegate {
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        guard var aUrl = Bundle.main.url(forResource: "thriller_song", withExtension: "mp3") else { return }
-        guard var bUrl = Bundle.main.url(forResource: "billie_jean_song", withExtension: "mp3") else { return }
-        guard var cUrl = Bundle.main.url(forResource: "beat_it_song", withExtension: "mp3") else { return }
+        guard let aUrl = Bundle.main.url(forResource: "thriller_song", withExtension: "mp3") else { return }
+        guard let bUrl = Bundle.main.url(forResource: "billie_jean_song", withExtension: "mp3") else { return }
+        guard let cUrl = Bundle.main.url(forResource: "beat_it_song", withExtension: "mp3") else { return }
         guard let fURL = getLocalImageURL(named: "thriller") else {
             return
         }
@@ -60,11 +64,11 @@ class GameViewController: UIViewController, UISearchBarDelegate {
             let data = try Data(contentsOf: fURL)
             
         } catch { print(error) }
-        var song2 = Song(name: "Thriller", artist: "Michael Jackson", album: "Thriller", audiuoURL: aUrl, albumArt: fURL)
+        let song2 = Song(name: "Thriller", artist: "Michael Jackson", album: "Thriller", audiuoURL: aUrl, albumArt: fURL)
         songs.append(song2)
-        var song3 = Song(name: "Billie Jean", artist: "Michael Jackson", album: "Thriller", audiuoURL: bUrl, albumArt: gURL)
+        let song3 = Song(name: "Billie Jean", artist: "Michael Jackson", album: "Thriller", audiuoURL: bUrl, albumArt: gURL)
         songs.append(song3)
-        var song1 = Song(name: "Beat It", artist: "Michael Jackson", album: "Thriller", audiuoURL: cUrl, albumArt: hURL)
+        let song1 = Song(name: "Beat It", artist: "Michael Jackson", album: "Thriller", audiuoURL: cUrl, albumArt: hURL)
         songs.append(song1)
         
         
@@ -85,8 +89,7 @@ class GameViewController: UIViewController, UISearchBarDelegate {
         CustomButton.configPrevAttemptButton(prevAttemptsButton)
         selectedSong.layer.cornerRadius = 10
         selectedSong.layer.sublayers?[0].cornerRadius = 10
-        songSearchBar.delegate = self
-        
+        searchView.delegate = self
         updateOffScreenAlbum()
         setupAudioPlayer(song: songs[songIdx])
     }
@@ -97,6 +100,20 @@ class GameViewController: UIViewController, UISearchBarDelegate {
         
         // set the mystery albums initial alpha
         nextMysteryAlbum.alpha = 0.0
+        if let chosenSong = selectedSearch {
+            selectedSong.subviews[3].isHidden = false
+            let songLabel = selectedSong.subviews[1] as! UILabel
+            songLabel.text = chosenSong.name
+            let albumLabel = selectedSong.subviews[2] as! UILabel
+            albumLabel.text = "\(chosenSong.artist)"
+            let imageView = selectedSong.subviews[0] as! UIImageView
+            do {
+                let data = try Data(contentsOf: chosenSong.albumArt)
+                let img = UIImage(data: data)
+                imageView.image = img
+            } catch { print(error) }
+            
+        }
     }
     
     deinit {
@@ -106,6 +123,13 @@ class GameViewController: UIViewController, UISearchBarDelegate {
                 timeObserverToken = nil
             }
         }
+    
+    // Will search after pressing this button
+    func searchViewDidTapSearch(_ searchView: SearchView) {
+//        let searchVC = SearchViewController()
+//        navigationController?.pushViewController(searchVC, animated: true)
+        performSegue(withIdentifier: searchSegueID, sender: self)
+    }
     
     func setupAudioPlayer(song: Song) {
         
@@ -230,13 +254,4 @@ class GameViewController: UIViewController, UISearchBarDelegate {
         setupAudioPlayer(song: songs[songIdx])
     }
     
-    // When searched, remove keyboard, like textfield return pressed
-    func searchBarSearchButtonClicked(_ searchBar: UISearchBar) {
-        searchBar.resignFirstResponder()
-    }
-    
-    // Touch outside of keyboard and keyboard is removed
-    override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
-        view.endEditing(true)
-    }
 }
