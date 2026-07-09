@@ -30,3 +30,11 @@ class Song {
         self.albumArt = albumArt
     }
 }
+
+// Like the Java Comparator interface for equating two objects
+extension Song : Equatable {
+    static func == (lhs: Song, rhs: Song) -> Bool {
+        // two songs are the same if they have the same name/artist
+        return lhs.name.lowercased() == rhs.name.lowercased() && lhs.artist.lowercased() == rhs.artist.lowercased()
+    }
+}

@@ -12,6 +12,7 @@
 import UIKit
 import AVFoundation
 
+// A Game screen for playing one Heardle round
 class GameViewController: UIViewController, UISearchBarDelegate {
 
     @IBOutlet weak var playButton: UIButton!
