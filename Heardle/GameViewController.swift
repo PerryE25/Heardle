@@ -57,31 +57,94 @@ class GameViewController: UIViewController, SearchViewDelegate {
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        guard let aUrl = Bundle.main.url(forResource: "thriller_song", withExtension: "mp3") else { return }
-        guard let bUrl = Bundle.main.url(forResource: "billie_jean_song", withExtension: "mp3") else { return }
-        guard let cUrl = Bundle.main.url(forResource: "beat_it_song", withExtension: "mp3") else { return }
-        guard let fURL = getLocalImageURL(named: "thriller") else {
-            return
-        }
-        guard let gURL = getLocalImageURL(named: "billie_jean") else {
-            return
-        }
-        guard let hURL = getLocalImageURL(named: "beat_it") else {
-            return
-        }
-        do {
-            let data = try Data(contentsOf: fURL)
-            
-        } catch { print(error) }
-        
+        guard let thrillerURL = Bundle.main.url(forResource: "thriller_song", withExtension: "mp3") else { return }
+        guard let billieJeanURL = Bundle.main.url(forResource: "billie_jean_song", withExtension: "mp3") else { return }
+        guard let beatItURL = Bundle.main.url(forResource: "beat_it_song", withExtension: "mp3") else { return }
+        guard let uptownFunkURL = Bundle.main.url(forResource: "uptown_funk", withExtension: "mp3") else { return }
+        guard let haloURL = Bundle.main.url(forResource: "halo", withExtension: "mp3") else { return }
+        guard let blindingLightsURL = Bundle.main.url(forResource: "blinding_lights", withExtension: "mp3") else { return }
+        guard let sunflowerURL = Bundle.main.url(forResource: "sunflower", withExtension: "mp3") else { return }
+
+        guard let thrillerArt = getLocalImageURL(named: "thriller") else { return }
+        guard let billieJeanArt = getLocalImageURL(named: "billie_jean") else { return }
+        guard let beatItArt = getLocalImageURL(named: "beat_it") else { return }
+        guard let uptownFunkArt = getLocalImageURL(named: "uptown_funk") else { return }
+        guard let haloArt = getLocalImageURL(named: "halo") else { return }
+        guard let blindingLightsArt = getLocalImageURL(named: "blinding_lights") else { return }
+        guard let sunflowerArt = getLocalImageURL(named: "sunflower") else { return }
+
         songs = []
         prevGuesses = []
-        let song2 = Song(name: "Thriller", artist: "Michael Jackson", album: "Thriller", audiuoURL: aUrl, albumArt: fURL)
-        songs.append(song2)
-        let song3 = Song(name: "Billie Jean", artist: "Michael Jackson", album: "Thriller", audiuoURL: bUrl, albumArt: gURL)
-        songs.append(song3)
-        let song1 = Song(name: "Beat It", artist: "Michael Jackson", album: "Thriller", audiuoURL: cUrl, albumArt: hURL)
-        songs.append(song1)
+
+        songs.append(
+            Song(
+                name: "Thriller",
+                artist: "Michael Jackson",
+                album: "Thriller",
+                audiuoURL: thrillerURL,
+                albumArt: thrillerArt
+            )
+        )
+
+        songs.append(
+            Song(
+                name: "Billie Jean",
+                artist: "Michael Jackson",
+                album: "Thriller",
+                audiuoURL: billieJeanURL,
+                albumArt: billieJeanArt
+            )
+        )
+
+        songs.append(
+            Song(
+                name: "Beat It",
+                artist: "Michael Jackson",
+                album: "Thriller",
+                audiuoURL: beatItURL,
+                albumArt: beatItArt
+            )
+        )
+
+        songs.append(
+            Song(
+                name: "Uptown Funk",
+                artist: "Mark Ronson ft. Bruno Mars",
+                album: "Uptown Special",
+                audiuoURL: uptownFunkURL,
+                albumArt: uptownFunkArt
+            )
+        )
+
+        songs.append(
+            Song(
+                name: "Halo",
+                artist: "Beyoncé",
+                album: "I Am... Sasha Fierce",
+                audiuoURL: haloURL,
+                albumArt: haloArt
+            )
+        )
+
+        songs.append(
+            Song(
+                name: "Blinding Lights",
+                artist: "The Weeknd",
+                album: "After Hours",
+                audiuoURL: blindingLightsURL,
+                albumArt: blindingLightsArt
+            )
+        )
+
+        songs.append(
+            Song(
+                name: "Sunflower",
+                artist: "Post Malone & Swae Lee",
+                album: "Spider-Man: Into the Spider-Verse",
+                audiuoURL: sunflowerURL,
+                albumArt: sunflowerArt
+            )
+        )
         
 
         // Add gradient like on spotify's music player
