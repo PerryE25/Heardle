@@ -32,6 +32,17 @@ class GameViewController: UIViewController, SearchViewDelegate {
     @IBOutlet weak var skipSongButton: UIButton!
     @IBOutlet weak var selectedSong: UIView!
     @IBOutlet weak var searchView: SearchView!
+    @IBOutlet weak var unlockPopup: UIView!
+    @IBOutlet weak var unlockImage: UIImageView!
+    @IBOutlet weak var unlockLabel: UILabel!
+    
+    // based on which attempt you're on is max
+    // song time you can listen to
+    let songTimes = [1, 2, 4, 7, 11, 16]
+
+    var currentMaxTime: Int {
+        songTimes[min(currentAttempts, songTimes.count - 1)]
+    }
     
     let searchSegueID = "SearchSongSegue"
     var currentAttempts = 0 {
@@ -154,6 +165,12 @@ class GameViewController: UIViewController, SearchViewDelegate {
         gradient.locations = [0.0, 0.65]
         view.layer.insertSublayer(gradient, at: 0)
         
+        // edit popup
+        unlockPopup.transform = CGAffineTransform(scaleX: 0.1, y: 0.1)    // start small
+        unlockPopup.alpha = 0.0   // start invisible
+        unlockPopup.layer.cornerRadius = 15
+        unlockLabel.alpha = 0.0
+        
         currentAttempts = 0
         CustomButton.playButtonConfig(systemName: "play.fill", playButton)
         CustomButton.noGuessSubmitConfig(submitButton)
@@ -173,6 +190,52 @@ class GameViewController: UIViewController, SearchViewDelegate {
         // set the mystery albums initial alpha
         nextMysteryAlbum.alpha = 0.0
         showSelectedSearch()
+    }
+    
+    func displayPopup() {
+        guard currentAttempts < 6 else { return }
+        let addedTime = songTimes[currentAttempts] - songTimes[currentAttempts - 1]
+        unlockLabel.text = "+\(addedTime)s unlocked!"
+        
+        // show popup
+        UIView.animate(withDuration: 0.25, animations: {
+            self.unlockPopup.transform = CGAffineTransform(scaleX: 1.0, y: 1.0)
+            self.unlockPopup.alpha = 1.0
+            self.unlockImage.alpha = 1.0
+            self.unlockLabel.textColor = .white
+            self.unlockImage.image = UIImage(systemName: "lock")?.withTintColor(.white, renderingMode: .alwaysOriginal)
+            
+        }) { _ in
+            
+            let animation = CABasicAnimation(keyPath: "position")
+            animation.duration = 0.05
+            animation.repeatCount = 2
+            animation.autoreverses = true
+            animation.fromValue = NSValue(cgPoint: CGPoint(x: self.unlockImage.center.x - 5, y: self.unlockImage.center.y))
+            animation.toValue = NSValue(cgPoint: CGPoint(x: self.unlockImage.center.x + 5, y: self.unlockImage.center.y))
+            self.unlockImage.layer.add(animation, forKey: "position")
+            
+            // Wait until the shake finishes
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.4) {
+                
+                UIView.animate(withDuration: 0.3, animations: {
+                    self.unlockImage.image = UIImage(systemName: "lock.open.fill")?
+                        .withTintColor(.spotifyGreen, renderingMode: .alwaysOriginal)
+                    self.unlockLabel.alpha = 1
+                    self.unlockLabel.textColor = .spotifyGreen
+                }) { _ in
+                    
+                    // Pause so the user can see it
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.7) {
+                        
+                        UIView.animate(withDuration: 0.3) {
+                            self.unlockPopup.alpha = 0
+                            self.unlockPopup.transform = CGAffineTransform(scaleX: 0.1, y: 0.1)
+                        }
+                    }
+                }
+            }
+        }
     }
     
     // Show the selected search and update submit button accordingly
@@ -262,6 +325,7 @@ class GameViewController: UIViewController, SearchViewDelegate {
     func addPlaybackObserver() {
             guard let player = player else { return }
             
+        
             // Observe time every 0.5 seconds
             let interval = CMTime(value: 1, timescale: 2) // 0.5 seconds
             
@@ -277,13 +341,23 @@ class GameViewController: UIViewController, SearchViewDelegate {
                 // Get current playback time in seconds
                 let currentTimeSeconds = CMTimeGetSeconds(time)
                 currentTime.text = String(format: "%02d:%02d", Int(currentTimeSeconds/60), Int(currentTimeSeconds.truncatingRemainder(dividingBy: 60)))
-//                if currentTimeSeconds >= 16 {
-//                    player.pause()
-//                }
-                maxTime.text = String(format: "%02d:%02d", Int(durationSeconds/60), Int(durationSeconds.truncatingRemainder(dividingBy: 60)))
                 
+                // stop at max time like game play
+                if Int(currentTimeSeconds) >= currentMaxTime {
+                    CustomButton.playButtonConfig(systemName: "play.fill", playButton)
+                    player.pause()
+                    player.seek(to: .zero)
+
+                    progressBar.setProgress(0, animated: false)
+                    progressBar.progress = 0.0
+                    currentTime.text = "00:00"
+                }
+                
+//                maxTime.text = "String(format: "%02d:%02d", Int(durationSeconds/60), Int(durationSeconds.truncatingRemainder(dividingBy: 60)))"
+                maxTime.text = String(format: "00:%02d", currentMaxTime)
+                let max = Float64(truncating: currentMaxTime as NSNumber)
                 // Calculate progress (Current Time / Total Duration)
-                let progress = Float(currentTimeSeconds / durationSeconds)
+                let progress = Float(currentTimeSeconds / max)
                 
                 // Update UIProgressView
                 self.progressBar.setProgress(progress, animated: true)
@@ -299,6 +373,7 @@ class GameViewController: UIViewController, SearchViewDelegate {
     
     @IBAction func unlockMore(_ sender: Any) {
         currentAttempts += 1
+        displayPopup()
     }
     
     
@@ -342,7 +417,8 @@ class GameViewController: UIViewController, SearchViewDelegate {
         showSelectedSearch()
         songIdx = (songIdx + 1) % songs.count
         
-        
+        progressBar.progress = 0
+        currentTime.text = "0:00"
         // animate the alpha
         // and the center x constraints
         let screenWidth = view.frame.width

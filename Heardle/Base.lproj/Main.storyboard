@@ -616,6 +616,25 @@
                                 </subviews>
                                 <color key="backgroundColor" systemColor="systemBackgroundColor"/>
                             </view>
+                            <view contentMode="scaleToFill" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="O3p-m8-v11" userLabel="Unlock Popup View">
+                                <rect key="frame" x="55" y="378" width="353" height="232"/>
+                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                <subviews>
+                                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" text="+4s unlocked!" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="RUi-r4-wxz">
+                                        <rect key="frame" x="58" y="166" width="236" height="52"/>
+                                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                        <fontDescription key="fontDescription" name="NotoSansKannada-Regular" family="Noto Sans Kannada" pointSize="38"/>
+                                        <color key="textColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                        <nil key="highlightedColor"/>
+                                    </label>
+                                    <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" image="lock" catalog="system" translatesAutoresizingMaskIntoConstraints="NO" id="vp7-33-Oxj">
+                                        <rect key="frame" x="70" y="42" width="212" height="115"/>
+                                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                        <color key="tintColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                    </imageView>
+                                </subviews>
+                                <color key="backgroundColor" name="SpotifyGrey"/>
+                            </view>
                         </subviews>
                         <viewLayoutGuide key="safeArea" id="efy-QW-tw7"/>
                         <constraints>
@@ -674,6 +693,9 @@
                         <outlet property="selectedSong" destination="9eB-VM-qbf" id="8Yr-Mj-YpY"/>
                         <outlet property="skipSongButton" destination="nOf-Xh-jE9" id="oBw-Wt-orP"/>
                         <outlet property="submitButton" destination="gpc-Lh-qQI" id="xcY-Nd-Gne"/>
+                        <outlet property="unlockImage" destination="vp7-33-Oxj" id="pvg-ay-J3M"/>
+                        <outlet property="unlockLabel" destination="RUi-r4-wxz" id="AHF-ai-G4N"/>
+                        <outlet property="unlockPopup" destination="O3p-m8-v11" id="fAb-Dh-15C"/>
                         <outlet property="unlockSongButton" destination="6Uf-Zl-47K" id="WoH-rI-Rc3"/>
                         <segue destination="7xo-yk-pkO" kind="presentation" identifier="SearchSongSegue" modalPresentationStyle="fullScreen" id="0hg-VK-OZt"/>
                     </connections>
@@ -772,7 +794,7 @@
             <objects>
                 <viewController id="IXp-DI-Sma" customClass="RulesViewController" customModule="Heardle" customModuleProvider="target" sceneMemberID="viewController">
                     <view key="view" contentMode="scaleToFill" id="Frl-9n-gxZ">
-                        <rect key="frame" x="0.0" y="0.0" width="440" height="884"/>
+                        <rect key="frame" x="0.0" y="0.0" width="440" height="894"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" text="rules" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="7CM-3g-ZtE">
@@ -803,7 +825,7 @@
             <objects>
                 <viewController id="ie4-nW-c44" customClass="WrongGuessViewController" customModule="Heardle" customModuleProvider="target" sceneMemberID="viewController">
                     <view key="view" contentMode="scaleToFill" id="FN6-W9-hbv">
-                        <rect key="frame" x="0.0" y="0.0" width="440" height="884"/>
+                        <rect key="frame" x="0.0" y="0.0" width="440" height="894"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" text="wrong guess" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="tOh-7w-X52">
@@ -834,7 +856,7 @@
             <objects>
                 <viewController id="W5u-df-bDa" customClass="PreviousAttemptsViewController" customModule="Heardle" customModuleProvider="target" sceneMemberID="viewController">
                     <view key="view" contentMode="scaleToFill" id="CY9-Hq-t9A">
-                        <rect key="frame" x="0.0" y="0.0" width="440" height="884"/>
+                        <rect key="frame" x="0.0" y="0.0" width="440" height="894"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" text="attempts" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Lic-VG-QoS">
@@ -1076,6 +1098,7 @@
         </scene>
     </scenes>
     <inferredMetricsTieBreakers>
+        <segue reference="5Dg-mI-tR2"/>
         <segue reference="GKt-vI-IEd"/>
         <segue reference="K3Q-8M-PM7"/>
         <segue reference="3vW-iT-aCE"/>
@@ -1092,6 +1115,7 @@
         <image name="forward.end" catalog="system" width="128" height="112"/>
         <image name="house" catalog="system" width="128" height="104"/>
         <image name="info.circle" catalog="system" width="128" height="123"/>
+        <image name="lock" catalog="system" width="111" height="128"/>
         <image name="magnifyingglass" catalog="system" width="128" height="117"/>
         <image name="music.note" catalog="system" width="96" height="128"/>
         <image name="play.fill" catalog="system" width="120" height="128"/>
