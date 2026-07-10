@@ -12,14 +12,19 @@
 import UIKit
 
 class RulesViewController: UIViewController {
-
+    @IBOutlet weak var miniView: UIView!
+    
     override func viewDidLoad() {
+        miniView.layer.cornerRadius = 30
         super.viewDidLoad()
 
         // Do any additional setup after loading the view.
     }
     
-
+    @IBAction func returnToPrevious(_ sender: Any) {
+        self.dismiss(animated: true)
+    }
+    
     /*
     // MARK: - Navigation
 
