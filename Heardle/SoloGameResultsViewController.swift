@@ -10,6 +10,7 @@
 //
 
 import UIKit
+import AVFoundation
 
 class SoloGameResultsViewController: UIViewController {
 
@@ -17,14 +18,46 @@ class SoloGameResultsViewController: UIViewController {
     @IBOutlet weak var continueButton: UIButton!
     @IBOutlet weak var solvedAmountLabel: UILabel!
     @IBOutlet weak var solvedSecondsLabel: UILabel!
+    @IBOutlet weak var songNameLabel: UILabel!
+    @IBOutlet weak var songAuthorLabel: UILabel!
+    @IBOutlet weak var songSmallImage: UIImageView!
+    @IBOutlet weak var playButton: UIButton!
     
+    var audioPlayer: AVAudioPlayer?
     var progressBlocks: [UIView] = []
     let currentTries = 2
     let totalTries = 6
     var amountOfSecondsInTry = 1
+    var currentSong: Song? = nil
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        currentSong = songs[0]
+        
+        if let url = currentSong?.audiuoURL {
+            audioPlayer = try? AVAudioPlayer(contentsOf: url)
+            audioPlayer?.prepareToPlay()
+        }
+        songNameLabel.text = currentSong?.name
+        songAuthorLabel.text = currentSong?.artist
+        if let url = currentSong?.albumArt, let data = try? Data(contentsOf: url) {
+            songSmallImage.image = UIImage(data: data)
+        }
+        playButton.configurationUpdateHandler = { button in
+            button.configuration?.background.backgroundColor = .clear
+            if button.isSelected {
+                UIView.performWithoutAnimation {
+                    button.configuration?.image = UIImage(systemName: "pause")
+                }
+                
+
+            }
+            else {
+                UIView.performWithoutAnimation {
+                    button.configuration?.image = UIImage(systemName: "play")
+                }
+            }
+        }
     }
     
     override func viewWillAppear(_ animated: Bool) {
@@ -43,6 +76,18 @@ class SoloGameResultsViewController: UIViewController {
         startButtonAnimation()
     }
     
+    @IBAction func playButtonButtonPressed(_ sender: Any) {
+        UIView.performWithoutAnimation {
+            playButton.isSelected.toggle()
+        }
+        if playButton.isSelected {
+            audioPlayer?.play()
+            print(currentSong?.audiuoURL.absoluteString ?? "test")
+        }
+        else{
+            audioPlayer?.stop()
+        }
+    }
     func startButtonAnimation() {
         UIView.animate(
             withDuration: 1.5,
