@@ -218,6 +218,17 @@ class GameViewController: UIViewController, SearchViewDelegate {
             }
         }
     
+    // Error shake animation when guess wrong
+    func shake() {
+        let animation = CABasicAnimation(keyPath: "position")
+        animation.duration = 0.07
+        animation.repeatCount = 4
+        animation.autoreverses = true
+        animation.fromValue = NSValue(cgPoint: CGPoint(x: mysteryAlbum.center.x - 10, y: mysteryAlbum.center.y))
+        animation.toValue = NSValue(cgPoint: CGPoint(x: mysteryAlbum.center.x + 10, y: mysteryAlbum.center.y))
+        mysteryAlbum.layer.add(animation, forKey: "position")
+    }
+    
     // Will search after pressing this button
     func searchViewDidTapSearch(_ searchView: SearchView) {
 //        let searchVC = SearchViewController()
@@ -363,6 +374,8 @@ class GameViewController: UIViewController, SearchViewDelegate {
             prevGuesses.append(answer)
             if answer == songs[songIdx] {
                 performSegue(withIdentifier: "GameOverSegue", sender: self)
+            } else {
+                shake()
             }
         }
         currentAttempts += 1
