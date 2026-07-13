@@ -11,15 +11,19 @@
 
 import UIKit
 
+// A delegate protocol for responding to taps on the search view.
 protocol SearchViewDelegate: AnyObject {
+    
+    // Called when the user taps the search view.
     func searchViewDidTapSearch(_ searchView: SearchView)
 }
 
-// A custom view where I can allow segues to full-screen search bar VCs
+// A custom view that detects taps and notifies its delegate to present the full-screen search interface.
 class SearchView: UIView {
 
     weak var delegate: SearchViewDelegate?
     
+    // Adds a tap gesture recognizer after the view is loaded from the storyboard.
     override func awakeFromNib() {
         super.awakeFromNib()
         
@@ -27,6 +31,7 @@ class SearchView: UIView {
         addGestureRecognizer(tap)
     }
 
+    // Notifies the delegate when the search view is tapped.
     @objc private func didTapSearch() {
         delegate?.searchViewDidTapSearch(self)
     }

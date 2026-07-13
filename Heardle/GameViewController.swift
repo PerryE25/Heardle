@@ -92,7 +92,7 @@ class GameViewController: UIViewController, SearchViewDelegate {
                 name: "Thriller",
                 artist: "Michael Jackson",
                 album: "Thriller",
-                audiuoURL: thrillerURL,
+                audioURL: thrillerURL,
                 albumArt: thrillerArt
             )
         )
@@ -102,7 +102,7 @@ class GameViewController: UIViewController, SearchViewDelegate {
                 name: "Billie Jean",
                 artist: "Michael Jackson",
                 album: "Thriller",
-                audiuoURL: billieJeanURL,
+                audioURL: billieJeanURL,
                 albumArt: billieJeanArt
             )
         )
@@ -112,7 +112,7 @@ class GameViewController: UIViewController, SearchViewDelegate {
                 name: "Beat It",
                 artist: "Michael Jackson",
                 album: "Thriller",
-                audiuoURL: beatItURL,
+                audioURL: beatItURL,
                 albumArt: beatItArt
             )
         )
@@ -122,7 +122,7 @@ class GameViewController: UIViewController, SearchViewDelegate {
                 name: "Uptown Funk",
                 artist: "Mark Ronson ft. Bruno Mars",
                 album: "Uptown Special",
-                audiuoURL: uptownFunkURL,
+                audioURL: uptownFunkURL,
                 albumArt: uptownFunkArt
             )
         )
@@ -132,7 +132,7 @@ class GameViewController: UIViewController, SearchViewDelegate {
                 name: "Halo",
                 artist: "Beyoncé",
                 album: "I Am... Sasha Fierce",
-                audiuoURL: haloURL,
+                audioURL: haloURL,
                 albumArt: haloArt
             )
         )
@@ -142,7 +142,7 @@ class GameViewController: UIViewController, SearchViewDelegate {
                 name: "Blinding Lights",
                 artist: "The Weeknd",
                 album: "After Hours",
-                audiuoURL: blindingLightsURL,
+                audioURL: blindingLightsURL,
                 albumArt: blindingLightsArt
             )
         )
@@ -152,7 +152,7 @@ class GameViewController: UIViewController, SearchViewDelegate {
                 name: "Sunflower",
                 artist: "Post Malone & Swae Lee",
                 album: "Spider-Man: Into the Spider-Verse",
-                audiuoURL: sunflowerURL,
+                audioURL: sunflowerURL,
                 albumArt: sunflowerArt
             )
         )
@@ -172,10 +172,10 @@ class GameViewController: UIViewController, SearchViewDelegate {
         unlockLabel.alpha = 0.0
         
         currentAttempts = 0
-        CustomButton.playButtonConfig(systemName: "play.fill", playButton)
-        CustomButton.noGuessSubmitConfig(submitButton)
-        CustomButton.rulesButtonConfig(rulesButton)
-        CustomButton.configPrevAttemptButton(prevAttemptsButton)
+        CustomButton.playButtonConfig(systemName: "play.fill", playButton as! CustomButton)
+        CustomButton.noGuessSubmitConfig(submitButton as! CustomButton)
+        CustomButton.rulesButtonConfig(rulesButton as! CustomButton)
+        CustomButton.prevAttemptButtonConfig(prevAttemptsButton as! CustomButton)
         selectedSong.layer.cornerRadius = 10
         selectedSong.layer.sublayers?[0].cornerRadius = 10
         searchView.delegate = self
@@ -255,9 +255,9 @@ class GameViewController: UIViewController, SearchViewDelegate {
                 imageView.image = img
             } catch { print(error) }
             if prevGuesses.contains(chosenSong) {
-                CustomButton.alreadyGuessSubmitConfig(submitButton)
+                CustomButton.alreadyGuessSubmitConfig(submitButton as! CustomButton)
             } else {
-                CustomButton.validGuessSubmitConfig(submitButton)
+                CustomButton.validGuessSubmitConfig(submitButton as! CustomButton)
             }
             
         } else {
@@ -269,7 +269,7 @@ class GameViewController: UIViewController, SearchViewDelegate {
             albumLabel.text = "Artist"
             let imageView = selectedSong.subviews[0] as! UIImageView
             imageView.image = UIImage(systemName: "music.note")
-            CustomButton.noGuessSubmitConfig(submitButton)
+            CustomButton.noGuessSubmitConfig(submitButton as! CustomButton)
         }
     }
     
@@ -312,7 +312,7 @@ class GameViewController: UIViewController, SearchViewDelegate {
             let data = try Data(contentsOf: song.albumArt)
 //            mysteryAlbum.image = UIImage(data: data)
         } catch { print(error) }
-        let playerItem = AVPlayerItem(url: song.audiuoURL)
+        let playerItem = AVPlayerItem(url: song.audioURL)
             player = AVPlayer(playerItem: playerItem)
             
             // Reset progress view initially
@@ -344,7 +344,7 @@ class GameViewController: UIViewController, SearchViewDelegate {
                 
                 // stop at max time like game play
                 if Int(currentTimeSeconds) >= currentMaxTime {
-                    CustomButton.playButtonConfig(systemName: "play.fill", playButton)
+                    CustomButton.playButtonConfig(systemName: "play.fill", playButton as! CustomButton)
                     player.pause()
                     player.seek(to: .zero)
 
@@ -381,12 +381,12 @@ class GameViewController: UIViewController, SearchViewDelegate {
     @IBAction func playButtonPressed(_ sender: Any) {
         // Pass this fileURL into your framework / function
         if playButton.imageView?.image == UIImage(systemName: "play.fill") {
-            CustomButton.playButtonConfig(systemName: "pause.fill", playButton)
+            CustomButton.playButtonConfig(systemName: "pause.fill", playButton as! CustomButton)
             player?.play()
             
 
         } else {
-            CustomButton.playButtonConfig(systemName: "play.fill", playButton)
+            CustomButton.playButtonConfig(systemName: "play.fill", playButton as! CustomButton)
             player?.pause()
         }
     }

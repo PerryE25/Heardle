@@ -11,27 +11,29 @@
 
 import Foundation
 
-// A class for song metadata
+// Represents a song and stores its identifying information and media URLs.
 class Song {
     
-    var id: UUID = UUID()
+    var id = UUID()
     
     var name: String
     var artist: String
     var album: String
-    var audiuoURL: URL
+    var audioURL: URL
     var albumArt: URL
     
-    init(name: String, artist: String, album: String, audiuoURL: URL, albumArt: URL) {
+    // Initializes a Song with its metadata and associated media URLs.
+    init(name: String, artist: String, album: String, audioURL: URL, albumArt: URL) {
         self.name = name
         self.artist = artist
         self.album = album
-        self.audiuoURL = audiuoURL
+        self.audioURL = audioURL
         self.albumArt = albumArt
     }
 }
 
-// Like the Java Comparator interface for equating two objects
+// Allows two Song objects to be compared for equality.
+// Returns true when two songs have the same title and artist.
 extension Song : Equatable {
     static func == (lhs: Song, rhs: Song) -> Bool {
         // two songs are the same if they have the same name/artist

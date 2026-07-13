@@ -34,7 +34,7 @@ class SoloGameResultsViewController: UIViewController {
         super.viewDidLoad()
         currentSong = songs[0]
         
-        if let url = currentSong?.audiuoURL {
+        if let url = currentSong?.audioURL {
             audioPlayer = try? AVAudioPlayer(contentsOf: url)
             audioPlayer?.prepareToPlay()
         }
@@ -82,7 +82,7 @@ class SoloGameResultsViewController: UIViewController {
         }
         if playButton.isSelected {
             audioPlayer?.play()
-            print(currentSong?.audiuoURL.absoluteString ?? "test")
+            print(currentSong?.audioURL.absoluteString ?? "test")
         }
         else{
             audioPlayer?.stop()
