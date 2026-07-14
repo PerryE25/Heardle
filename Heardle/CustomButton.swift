@@ -11,7 +11,7 @@
 
 import UIKit
 
-// A custom button class to allow for circular buttons
+// A customizable button that supports reusable styles throughout the app.
 @IBDesignable
 class CustomButton: UIButton {
 
@@ -27,80 +27,74 @@ class CustomButton: UIButton {
         }
     }
     
-    static func rulesButtonConfig(_ rulesButton: UIButton) {
-        let rulesButt = rulesButton as! CustomButton
+    private static let submitButtonFont =
+        UIFont(name: "Arial Rounded MT Bold", size: 20.0)
+    
+    // Configures the Rules button with its icon and appearance.
+    static func rulesButtonConfig(_ rulesButton: CustomButton) {
         var configuration = UIButton.Configuration.clearGlass()
         configuration.image = UIImage(systemName: "questionmark.circle.dashed")
         configuration.baseForegroundColor = .white
         configuration.baseBackgroundColor = .clear
-        rulesButt.configuration = configuration
+        rulesButton.configuration = configuration
     }
     
-    // Make submit button red and warn player that
-    // they already guessed this song
-    static func alreadyGuessSubmitConfig(_ submitButton: UIButton) {
-        let submit = submitButton as! CustomButton
+    // Applies a common configuration used by all submit button styles.
+    private static func configureSubmitButton(
+        _ button: CustomButton,
+        title: String,
+        color: UIColor,
+        alpha: CGFloat,
+        enabled: Bool
+    ) {
         var configuration = UIButton.Configuration.filled()
-        configuration.title = "ALREADY GUESSED"
-        configuration.baseBackgroundColor = .systemRed
+        configuration.title = title
+        configuration.baseBackgroundColor = color
         configuration.cornerStyle = .capsule
-        submit.configuration = configuration
-        submit.titleLabel?.font = UIFont(name: "Arial Rounded MT Bold", size: 20.0)
-        submit.alpha = 1.0
-        submit.isUserInteractionEnabled = true
-        submit.cornerRadius = 50
+        button.configuration = configuration
+        button.titleLabel?.font = submitButtonFont
+        button.alpha = alpha
+        button.isUserInteractionEnabled = enabled
+        button.cornerRadius = 50
     }
     
-    // When guess is valid, make submit button clickable and green
-    static func validGuessSubmitConfig(_ submitButton: UIButton) {
-        let submit = submitButton as! CustomButton
-        var configuration = UIButton.Configuration.filled()
-        configuration.title = "SUBMIT"
-        configuration.baseBackgroundColor = .spotifyGreen
-        configuration.cornerStyle = .capsule
-        submit.configuration = configuration
-        submit.titleLabel?.font = UIFont(name: "Arial Rounded MT Bold", size: 20.0)
-        submit.alpha = 1.0
-        submit.isUserInteractionEnabled = true
-        submit.cornerRadius = 50
+    // Configures the submit button to indicate the song has already been guessed.
+    static func alreadyGuessSubmitConfig(_ submitButton: CustomButton) {
+        configureSubmitButton(submitButton, title: "ALREADY GUESSED", color: .systemRed, alpha: 1.0, enabled: true)
     }
     
-    // Default submit button of unclickable and hard to see
-    static func noGuessSubmitConfig(_ submitButton: UIButton) {
-        let submit = submitButton as! CustomButton
-        var configuration = UIButton.Configuration.filled()
-        configuration.title = "SUBMIT"
-        configuration.baseBackgroundColor = .systemGray
-        configuration.cornerStyle = .capsule
-        submit.configuration = configuration
-        submit.titleLabel?.font = UIFont(name: "Arial Rounded MT Bold", size: 20.0)
-        submit.alpha = 0.20
-        submit.isUserInteractionEnabled = false
-        submit.cornerRadius = 50
+    // Configures the submit button for a valid guess.
+    static func validGuessSubmitConfig(_ submitButton: CustomButton) {
+        configureSubmitButton(submitButton, title: "SUBMIT", color: .spotifyGreen, alpha: 1.0, enabled: true)
     }
     
-    static func configPrevAttemptButton(_ prevAttemptsutton: UIButton) {
-        let attemptsButton = prevAttemptsutton as! CustomButton
+    // Configures the default disabled submit button when no guess has been entered.
+    static func noGuessSubmitConfig(_ submitButton: CustomButton) {
+        configureSubmitButton(submitButton, title: "SUBMIT", color: .systemGray, alpha: 0.2, enabled: false)
+    }
+    
+    // Configures the Previous Attempts button.
+    static func prevAttemptButtonConfig(_ prevAttemptsButton: CustomButton) {
         var configuration = UIButton.Configuration.clearGlass()
         configuration.baseForegroundColor = .white
         configuration.title = "Attempt 0 / 6 "
         configuration.image = UIImage(systemName: "info.circle")
         configuration.imagePlacement = .trailing
-        attemptsButton.configuration = configuration
+        prevAttemptsButton.configuration = configuration
     }
     
-    // Make the play button config
-    static func playButtonConfig(systemName: String, _ playButton: UIButton) {       
-        let button = playButton as! CustomButton
+    // Configures the play button using the specified SF Symbol.
+    static func playButtonConfig(systemName: String, _ playButton: CustomButton) {
         var configuration = UIButton.Configuration.filled()
         configuration.title = ""
         configuration.baseBackgroundColor = .white
         configuration.image = UIImage(systemName: systemName)
         configuration.baseForegroundColor = .black
-        button.configuration = configuration
-        button.cornerRadius = button.bounds.height / 2
+        playButton.configuration = configuration
+        playButton.cornerRadius = playButton.bounds.height / 2
     }
     
+    // Updates the button's corner radius whenever its layout changes.
     override func layoutSubviews() {
         super.layoutSubviews()
         layer.cornerRadius = cornerRadius
