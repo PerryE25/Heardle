@@ -17,6 +17,7 @@ var songs: [Song] = []
 var currentSongIndex = 0
 var didWin: Bool = false
 var globalTotalAttempts: Int = 0
+let songService = SongService()
 
 // Controls one round of Heardle gameplay. Manages audio playback limits per attempt
 class GameViewController: UIViewController, SearchViewDelegate {
@@ -75,94 +76,20 @@ class GameViewController: UIViewController, SearchViewDelegate {
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        guard let thrillerURL = Bundle.main.url(forResource: "thriller_song", withExtension: "mp3") else { return }
-        guard let billieJeanURL = Bundle.main.url(forResource: "billie_jean_song", withExtension: "mp3") else { return }
-        guard let beatItURL = Bundle.main.url(forResource: "beat_it_song", withExtension: "mp3") else { return }
-        guard let uptownFunkURL = Bundle.main.url(forResource: "uptown_funk", withExtension: "mp3") else { return }
-        guard let haloURL = Bundle.main.url(forResource: "halo", withExtension: "mp3") else { return }
-        guard let blindingLightsURL = Bundle.main.url(forResource: "blinding_lights", withExtension: "mp3") else { return }
-        guard let sunflowerURL = Bundle.main.url(forResource: "sunflower", withExtension: "mp3") else { return }
-
-        guard let thrillerArt = getLocalImageURL(named: "thriller") else { return }
-        guard let billieJeanArt = getLocalImageURL(named: "billie_jean") else { return }
-        guard let beatItArt = getLocalImageURL(named: "beat_it") else { return }
-        guard let uptownFunkArt = getLocalImageURL(named: "uptown_funk") else { return }
-        guard let haloArt = getLocalImageURL(named: "halo") else { return }
-        guard let blindingLightsArt = getLocalImageURL(named: "blinding_lights") else { return }
-        guard let sunflowerArt = getLocalImageURL(named: "sunflower") else { return }
-        
-        songs = []
         prevGuesses = []
+        Task {
+//                songs = await songService.fetchDefaultSongs()
+            songs = songService.fetchImportSongs()
 
-        songs.append(
-            Song(
-                name: "Thriller",
-                artist: "Michael Jackson",
-                album: "Thriller",
-                audioURL: thrillerURL,
-                albumArt: thrillerArt
-            )
-        )
+                print("Fetched \(songs.count) songs")
 
-        songs.append(
-            Song(
-                name: "Billie Jean",
-                artist: "Michael Jackson",
-                album: "Thriller",
-                audioURL: billieJeanURL,
-                albumArt: billieJeanArt
-            )
-        )
+                guard !songs.isEmpty else {
+                    print("No songs found")
+                    return
+                }
 
-        songs.append(
-            Song(
-                name: "Beat It",
-                artist: "Michael Jackson",
-                album: "Thriller",
-                audioURL: beatItURL,
-                albumArt: beatItArt
-            )
-        )
-
-        songs.append(
-            Song(
-                name: "Uptown Funk",
-                artist: "Mark Ronson ft. Bruno Mars",
-                album: "Uptown Special",
-                audioURL: uptownFunkURL,
-                albumArt: uptownFunkArt
-            )
-        )
-
-        songs.append(
-            Song(
-                name: "Halo",
-                artist: "Beyoncé",
-                album: "I Am... Sasha Fierce",
-                audioURL: haloURL,
-                albumArt: haloArt
-            )
-        )
-
-        songs.append(
-            Song(
-                name: "Blinding Lights",
-                artist: "The Weeknd",
-                album: "After Hours",
-                audioURL: blindingLightsURL,
-                albumArt: blindingLightsArt
-            )
-        )
-
-        songs.append(
-            Song(
-                name: "Sunflower",
-                artist: "Post Malone & Swae Lee",
-                album: "Spider-Man: Into the Spider-Verse",
-                audioURL: sunflowerURL,
-                albumArt: sunflowerArt
-            )
-        )
+                setupAudioPlayer(song: songs[currentSongIndex])
+            }
         
         // Background gradient styled similar to Spotify’s player.
         let gradient = CAGradientLayer()
@@ -186,7 +113,7 @@ class GameViewController: UIViewController, SearchViewDelegate {
         selectedSongCardView.layer.sublayers?[0].cornerRadius = 10
         searchView.delegate = self
         updateOffScreenAlbum()
-        setupAudioPlayer(song: songs[currentSongIndex])
+//        setupAudioPlayer(song: songs[currentSongIndex])
     }
     
     // Update the user's song selection and make nextAlbum invisible
@@ -195,24 +122,6 @@ class GameViewController: UIViewController, SearchViewDelegate {
         nextMysteryAlbum.alpha = 0.0
         showSelectedSearch()
     }
-    
-    // given imageName, return URL of said image for uniformity.
-    func getLocalImageURL(named imageName: String) -> URL? {
-            guard let image = UIImage(named: imageName),
-                  let data = image.pngData() else { return nil }
-            
-            // Create a unique temporary file URL
-            let tempURL = URL(fileURLWithPath: NSTemporaryDirectory())
-                .appendingPathComponent("\(imageName).png")
-            
-            do {
-                try data.write(to: tempURL)
-                return tempURL
-            } catch {
-                print("Error saving image to URL: \(error)")
-                return nil
-            }
-        }
     
     // Formats seconds into mm:ss (e.g., 0 -> "00:00").
     private func formatTime(_ seconds: Double) -> String {

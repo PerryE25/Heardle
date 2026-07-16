@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		6C9E3F2C300989BC006E5461 /* FirebaseStorage in Frameworks */ = {isa = PBXBuildFile; productRef = 6C9E3F2B300989BC006E5461 /* FirebaseStorage */; };
 		8A2198382FFC517400E60A9B /* FirebaseAuth in Frameworks */ = {isa = PBXBuildFile; productRef = 8A2198372FFC517400E60A9B /* FirebaseAuth */; };
 		8A21983A2FFC517400E60A9B /* FirebaseCore in Frameworks */ = {isa = PBXBuildFile; productRef = 8A2198392FFC517400E60A9B /* FirebaseCore */; };
 		8A21983C2FFC517400E60A9B /* FirebaseFirestore in Frameworks */ = {isa = PBXBuildFile; productRef = 8A21983B2FFC517400E60A9B /* FirebaseFirestore */; };
@@ -46,6 +47,7 @@
 				8A21983A2FFC517400E60A9B /* FirebaseCore in Frameworks */,
 				8A2198382FFC517400E60A9B /* FirebaseAuth in Frameworks */,
 				8A21983C2FFC517400E60A9B /* FirebaseFirestore in Frameworks */,
+				6C9E3F2C300989BC006E5461 /* FirebaseStorage in Frameworks */,
 				8A2198432FFC565E00E60A9B /* SpotifyLogin in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -57,6 +59,7 @@
 			isa = PBXGroup;
 			children = (
 				6C7CA3622FF351C90052676F /* Heardle */,
+				6C9E3F2A300989BC006E5461 /* Frameworks */,
 				6C7CA3612FF351C90052676F /* Products */,
 			);
 			sourceTree = "<group>";
@@ -67,6 +70,13 @@
 				6C7CA3602FF351C90052676F /* Heardle.app */,
 			);
 			name = Products;
+			sourceTree = "<group>";
+		};
+		6C9E3F2A300989BC006E5461 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = Frameworks;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -93,6 +103,7 @@
 				8A2198392FFC517400E60A9B /* FirebaseCore */,
 				8A21983B2FFC517400E60A9B /* FirebaseFirestore */,
 				8A2198422FFC565E00E60A9B /* SpotifyLogin */,
+				6C9E3F2B300989BC006E5461 /* FirebaseStorage */,
 			);
 			productName = Heardle;
 			productReference = 6C7CA3602FF351C90052676F /* Heardle.app */;
@@ -385,6 +396,11 @@
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
+		6C9E3F2B300989BC006E5461 /* FirebaseStorage */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 8A2198362FFC517400E60A9B /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseStorage;
+		};
 		8A2198372FFC517400E60A9B /* FirebaseAuth */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = 8A2198362FFC517400E60A9B /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;

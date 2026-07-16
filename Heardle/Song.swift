@@ -14,13 +14,21 @@ import Foundation
 // Represents a song and stores its identifying information and media URLs.
 class Song {
     
-    var id = UUID()
-    
     var name: String
     var artist: String
     var album: String
-    var audioURL: URL
-    var albumArt: URL
+    var audioURL: URL!
+    var albumArt: URL!
+    
+    // Firebase Storage metadata
+    var firebaseStorageAudioURL: URL?
+    var firebaseStorageArtworkURL: URL?
+    
+    // iTunes metadata
+    var trackId: Int?
+    var genre: String?
+    var previewURL: URL?
+    var itunesArtworkURL: URL?
     
     // Initializes a Song with its metadata and associated media URLs.
     init(name: String, artist: String, album: String, audioURL: URL, albumArt: URL) {
@@ -29,6 +37,37 @@ class Song {
         self.album = album
         self.audioURL = audioURL
         self.albumArt = albumArt
+    }
+    
+    // Firestore workaround for not having URL objects
+    func toFirestore() -> [String: Any] {
+            return [
+                "name": name,
+                "artist": artist,
+                "album": album,
+                "audioURL": audioURL.absoluteString,
+                "albumArt": albumArt.absoluteString
+            ]
+        }
+    
+    // Initializes a Song with its firebase metadata and storage URLs.
+    init(name: String, artist: String, album: String, firebaseStorageAudioURL: URL, firebaseStorageArtworkURL: URL) {
+        self.name = name
+        self.artist = artist
+        self.album = album
+        self.firebaseStorageAudioURL = firebaseStorageAudioURL
+        self.firebaseStorageArtworkURL = firebaseStorageArtworkURL
+    }
+    
+    //Initialzes a Song with its iTunes metadata
+    init(name: String, artist: String, album: String, trackId: Int, genre: String, previewURL: URL, itunesArtworkURL: URL) {
+        self.name = name
+        self.artist = artist
+        self.album = album
+        self.trackId = trackId
+        self.genre = genre
+        self.previewURL = previewURL
+        self.itunesArtworkURL = itunesArtworkURL
     }
 }
 
