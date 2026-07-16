@@ -812,9 +812,9 @@
                         <color key="backgroundColor" white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                     </view>
                     <connections>
-                        <outlet property="resultsForLabel" destination="guC-nE-Qxl" id="apw-YP-PaW"/>
+                        <outlet property="resultsHeaderLabel" destination="guC-nE-Qxl" id="gMj-Wu-Kge"/>
                         <outlet property="searchBar" destination="4XL-Hs-eNc" id="TcT-nc-thu"/>
-                        <outlet property="songTable" destination="WFH-Ki-Xwu" id="WZz-7S-njp"/>
+                        <outlet property="songTableView" destination="WFH-Ki-Xwu" id="4IZ-9M-FLR"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="M7k-TZ-uwq" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
@@ -1306,7 +1306,6 @@
         </scene>
     </scenes>
     <inferredMetricsTieBreakers>
-        <segue reference="5Dg-mI-tR2"/>
         <segue reference="i1r-4U-xdo"/>
         <segue reference="GKt-vI-IEd"/>
         <segue reference="aMZ-4R-O37"/>

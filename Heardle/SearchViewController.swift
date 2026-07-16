@@ -11,47 +11,52 @@
 
 import UIKit
 
-var selectedSearch: Song?
+var selectedSongCanidate: Song?
 
-// A search screen of any song in my song list
+// Presents searchable song results and returns the user’s selection to the game screen.
 class SearchViewController: UIViewController, UITableViewDelegate, UITableViewDataSource, UISearchBarDelegate {
     
     @IBOutlet weak var searchBar: UISearchBar!
-    @IBOutlet weak var resultsForLabel: UILabel!
-    @IBOutlet weak var songTable: UITableView!
+    @IBOutlet weak var resultsHeaderLabel: UILabel!
+    @IBOutlet weak var songTableView: UITableView!
     
     var filteredSongs: [Song] = []
     let songCellID = "SongCell"
     
-    // Make Screen dark mode
+    // MARK: - Lifecycle
+    
+    // Sets up delegates and applies dark appearance for the search experience.
     override func viewDidLoad() {
         super.viewDidLoad()
 
-        songTable.delegate = self
-        songTable.dataSource = self
+        songTableView.delegate = self
+        songTableView.dataSource = self
         searchBar.delegate = self
         self.view.overrideUserInterfaceStyle = .dark
     }
     
-    // User starts searching immediately because they
-    // pressed game screen's search bar prior
+    // Focus the search field immediately so the user can start typing.
     override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
         searchBar.searchTextField.becomeFirstResponder()
     }
 
-    // Go back to game screen if cancel is pressed
+    // MARK: - Actions
+    
+    // Dismisses the search and returns to the game screen.
     @IBAction func onCancelButtonPressed(_ sender: Any) {
         searchBar.endEditing(true)
         dismiss(animated: true)
     }
     
-    // Give songs or filteredSongs as the total rows to display
-    // based on if we're currently filtering
+    // MARK: - UITableViewDataSource
+    
+    // Shows filtered results if searching, otherwise shows all songs.
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         return isFiltering() ? filteredSongs.count : songs.count
     }
     
-    // Display a song by name/artist/albumCover
+    // Configures a cell with song title, artist, and artwork.
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         
         let cell = tableView.dequeueReusableCell(withIdentifier: songCellID, for: indexPath)
@@ -72,41 +77,48 @@ class SearchViewController: UIViewController, UITableViewDelegate, UITableViewDa
         return cell
     }
     
-    // When press a song cell, it's been selected and go to main game screen
+    // MARK: - UITableViewDelegate
+    
+    // Selects a song and dismisses back to the game screen.
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        songTable.deselectRow(at: indexPath, animated: true)
-        selectedSearch = isFiltering() ? filteredSongs[indexPath.row] : songs[indexPath.row]
+        songTableView.deselectRow(at: indexPath, animated: true)
+        selectedSongCanidate = isFiltering() ? filteredSongs[indexPath.row] : songs[indexPath.row]
         dismiss(animated: true)
     }
     
-    // Dismiss keyboard whenever search button is pressed
+    // MARK: - UISearchBarDelegate
+    
+    // Dismisses the keyboard when the user commits the search.
     func searchBarSearchButtonClicked(_ searchBar: UISearchBar) {
         searchBar.resignFirstResponder()
-        // later will have customize search when textfield !isEmpty
     }
     
-    // Update search results whenever new letters (dis)appear
+    // Helper function to match song with query
+    private func matchesQuery(_ song: Song, query: String) -> Bool {
+        let q = query.lowercased()
+        return song.name.lowercased().contains(q) || song.artist.lowercased().contains(q)
+    }
+    
+    // Updates results as the user types, matching by song or artist.
     func searchBar(_ searchBar: UISearchBar, textDidChange searchText: String) {
         if searchText.isEmpty {
-            resultsForLabel.text = "Songs"
+            resultsHeaderLabel.text = "Songs"
             filteredSongs = songs
         } else {
-            resultsForLabel.text = "Results for '\(searchText)'"
-            filteredSongs = songs.filter { song in
-                song.name.lowercased().contains(searchText.lowercased())
-                || song.artist.lowercased().contains(searchText.lowercased())
-            }
+            resultsHeaderLabel.text = "Results for '\(searchText)'"
+            filteredSongs = songs.filter { matchesQuery($0, query: searchText) }
         }
-        songTable.reloadData()
+        songTableView.reloadData()
     }
     
-    // Return true if search has text for us to filter
+    // Returns true when a query is present and filtering should apply.
     func isFiltering() -> Bool {
         return searchBar.text?.isEmpty == false
     }
     
-    // Dismiss keyboard when you touch outside of keyboard
+    // Dismisses the keyboard when tapping outside the search field.
     override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
         searchBar.endEditing(true)
     }
 }
+

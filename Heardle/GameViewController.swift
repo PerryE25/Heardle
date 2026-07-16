@@ -287,7 +287,7 @@ class GameViewController: UIViewController, SearchViewDelegate {
     // Reflects the currently chosen song in the summary card and updates submit state.
     private func showSelectedSearch() {
         
-        if let chosenSong = selectedSearch {
+        if let chosenSong = selectedSongCanidate {
             selectedSongCardView.alpha = 1
             selectedSongCardView.subviews[3].isHidden = false
             let songLabel = selectedSongCardView.subviews[1] as! UILabel
@@ -405,7 +405,7 @@ class GameViewController: UIViewController, SearchViewDelegate {
     @IBAction func skipButtonPressed(_ sender: Any) {
         view.layoutIfNeeded()
         currentAttempts = 0
-        selectedSearch = nil
+        selectedSongCanidate = nil
         showSelectedSearch()
         currentSongIndex = (currentSongIndex + 1) % songs.count
         
@@ -438,7 +438,7 @@ class GameViewController: UIViewController, SearchViewDelegate {
     
     // Submits the current guess, checks correctness, provides feedback, and advances attempts.
     @IBAction func submitGuess(_ sender: Any) {
-        if let answer = selectedSearch {
+        if let answer = selectedSongCanidate {
             prevGuesses.append(answer)
             if answer == songs[currentSongIndex] {
                 didWin = true
@@ -448,14 +448,14 @@ class GameViewController: UIViewController, SearchViewDelegate {
             }
         }
         currentAttempts += 1
-        selectedSearch = nil
+        selectedSongCanidate = nil
         showSelectedSearch()
         
     }
     
     // Clears the current selection from the summary card.
     @IBAction func dismissSelectedSong(_ sender: Any) {
-        selectedSearch = nil
+        selectedSongCanidate = nil
         showSelectedSearch()
     }
     
