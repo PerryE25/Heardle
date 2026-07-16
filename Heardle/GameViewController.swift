@@ -12,9 +12,13 @@
 import UIKit
 import AVFoundation
 
+// Current mystery song, win status and attempts needed to win/lose for results screen
 var songs: [Song] = []
+var currentSongIndex = 0
+var didWin: Bool = false
+var globalTotalAttempts: Int = 0
 
-// A Game screen for playing one Heardle round
+// Controls one round of Heardle gameplay. Manages audio playback limits per attempt
 class GameViewController: UIViewController, SearchViewDelegate {
     
     @IBOutlet weak var playButton: UIButton!
@@ -26,45 +30,48 @@ class GameViewController: UIViewController, SearchViewDelegate {
     @IBOutlet weak var nextMysteryAlbum: UIImageView!
     @IBOutlet weak var nextMysteryAlbumCenterXConstraint: NSLayoutConstraint!
     @IBOutlet weak var progressBar: UIProgressView!
-    @IBOutlet weak var currentTime: UILabel!
-    @IBOutlet weak var maxTime: UILabel!
+    @IBOutlet weak var currentTimeLabel: UILabel!
+    @IBOutlet weak var maxTimeLabel: UILabel!
     @IBOutlet weak var unlockSongButton: UIButton!
     @IBOutlet weak var skipSongButton: UIButton!
-    @IBOutlet weak var selectedSong: UIView!
+    @IBOutlet weak var selectedSongCardView: UIView!
     @IBOutlet weak var searchView: SearchView!
     @IBOutlet weak var unlockPopup: UIView!
     @IBOutlet weak var unlockImage: UIImageView!
     @IBOutlet weak var unlockLabel: UILabel!
     
-    // based on which attempt you're on is max
-    // song time you can listen to
+    // Per-attempt time gates (in seconds) that cap how long the sample may play.
     let songTimes = [1, 2, 4, 7, 11, 16]
 
+    // Current playback cap derived from the attempt count and time gates.
     var currentMaxTime: Int {
         songTimes[min(currentAttempts, songTimes.count - 1)]
     }
     
     let searchSegueID = "SearchSongSegue"
+    
+    // Tracks the player's attempt count and triggers game over on the sixth attempt.
     var currentAttempts = 0 {
         didSet {
+            globalTotalAttempts = currentAttempts
             prevAttemptsButton.setTitle("Attempt \(currentAttempts) / 6 ", for: .normal)
             if self.currentAttempts == 6 {
+                print("final results are didWin: \(didWin), globalAttempts: \(globalTotalAttempts), current song name is: \(songs[currentSongIndex].name)")
                 performSegue(withIdentifier: "GameOverSegue", sender: self)
             }
         }
     }
+    
+    // Keeps a history of submitted guesses to prevent duplicates and drive UI state.
     var prevGuesses: [Song] = []
     
-    // MARK: - Song sample setup
-    
-    var songIdx = 0
-    
-    
-    // MARK: - Audio Properties
+    // Primary audio player for song samples during a round.
+    // Token used to remove the periodic time observer when deinitializing.
     var player: AVPlayer?
     var timeObserverToken: Any?
     
-    // Add gradient with Sptofy's green
+    // Prepares the round: loads local demo songs, configures UI/gradient, sets delegates,
+    // and initializes the audio player and attempt state.
     override func viewDidLoad() {
         super.viewDidLoad()
         
@@ -83,7 +90,7 @@ class GameViewController: UIViewController, SearchViewDelegate {
         guard let haloArt = getLocalImageURL(named: "halo") else { return }
         guard let blindingLightsArt = getLocalImageURL(named: "blinding_lights") else { return }
         guard let sunflowerArt = getLocalImageURL(named: "sunflower") else { return }
-
+        
         songs = []
         prevGuesses = []
 
@@ -157,15 +164,14 @@ class GameViewController: UIViewController, SearchViewDelegate {
             )
         )
         
-
-        // Add gradient like on spotify's music player
+        // Background gradient styled similar to Spotify’s player.
         let gradient = CAGradientLayer()
         gradient.frame = view.bounds
         gradient.colors = [UIColor.spotifyGreen.cgColor, UIColor.black.cgColor]
         gradient.locations = [0.0, 0.65]
         view.layer.insertSublayer(gradient, at: 0)
         
-        // edit popup
+        // Initialize unlock popup appearance and animation baseline.
         unlockPopup.transform = CGAffineTransform(scaleX: 0.1, y: 0.1)    // start small
         unlockPopup.alpha = 0.0   // start invisible
         unlockPopup.layer.cornerRadius = 15
@@ -176,28 +182,150 @@ class GameViewController: UIViewController, SearchViewDelegate {
         CustomButton.noGuessSubmitConfig(submitButton as! CustomButton)
         CustomButton.rulesButtonConfig(rulesButton as! CustomButton)
         CustomButton.prevAttemptButtonConfig(prevAttemptsButton as! CustomButton)
-        selectedSong.layer.cornerRadius = 10
-        selectedSong.layer.sublayers?[0].cornerRadius = 10
+        selectedSongCardView.layer.cornerRadius = 10
+        selectedSongCardView.layer.sublayers?[0].cornerRadius = 10
         searchView.delegate = self
         updateOffScreenAlbum()
-        setupAudioPlayer(song: songs[songIdx])
+        setupAudioPlayer(song: songs[currentSongIndex])
     }
     
-    // make mystery album fade in
+    // Update the user's song selection and make nextAlbum invisible
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-        
-        // set the mystery albums initial alpha
         nextMysteryAlbum.alpha = 0.0
         showSelectedSearch()
     }
     
+    // given imageName, return URL of said image for uniformity.
+    func getLocalImageURL(named imageName: String) -> URL? {
+            guard let image = UIImage(named: imageName),
+                  let data = image.pngData() else { return nil }
+            
+            // Create a unique temporary file URL
+            let tempURL = URL(fileURLWithPath: NSTemporaryDirectory())
+                .appendingPathComponent("\(imageName).png")
+            
+            do {
+                try data.write(to: tempURL)
+                return tempURL
+            } catch {
+                print("Error saving image to URL: \(error)")
+                return nil
+            }
+        }
+    
+    // Formats seconds into mm:ss (e.g., 0 -> "00:00").
+    private func formatTime(_ seconds: Double) -> String {
+        let minutes = Int(seconds) / 60
+        let secs = Int(seconds) % 60
+        return String(format: "%02d:%02d", minutes, secs)
+    }
+    
+    // Configures AVPlayer for the given song and prepares progress observation.
+    func setupAudioPlayer(song: Song) {
+        do {
+            let data = try Data(contentsOf: song.albumArt)
+        } catch { print(error) }
+        let playerItem = AVPlayerItem(url: song.audioURL)
+        player = AVPlayer(playerItem: playerItem)
+
+        // Reset progress view initially
+        progressBar.progress = 0.0
+        
+        // Start observing playback progress
+        addPlaybackObserver()
+    }
+    
+    // Observes playback time to update UI, enforce per-attempt limits, and reset when capped.
+    func addPlaybackObserver() {
+        guard let player = player else { return }
+        
+        // Poll playback twice per second for smooth progress updates.
+        let interval = CMTime(value: 1, timescale: 2) // 0.5 seconds
+        
+        timeObserverToken = player.addPeriodicTimeObserver(forInterval: interval, queue: .main) { [weak self] time in
+            guard let self = self, let currentItem = self.player?.currentItem else { return }
+            
+            // Retrieve media duration in seconds.
+            let durationSeconds = CMTimeGetSeconds(currentItem.duration)
+            
+            // Ignore unknown or invalid durations.
+            guard durationSeconds.isFinite && durationSeconds > 0 else { return }
+            
+            // Current playback time (seconds).
+            let currentTimeSeconds = CMTimeGetSeconds(time)
+            currentTimeLabel.text = formatTime(currentTimeSeconds)
+            
+            // Enforce the current attempt’s playback cap and reset player/UI.
+            if Int(currentTimeSeconds) >= currentMaxTime {
+                CustomButton.playButtonConfig(systemName: "play.fill", playButton as! CustomButton)
+                player.pause()
+                player.seek(to: .zero)
+
+                progressBar.setProgress(0, animated: false)
+                progressBar.progress = 0.0
+                currentTimeLabel.text = formatTime(0)
+            }
+            
+            maxTimeLabel.text = formatTime(Double(currentMaxTime))
+            
+            // Compute progress relative to the allowed cap, not the full track.
+            let max = Float64(truncating: currentMaxTime as NSNumber)
+            let progress = Float(currentTimeSeconds / max)
+            
+            // Animate progress bar to reflect elapsed allowed time.
+            self.progressBar.setProgress(progress, animated: true)
+        }
+    }
+    
+    // Positions the next album image off-screen to the right in preparation for slide-in.
+    func updateOffScreenAlbum() {
+        let screenWidth = view.frame.width
+        nextMysteryAlbumCenterXConstraint.constant = screenWidth
+    }
+    
+    // Reflects the currently chosen song in the summary card and updates submit state.
+    private func showSelectedSearch() {
+        
+        if let chosenSong = selectedSearch {
+            selectedSongCardView.alpha = 1
+            selectedSongCardView.subviews[3].isHidden = false
+            let songLabel = selectedSongCardView.subviews[1] as! UILabel
+            songLabel.text = chosenSong.name
+            let albumLabel = selectedSongCardView.subviews[2] as! UILabel
+            albumLabel.text = "\(chosenSong.artist)"
+            let imageView = selectedSongCardView.subviews[0] as! UIImageView
+            do {
+                let data = try Data(contentsOf: chosenSong.albumArt)
+                let img = UIImage(data: data)
+                imageView.image = img
+            } catch { print(error) }
+            if prevGuesses.contains(chosenSong) {
+                CustomButton.alreadyGuessSubmitConfig(submitButton as! CustomButton)
+            } else {
+                CustomButton.validGuessSubmitConfig(submitButton as! CustomButton)
+            }
+            
+        } else {
+            selectedSongCardView.alpha = 0.35
+            selectedSongCardView.subviews[3].isHidden = true
+            let songLabel = selectedSongCardView.subviews[1] as! UILabel
+            songLabel.text = "Song Name"
+            let albumLabel = selectedSongCardView.subviews[2] as! UILabel
+            albumLabel.text = "Artist"
+            let imageView = selectedSongCardView.subviews[0] as! UIImageView
+            imageView.image = UIImage(systemName: "music.note")
+            CustomButton.noGuessSubmitConfig(submitButton as! CustomButton)
+        }
+    }
+    
+    // Animates the "time unlocked" popup to communicate newly granted playback seconds.
     func displayPopup() {
         guard currentAttempts < 6 else { return }
         let addedTime = songTimes[currentAttempts] - songTimes[currentAttempts - 1]
         unlockLabel.text = "+\(addedTime)s unlocked!"
         
-        // show popup
+        // Present and scale-in the popup.
         UIView.animate(withDuration: 0.25, animations: {
             self.unlockPopup.transform = CGAffineTransform(scaleX: 1.0, y: 1.0)
             self.unlockPopup.alpha = 1.0
@@ -215,7 +343,7 @@ class GameViewController: UIViewController, SearchViewDelegate {
             animation.toValue = NSValue(cgPoint: CGPoint(x: self.unlockImage.center.x + 5, y: self.unlockImage.center.y))
             self.unlockImage.layer.add(animation, forKey: "position")
             
-            // Wait until the shake finishes
+            // Defer until the lock shake completes.
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.4) {
                 
                 UIView.animate(withDuration: 0.3, animations: {
@@ -225,7 +353,7 @@ class GameViewController: UIViewController, SearchViewDelegate {
                     self.unlockLabel.textColor = .spotifyGreen
                 }) { _ in
                     
-                    // Pause so the user can see it
+                    // Briefly hold the unlocked state before dismissing.
                     DispatchQueue.main.asyncAfter(deadline: .now() + 0.7) {
                         
                         UIView.animate(withDuration: 0.3) {
@@ -238,50 +366,7 @@ class GameViewController: UIViewController, SearchViewDelegate {
         }
     }
     
-    // Show the selected search and update submit button accordingly
-    // submit can be not present or valid or already guessed
-    private func showSelectedSearch() {
-        if let chosenSong = selectedSearch {
-            selectedSong.alpha = 1
-            selectedSong.subviews[3].isHidden = false
-            let songLabel = selectedSong.subviews[1] as! UILabel
-            songLabel.text = chosenSong.name
-            let albumLabel = selectedSong.subviews[2] as! UILabel
-            albumLabel.text = "\(chosenSong.artist)"
-            let imageView = selectedSong.subviews[0] as! UIImageView
-            do {
-                let data = try Data(contentsOf: chosenSong.albumArt)
-                let img = UIImage(data: data)
-                imageView.image = img
-            } catch { print(error) }
-            if prevGuesses.contains(chosenSong) {
-                CustomButton.alreadyGuessSubmitConfig(submitButton as! CustomButton)
-            } else {
-                CustomButton.validGuessSubmitConfig(submitButton as! CustomButton)
-            }
-            
-        } else {
-            selectedSong.alpha = 0.35
-            selectedSong.subviews[3].isHidden = true
-            let songLabel = selectedSong.subviews[1] as! UILabel
-            songLabel.text = "Song Name"
-            let albumLabel = selectedSong.subviews[2] as! UILabel
-            albumLabel.text = "Artist"
-            let imageView = selectedSong.subviews[0] as! UIImageView
-            imageView.image = UIImage(systemName: "music.note")
-            CustomButton.noGuessSubmitConfig(submitButton as! CustomButton)
-        }
-    }
-    
-    deinit {
-            // Always remove the time observer when the view controller is destroyed
-            if let token = timeObserverToken {
-                player?.removeTimeObserver(token)
-                timeObserverToken = nil
-            }
-        }
-    
-    // Error shake animation when guess wrong
+    // Provides a subtle error feedback by shaking the album art on incorrect guesses.
     func shake() {
         let animation = CABasicAnimation(keyPath: "position")
         animation.duration = 0.07
@@ -292,135 +377,42 @@ class GameViewController: UIViewController, SearchViewDelegate {
         mysteryAlbum.layer.add(animation, forKey: "position")
     }
     
-    // Will search after pressing this button
+    // Navigates to the search screen when the embedded search view is tapped.
     func searchViewDidTapSearch(_ searchView: SearchView) {
-//        let searchVC = SearchViewController()
-//        navigationController?.pushViewController(searchVC, animated: true)
         performSegue(withIdentifier: searchSegueID, sender: self)
     }
     
-    func setupAudioPlayer(song: Song) {
-        
-            // Replace with your local file name/type or a remote stream URL
-//            guard let url = Bundle.main.url(forResource: "thriller_song", withExtension: "mp3") else {
-//                print("Audio file not found")
-//                return
-//            }
-            
-            // Initialize AVPlayer and AVPlayerItem
-        do {
-            let data = try Data(contentsOf: song.albumArt)
-//            mysteryAlbum.image = UIImage(data: data)
-        } catch { print(error) }
-        let playerItem = AVPlayerItem(url: song.audioURL)
-            player = AVPlayer(playerItem: playerItem)
-            
-            // Reset progress view initially
-            progressBar.progress = 0.0
-            
-            // Start observing playback progress
-            addPlaybackObserver()
-        }
-    
-    func addPlaybackObserver() {
-            guard let player = player else { return }
-            
-        
-            // Observe time every 0.5 seconds
-            let interval = CMTime(value: 1, timescale: 2) // 0.5 seconds
-            
-            timeObserverToken = player.addPeriodicTimeObserver(forInterval: interval, queue: .main) { [weak self] time in
-                guard let self = self, let currentItem = self.player?.currentItem else { return }
-                
-                // Get duration in seconds
-                let durationSeconds = CMTimeGetSeconds(currentItem.duration)
-                
-                // Skip invalid durations
-                guard durationSeconds.isFinite && durationSeconds > 0 else { return }
-                
-                // Get current playback time in seconds
-                let currentTimeSeconds = CMTimeGetSeconds(time)
-                currentTime.text = String(format: "%02d:%02d", Int(currentTimeSeconds/60), Int(currentTimeSeconds.truncatingRemainder(dividingBy: 60)))
-                
-                // stop at max time like game play
-                if Int(currentTimeSeconds) >= currentMaxTime {
-                    CustomButton.playButtonConfig(systemName: "play.fill", playButton as! CustomButton)
-                    player.pause()
-                    player.seek(to: .zero)
+    // MARK: - Actions
 
-                    progressBar.setProgress(0, animated: false)
-                    progressBar.progress = 0.0
-                    currentTime.text = "00:00"
-                }
-                
-//                maxTime.text = "String(format: "%02d:%02d", Int(durationSeconds/60), Int(durationSeconds.truncatingRemainder(dividingBy: 60)))"
-                maxTime.text = String(format: "00:%02d", currentMaxTime)
-                let max = Float64(truncating: currentMaxTime as NSNumber)
-                // Calculate progress (Current Time / Total Duration)
-                let progress = Float(currentTimeSeconds / max)
-                
-                // Update UIProgressView
-                self.progressBar.setProgress(progress, animated: true)
-            }
-        }
-    
-    // make the next mystery album to be on right side of screen
-    func updateOffScreenAlbum() {
-        let screenWidth = view.frame.width
-        nextMysteryAlbumCenterXConstraint.constant = screenWidth
-    }
-    
-    
-    @IBAction func unlockMore(_ sender: Any) {
-        currentAttempts += 1
-        displayPopup()
-    }
-    
-    
-    // Change play to pause and vice versa
+    // Toggles playback and updates the play/pause button configuration.
     @IBAction func playButtonPressed(_ sender: Any) {
-        // Pass this fileURL into your framework / function
         if playButton.imageView?.image == UIImage(systemName: "play.fill") {
             CustomButton.playButtonConfig(systemName: "pause.fill", playButton as! CustomButton)
             player?.play()
-            
-
         } else {
             CustomButton.playButtonConfig(systemName: "play.fill", playButton as! CustomButton)
             player?.pause()
         }
     }
     
-    func getLocalImageURL(named imageName: String) -> URL? {
-        guard let image = UIImage(named: imageName),
-              let data = image.pngData() else { return nil }
-        
-        // Create a unique temporary file URL
-        let tempURL = URL(fileURLWithPath: NSTemporaryDirectory())
-            .appendingPathComponent("\(imageName).png")
-        
-        do {
-            try data.write(to: tempURL)
-            return tempURL
-        } catch {
-            print("Error saving image to URL: \(error)")
-            return nil
-        }
+    // Increments attempt count and shows the unlock feedback popup.
+    @IBAction func unlockMore(_ sender: Any) {
+        currentAttempts += 1
+        displayPopup()
     }
-
     
-    
+    // Skips to the next song, animating the album art transition and resetting state.
     @IBAction func skipButtonPressed(_ sender: Any) {
         view.layoutIfNeeded()
         currentAttempts = 0
         selectedSearch = nil
         showSelectedSearch()
-        songIdx = (songIdx + 1) % songs.count
+        currentSongIndex = (currentSongIndex + 1) % songs.count
         
         progressBar.progress = 0
-        currentTime.text = "0:00"
-        // animate the alpha
-        // and the center x constraints
+        currentTimeLabel.text = formatTime(0)
+        
+        // Fade out current art, fade in next, and slide constraints to transition.
         let screenWidth = view.frame.width
         self.nextMysteryAlbumCenterXConstraint.constant = 0
         self.mysteryAlbumCenterXConstraint.constant -= screenWidth
@@ -441,14 +433,15 @@ class GameViewController: UIViewController, SearchViewDelegate {
                 self.updateOffScreenAlbum()
                 
         })
-        setupAudioPlayer(song: songs[songIdx])
+        setupAudioPlayer(song: songs[currentSongIndex])
     }
     
-    
+    // Submits the current guess, checks correctness, provides feedback, and advances attempts.
     @IBAction func submitGuess(_ sender: Any) {
         if let answer = selectedSearch {
             prevGuesses.append(answer)
-            if answer == songs[songIdx] {
+            if answer == songs[currentSongIndex] {
+                didWin = true
                 performSegue(withIdentifier: "GameOverSegue", sender: self)
             } else {
                 shake()
@@ -460,9 +453,20 @@ class GameViewController: UIViewController, SearchViewDelegate {
         
     }
     
+    // Clears the current selection from the summary card.
     @IBAction func dismissSelectedSong(_ sender: Any) {
         selectedSearch = nil
         showSelectedSearch()
     }
     
+    // Cleans up playback observation when the controller is deallocated.
+    deinit {
+        // Detach the periodic time observer to avoid leaks/crashes.
+        if let token = timeObserverToken {
+            player?.removeTimeObserver(token)
+            timeObserverToken = nil
+        }
+    }
+    
 }
+
