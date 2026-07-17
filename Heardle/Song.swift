@@ -29,8 +29,15 @@ class Song {
     // iTunes metadata
     var trackId: Int?
     var genre: String?
-    var previewURL: URL?
-    var itunesArtworkURL: URL?
+    var previewURL: String?
+    var itunesArtworkURL: String?
+    
+    // Initializes only mandatory strings
+    init(name: String, artist: String, album: String) {
+        self.name = name
+        self.artist = artist
+        self.album = album
+    }
     
     // Initializes a Song with its metadata and associated media URLs.
     init(name: String, artist: String, album: String, audioURL: URL, albumArt: URL) {
@@ -51,7 +58,7 @@ class Song {
     }
     
     //Initialzes a Song with its iTunes metadata
-    init(name: String, artist: String, album: String, trackId: Int, genre: String, previewURL: URL, itunesArtworkURL: URL) {
+    init(name: String, artist: String, album: String, trackId: Int, genre: String, previewURL: String, itunesArtworkURL: String) {
         self.name = name
         self.artist = artist
         self.album = album

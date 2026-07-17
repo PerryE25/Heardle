@@ -24,12 +24,12 @@ class SongService {
     func fetchDefaultSongs() async -> [Song] {
         do {
             let snapshot = try await db.collection("songs").getDocuments()
-
+            
             var songs: [Song] = []
-
+            
             for document in snapshot.documents {
                 let data = document.data()
-
+                
                 if let name = data["name"] as? String,
                    let artist = data["artist"] as? String,
                    let album = data["album"] as? String,
@@ -50,12 +50,42 @@ class SongService {
                     songs.append(curSong)
                 }
             }
-
+            
             return songs
         } catch {
             print(error)
             return []
         }
+    }
+    
+    // Grab song's artwork and previewAudio given song name and artist name
+    func fetchArtworkAndPreview(song: Song) async {
+        let searchTerm = "\(song.name) \(song.artist)"
+        let searchURL = "https://itunes.apple.com/search?term=\(searchTerm)&limit=1"
+        
+        guard let url = URL(string: searchURL) else { return }
+        let task = URLSession.shared.dataTask(with: url) { data, response, error in
+            guard let data = data, error == nil else { return }
+            do {
+                if let json = try JSONSerialization.jsonObject(with: data, options: []) as? [String: Any],
+                   let results = json["results"] as? [[String: Any]],
+                   let firstResult = results.first {
+                    // Extract artwork and preview URL
+                    if let artworkUrl = firstResult["artworkUrl100"] as? String,
+                       let previewUrl = firstResult["previewUrl"] as? String {
+                        song.itunesArtworkURL = artworkUrl
+                        song.previewURL = previewUrl
+                        
+                        print("Artwork URL: \(artworkUrl)")
+                        print("Preview URL: \(previewUrl)")
+                    }
+                }
+            } catch {
+                print("Error parsing JSON: \(error)")
+            }
+        }
+        task.resume()
+//        song.albumArtData = try await downloadData(from: song.itunesArtworkURL!)
     }
     
     // Helps bg process of image/audio downlaods
@@ -69,14 +99,14 @@ class SongService {
     }
     
     // Based on given song, return artwork (handle url retrieval)
-//    func getAudio(of: Song) -> URL? {
-//        
-//    }
+    //    func getAudio(of: Song) -> URL? {
+    //
+    //    }
     
     // Based on given song, return preview audio (handle url retrieval)
-//    func getPreview(of: Song) -> UIImage? {
-//        
-//    }
+    //    func getPreview(of: Song) -> UIImage? {
+    //
+    //    }
     
     // Given the 7 impoprted songs that are in the project,
     // return them in a list
@@ -88,7 +118,7 @@ class SongService {
         guard let haloURL = Bundle.main.url(forResource: "halo", withExtension: "mp3") else { return [] }
         guard let blindingLightsURL = Bundle.main.url(forResource: "blinding_lights", withExtension: "mp3") else { return  [] }
         guard let sunflowerURL = Bundle.main.url(forResource: "sunflower", withExtension: "mp3") else { return [] }
-
+        
         guard let thrillerArt = getLocalImageURL(named: "thriller") else { return [] }
         guard let billieJeanArt = getLocalImageURL(named: "billie_jean") else { return [] }
         guard let beatItArt = getLocalImageURL(named: "beat_it") else { return [] }
@@ -98,7 +128,7 @@ class SongService {
         guard let sunflowerArt = getLocalImageURL(named: "sunflower") else { return [] }
         
         songs = []
-
+        
         songs.append(
             Song(
                 name: "Thriller",
@@ -108,7 +138,7 @@ class SongService {
                 albumArt: thrillerArt
             )
         )
-
+        
         songs.append(
             Song(
                 name: "Billie Jean",
@@ -118,7 +148,7 @@ class SongService {
                 albumArt: billieJeanArt
             )
         )
-
+        
         songs.append(
             Song(
                 name: "Beat It",
@@ -128,7 +158,7 @@ class SongService {
                 albumArt: beatItArt
             )
         )
-
+        
         songs.append(
             Song(
                 name: "Uptown Funk",
@@ -138,7 +168,7 @@ class SongService {
                 albumArt: uptownFunkArt
             )
         )
-
+        
         songs.append(
             Song(
                 name: "Halo",
@@ -148,7 +178,7 @@ class SongService {
                 albumArt: haloArt
             )
         )
-
+        
         songs.append(
             Song(
                 name: "Blinding Lights",
@@ -158,7 +188,7 @@ class SongService {
                 albumArt: blindingLightsArt
             )
         )
-
+        
         songs.append(
             Song(
                 name: "Sunflower",
@@ -174,19 +204,19 @@ class SongService {
     
     // given imageName, return URL of said image for uniformity.
     func getLocalImageURL(named imageName: String) -> URL? {
-            guard let image = UIImage(named: imageName),
-                  let data = image.pngData() else { return nil }
-            
-            // Create a unique temporary file URL
-            let tempURL = URL(fileURLWithPath: NSTemporaryDirectory())
-                .appendingPathComponent("\(imageName).png")
-            
-            do {
-                try data.write(to: tempURL)
-                return tempURL
-            } catch {
-                print("Error saving image to URL: \(error)")
-                return nil
-            }
+        guard let image = UIImage(named: imageName),
+              let data = image.pngData() else { return nil }
+        
+        // Create a unique temporary file URL
+        let tempURL = URL(fileURLWithPath: NSTemporaryDirectory())
+            .appendingPathComponent("\(imageName).png")
+        
+        do {
+            try data.write(to: tempURL)
+            return tempURL
+        } catch {
+            print("Error saving image to URL: \(error)")
+            return nil
+        }
     }
 }
