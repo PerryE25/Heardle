@@ -13,13 +13,21 @@ import UIKit
 
 class WrongGuessViewController: UIViewController {
 
+    
+    @IBOutlet weak var topText: UILabel!
+    @IBOutlet weak var miniView: UIView!
     override func viewDidLoad() {
+        miniView.layer.cornerRadius = 30
+        topText.font = UIFont.boldSystemFont(ofSize: 40.0)
         super.viewDidLoad()
 
         // Do any additional setup after loading the view.
     }
     
-
+    @IBAction func returnToGame(_ sender: Any) {
+        self.dismiss(animated: true)
+    }
+    
     /*
     // MARK: - Navigation
 
