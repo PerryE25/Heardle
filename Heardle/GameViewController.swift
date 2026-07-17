@@ -18,6 +18,7 @@ var currentSongIndex = 0
 var didWin: Bool = false
 var globalTotalAttempts: Int = 0
 let songService = SongService()
+let songTimes = [1, 2, 4, 7, 11, 16]
 
 // Controls one round of Heardle gameplay. Manages audio playback limits per attempt
 class GameViewController: UIViewController, SearchViewDelegate {
@@ -42,7 +43,7 @@ class GameViewController: UIViewController, SearchViewDelegate {
     @IBOutlet weak var unlockLabel: UILabel!
     
     // Per-attempt time gates (in seconds) that cap how long the sample may play.
-    let songTimes = [1, 2, 4, 7, 11, 16]
+    
 
     // Current playback cap derived from the attempt count and time gates.
     var currentMaxTime: Int {
