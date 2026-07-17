@@ -342,6 +342,12 @@ class GameViewController: UIViewController, SearchViewDelegate {
     // Submits the current guess, checks correctness, provides feedback, and advances attempts.
     @IBAction func submitGuess(_ sender: Any) {
         if let answer = selectedSongCanidate {
+            // Added by Jeremiah in order to keep track of if the user has already guessed a song so it doesnt count towards the currentAttempts total that is used in the WrongGuessesVC (Not sure we keep this in or not)
+            for guess in prevGuesses where guess == answer {
+                shake()
+                return
+            }
+            
             prevGuesses.append(answer)
             if answer == songs[currentSongIndex] {
                 didWin = true
