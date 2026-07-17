@@ -78,8 +78,8 @@ class GameViewController: UIViewController, SearchViewDelegate {
         
         prevGuesses = []
         Task {
-//                songs = await songService.fetchDefaultSongs()
-            songs = songService.fetchImportSongs()
+                songs = await songService.fetchDefaultSongs()
+//                songs = songService.fetchImportSongs()
 
                 print("Fetched \(songs.count) songs")
 
@@ -132,9 +132,6 @@ class GameViewController: UIViewController, SearchViewDelegate {
     
     // Configures AVPlayer for the given song and prepares progress observation.
     func setupAudioPlayer(song: Song) {
-        do {
-            let data = try Data(contentsOf: song.albumArt)
-        } catch { print(error) }
         let playerItem = AVPlayerItem(url: song.audioURL)
         player = AVPlayer(playerItem: playerItem)
 
@@ -204,11 +201,7 @@ class GameViewController: UIViewController, SearchViewDelegate {
             let albumLabel = selectedSongCardView.subviews[2] as! UILabel
             albumLabel.text = "\(chosenSong.artist)"
             let imageView = selectedSongCardView.subviews[0] as! UIImageView
-            do {
-                let data = try Data(contentsOf: chosenSong.albumArt)
-                let img = UIImage(data: data)
-                imageView.image = img
-            } catch { print(error) }
+            imageView.image = UIImage(data: chosenSong.albumArtData!)
             if prevGuesses.contains(chosenSong) {
                 CustomButton.alreadyGuessSubmitConfig(submitButton as! CustomButton)
             } else {

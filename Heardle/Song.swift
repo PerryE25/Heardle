@@ -19,6 +19,8 @@ class Song {
     var album: String
     var audioURL: URL!
     var albumArt: URL!
+//    var audioData: Data?
+    var albumArtData: Data?
     
     // Firebase Storage metadata
     var firebaseStorageAudioURL: URL?
@@ -38,17 +40,6 @@ class Song {
         self.audioURL = audioURL
         self.albumArt = albumArt
     }
-    
-    // Firestore workaround for not having URL objects
-    func toFirestore() -> [String: Any] {
-            return [
-                "name": name,
-                "artist": artist,
-                "album": album,
-                "audioURL": audioURL.absoluteString,
-                "albumArt": albumArt.absoluteString
-            ]
-        }
     
     // Initializes a Song with its firebase metadata and storage URLs.
     init(name: String, artist: String, album: String, firebaseStorageAudioURL: URL, firebaseStorageArtworkURL: URL) {

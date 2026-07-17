@@ -13,8 +13,10 @@ import Foundation
 import FirebaseCore
 import FirebaseFirestore
 import FirebaseStorage
+import MusicKit
 
 let db = Firestore.firestore()
+let storage = Storage.storage()
 
 class SongService {
     
@@ -35,16 +37,17 @@ class SongService {
                    let albumArt = data["albumArt"] as? String,
                    let audio = URL(string: audioURL),
                    let art = URL(string: albumArt) {
-
-                    songs.append(
-                        Song(
-                            name: name,
-                            artist: artist,
-                            album: album,
-                            audioURL: audio,
-                            albumArt: art
-                        )
+                    
+                    let albumArtData = try await downloadData(from: albumArt)
+                    let curSong = Song(
+                        name: name,
+                        artist: artist,
+                        album: album,
+                        audioURL: audio,
+                        albumArt: art
                     )
+                    curSong.albumArtData = albumArtData
+                    songs.append(curSong)
                 }
             }
 
@@ -54,6 +57,26 @@ class SongService {
             return []
         }
     }
+    
+    // Helps bg process of image/audio downlaods
+    func downloadData(from urlString: String) async throws -> Data {
+        guard let url = URL(string: urlString) else {
+            throw URLError(.badURL)
+        }
+        
+        let (data, _) = try await URLSession.shared.data(from: url)
+        return data
+    }
+    
+    // Based on given song, return artwork (handle url retrieval)
+//    func getAudio(of: Song) -> URL? {
+//        
+//    }
+    
+    // Based on given song, return preview audio (handle url retrieval)
+//    func getPreview(of: Song) -> UIImage? {
+//        
+//    }
     
     // Given the 7 impoprted songs that are in the project,
     // return them in a list

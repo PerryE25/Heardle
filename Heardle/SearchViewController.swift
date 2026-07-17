@@ -64,14 +64,10 @@ class SearchViewController: UIViewController, UITableViewDelegate, UITableViewDa
         var content = cell.defaultContentConfiguration()
         content.text = "\(song.name)"
         content.secondaryText = "Song • \(song.artist)"
-        do {
-            let data = try Data(contentsOf: song.albumArt)
-            content.image = UIImage(data: data)
-            content.imageProperties.cornerRadius = 10
-            content.imageProperties.maximumSize = CGSize(width: 75, height: 575)
-            content.imageProperties.reservedLayoutSize = CGSize(width: 75, height: 75)
-        } catch { print(error) }
-        
+        content.image = UIImage(data: song.albumArtData!)
+        content.imageProperties.cornerRadius = 10
+        content.imageProperties.maximumSize = CGSize(width: 75, height: 575)
+        content.imageProperties.reservedLayoutSize = CGSize(width: 75, height: 75)
         cell.contentConfiguration = content
         
         return cell
