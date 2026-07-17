@@ -78,18 +78,19 @@ class GameViewController: UIViewController, SearchViewDelegate {
         
         prevGuesses = []
         Task {
-                songs = await songService.fetchDefaultSongs()
-//                songs = songService.fetchImportSongs()
-
-                print("Fetched \(songs.count) songs")
-
-                guard !songs.isEmpty else {
-                    print("No songs found")
-                    return
-                }
-
-                setupAudioPlayer(song: songs[currentSongIndex])
+            songs = await songService.fetchDefaults()
+            await songService.updateAlbumArtData()
+            //                songs = songService.fetchImportSongs()
+            
+            print("Fetched \(songs.count) songs")
+            
+            guard !songs.isEmpty else {
+                print("No songs found")
+                return
             }
+            
+            setupAudioPlayer(song: songs[currentSongIndex])
+        }
         
         // Background gradient styled similar to Spotify’s player.
         let gradient = CAGradientLayer()

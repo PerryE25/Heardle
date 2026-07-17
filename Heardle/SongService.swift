@@ -21,6 +21,52 @@ let storage = Storage.storage()
 class SongService {
     
     // Grab all default songs on Firestore and return a list of them
+    func fetchDefaults() async -> [Song] {
+        do {
+            let snapshot = try await db.collection("defaults").getDocuments()
+            
+            var songs: [Song] = []
+            
+            for document in snapshot.documents {
+                let data = document.data()
+                
+                if let name = data["name"] as? String,
+                   let artist = data["artist"] as? String,
+                   let album = data["album"] as? String {
+                    let curSong = Song(name: name, artist: artist, album: album)
+                    await fetchArtworkAndPreview(song: curSong)
+                    songs.append(curSong)
+                }
+            }
+            
+            return songs
+        } catch {
+            print(error)
+            return []
+        }
+    }
+    
+    // Given user's top 100 songs, fetch the album covers and artwork
+    func fetchUsersArtworkAndPreview(songs: [Song]) async {
+        for curSong in songs {
+            await fetchArtworkAndPreview(song: curSong)
+        }
+    }
+    
+    // Given api artwork url, download data of all songs
+    func updateAlbumArtData() async {
+        for curSong in songs {
+            do {
+                curSong.albumArtData = try await downloadData(from: curSong.itunesArtworkURL!)
+            } catch {
+                print(error)
+            }
+            
+            print("cursong artwork and preview audio url are \(curSong.itunesArtworkURL!) and \(curSong.previewURL!)")
+        }
+    }
+    
+    // Grab all default songs on Firestore and return a list of them
     func fetchDefaultSongs() async -> [Song] {
         do {
             let snapshot = try await db.collection("songs").getDocuments()
@@ -61,31 +107,32 @@ class SongService {
     // Grab song's artwork and previewAudio given song name and artist name
     func fetchArtworkAndPreview(song: Song) async {
         let searchTerm = "\(song.name) \(song.artist)"
-        let searchURL = "https://itunes.apple.com/search?term=\(searchTerm)&limit=1"
-        
+            .addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed)!
+
+        let searchURL = "https://itunes.apple.com/search?term=\(searchTerm)&entity=song&limit=1"
+
         guard let url = URL(string: searchURL) else { return }
-        let task = URLSession.shared.dataTask(with: url) { data, response, error in
-            guard let data = data, error == nil else { return }
-            do {
-                if let json = try JSONSerialization.jsonObject(with: data, options: []) as? [String: Any],
-                   let results = json["results"] as? [[String: Any]],
-                   let firstResult = results.first {
-                    // Extract artwork and preview URL
-                    if let artworkUrl = firstResult["artworkUrl100"] as? String,
-                       let previewUrl = firstResult["previewUrl"] as? String {
-                        song.itunesArtworkURL = artworkUrl
-                        song.previewURL = previewUrl
-                        
-                        print("Artwork URL: \(artworkUrl)")
-                        print("Preview URL: \(previewUrl)")
-                    }
+
+        do {
+            let (data, _) = try await URLSession.shared.data(from: url)
+
+            print("search url is \(searchURL)")
+            
+            if let json = try JSONSerialization.jsonObject(with: data) as? [String: Any],
+               let results = json["results"] as? [[String: Any]],
+               let first = results.first {
+
+                print(json["resultCount"] ?? "none")
+                song.itunesArtworkURL = first["artworkUrl100"] as? String
+                song.previewURL = first["previewUrl"] as? String
+
+                if let preview = song.previewURL {
+                    song.audioURL = URL(string: preview)
                 }
-            } catch {
-                print("Error parsing JSON: \(error)")
             }
+        } catch {
+            print(error)
         }
-        task.resume()
-//        song.albumArtData = try await downloadData(from: song.itunesArtworkURL!)
     }
     
     // Helps bg process of image/audio downlaods
