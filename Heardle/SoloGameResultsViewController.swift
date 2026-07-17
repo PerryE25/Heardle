@@ -43,7 +43,7 @@ class SoloGameResultsViewController: UIViewController {
         startButtonAnimation()
         setupProgressBlocks()
 
-        currentSong = songs[3]
+        currentSong = songs[0]
         
         songLargeImage.image = UIImage(data: currentSong!.albumArtData!)
         songSmallImage.image = UIImage(data: currentSong!.albumArtData!)
