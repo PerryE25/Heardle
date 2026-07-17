@@ -50,6 +50,8 @@ class GameViewController: UIViewController, SearchViewDelegate {
     }
     
     let searchSegueID = "SearchSongSegue"
+    let wrongGuessSegueID = "WrongGuessSegueID"
+    let gameOverSegueID = "GameOverSegue"
     
     // Tracks the player's attempt count and triggers game over on the sixth attempt.
     var currentAttempts = 0 {
@@ -58,7 +60,7 @@ class GameViewController: UIViewController, SearchViewDelegate {
             prevAttemptsButton.setTitle("Attempt \(currentAttempts) / 6 ", for: .normal)
             if self.currentAttempts == 6 {
                 print("final results are didWin: \(didWin), globalAttempts: \(globalTotalAttempts), current song name is: \(songs[currentSongIndex].name)")
-                performSegue(withIdentifier: "GameOverSegue", sender: self)
+                performSegue(withIdentifier: gameOverSegueID, sender: self)
             }
         }
     }
@@ -346,6 +348,7 @@ class GameViewController: UIViewController, SearchViewDelegate {
             // Added by Jeremiah in order to keep track of if the user has already guessed a song so it doesnt count towards the currentAttempts total that is used in the WrongGuessesVC (Not sure we keep this in or not)
             for guess in prevGuesses where guess == answer {
                 shake()
+                performSegue(withIdentifier: wrongGuessSegueID, sender: self)
                 return
             }
             
