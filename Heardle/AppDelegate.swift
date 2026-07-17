@@ -15,10 +15,19 @@ import FirebaseCore
 @main
 class AppDelegate: UIResponder, UIApplicationDelegate {
 
-
-
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
-        // Override point for customization after application launch.
+        // Set up default songs and firebase
+        Task {
+            songs = await songService.fetchDefaults()
+            await songService.updateAlbumArtData()
+            
+            print("Fetched \(songs.count) songs")
+            
+            guard !songs.isEmpty else {
+                print("No songs found")
+                return
+            }
+        }
         FirebaseApp.configure()
         return true
     }
