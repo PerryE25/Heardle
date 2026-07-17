@@ -48,23 +48,14 @@ class Song {
         self.albumArt = albumArt
     }
     
-    // Initializes a Song with its firebase metadata and storage URLs.
-    init(name: String, artist: String, album: String, firebaseStorageAudioURL: URL, firebaseStorageArtworkURL: URL) {
-        self.name = name
-        self.artist = artist
-        self.album = album
-        self.firebaseStorageAudioURL = firebaseStorageAudioURL
-        self.firebaseStorageArtworkURL = firebaseStorageArtworkURL
-    }
-    
     //Initialzes a Song with its iTunes metadata
-    init(name: String, artist: String, album: String, trackId: Int, genre: String, previewURL: String, itunesArtworkURL: String) {
+    init(name: String, artist: String, album: String, previewURL: String, itunesArtworkURL: String) {
         self.name = name
         self.artist = artist
         self.album = album
-        self.trackId = trackId
-        self.genre = genre
         self.previewURL = previewURL
+        self.audioURL = URL(string: previewURL)
+        self.albumArt = URL(string: itunesArtworkURL)
         self.itunesArtworkURL = itunesArtworkURL
     }
 }

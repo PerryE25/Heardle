@@ -21,6 +21,7 @@ class SearchViewController: UIViewController, UITableViewDelegate, UITableViewDa
     @IBOutlet weak var songTableView: UITableView!
     
     var filteredSongs: [Song] = []
+    var searchedSongResults: [Song] = []
     let songCellID = "SongCell"
     
     // MARK: - Lifecycle
@@ -53,18 +54,23 @@ class SearchViewController: UIViewController, UITableViewDelegate, UITableViewDa
     
     // Shows filtered results if searching, otherwise shows all songs.
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return isFiltering() ? filteredSongs.count : songs.count
+        return isFiltering() ? searchedSongResults.count : songs.count
     }
     
     // Configures a cell with song title, artist, and artwork.
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         
         let cell = tableView.dequeueReusableCell(withIdentifier: songCellID, for: indexPath)
-        let song = isFiltering() ? filteredSongs[indexPath.row] : songs[indexPath.row]
+        let song = isFiltering() ? searchedSongResults[indexPath.row] : songs[indexPath.row]
         var content = cell.defaultContentConfiguration()
         content.text = "\(song.name)"
         content.secondaryText = "Song • \(song.artist)"
-        content.image = UIImage(data: song.albumArtData!)
+        if let data = song.albumArtData {
+            content.image = UIImage(data: data)
+        } else {
+            content.image = UIImage(systemName: "music.note")            
+        }
+        
         content.imageProperties.cornerRadius = 10
         content.imageProperties.maximumSize = CGSize(width: 75, height: 575)
         content.imageProperties.reservedLayoutSize = CGSize(width: 75, height: 75)
@@ -78,7 +84,7 @@ class SearchViewController: UIViewController, UITableViewDelegate, UITableViewDa
     // Selects a song and dismisses back to the game screen.
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         songTableView.deselectRow(at: indexPath, animated: true)
-        selectedSongCanidate = isFiltering() ? filteredSongs[indexPath.row] : songs[indexPath.row]
+        selectedSongCanidate = isFiltering() ? searchedSongResults[indexPath.row] : songs[indexPath.row]
         dismiss(animated: true)
     }
     
@@ -97,14 +103,20 @@ class SearchViewController: UIViewController, UITableViewDelegate, UITableViewDa
     
     // Updates results as the user types, matching by song or artist.
     func searchBar(_ searchBar: UISearchBar, textDidChange searchText: String) {
-        if searchText.isEmpty {
-            resultsHeaderLabel.text = "Songs"
-            filteredSongs = songs
-        } else {
-            resultsHeaderLabel.text = "Results for '\(searchText)'"
-            filteredSongs = songs.filter { matchesQuery($0, query: searchText) }
+        Task {
+            if searchText.isEmpty {
+                resultsHeaderLabel.text = "Songs"
+                filteredSongs = songs
+                searchedSongResults = songs
+            } else {
+                resultsHeaderLabel.text = "Results for '\(searchText)'"
+                searchedSongResults = await songService.searchForSongs(searchTerm: searchText)
+                await songService.updateAlbumArtData(songs: searchedSongResults)
+                filteredSongs = songs.filter { matchesQuery($0, query: searchText) }
+            }
+
+            songTableView.reloadData()
         }
-        songTableView.reloadData()
     }
     
     // Returns true when a query is present and filtering should apply.

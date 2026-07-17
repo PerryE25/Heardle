@@ -55,6 +55,11 @@ class SongService {
     
     // Given api artwork url, download data of all songs
     func updateAlbumArtData() async {
+        await updateAlbumArtData(songs: songs)
+    }
+    
+    // Given api artwork url, download data of all songs
+    func updateAlbumArtData(songs: [Song]) async {
         for curSong in songs {
             do {
                 curSong.albumArtData = try await downloadData(from: curSong.itunesArtworkURL!)
@@ -102,6 +107,34 @@ class SongService {
             print(error)
             return []
         }
+    }
+    
+    // Given search term, return top 25 songs similar to an iTunes search
+    func searchForSongs(searchTerm: String) async -> [Song] {
+        let encodedSearchTerm = searchTerm.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? ""
+        let searchURL = "https://itunes.apple.com/search?term=\(encodedSearchTerm)&entity=song&limit=25"
+        
+        guard let url = URL(string: searchURL) else { return [] }
+        var songResults: [Song] = []
+        do {
+            let (data, _) = try await URLSession.shared.data(from: url)
+            if let json = try JSONSerialization.jsonObject(with: data, options: .allowFragments) as? [String: Any],
+               let results = json["results"] as? [[String: Any]] {
+                for result in results {
+                    let name = result["trackName"] as? String ?? ""
+                    let artist = result["artistName"] as? String ?? ""
+                    let album = result["collectionName"] as? String ?? ""
+                    let prevUrl = result["previewUrl"] as? String ?? ""
+                    let artworkUrl = result["artworkUrl100"] as? String ?? ""
+                    
+                    songResults.append(Song(name: name, artist: artist, album: album, previewURL: prevUrl, itunesArtworkURL: artworkUrl))
+                }
+            }
+        } catch {
+            print(error)
+        }
+        
+        return songResults
     }
     
     // Grab song's artwork and previewAudio given song name and artist name
