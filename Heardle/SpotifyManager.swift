@@ -6,107 +6,77 @@
 //
 
 import Foundation
-import SpotifyiOS
+import SpotifyLogin
 import FirebaseFunctions
 import FirebaseAuth
 protocol SpotifyManagerDelegate{
     func spotifyLoginSucceeded()
-    func spotifyLoginFailed()
+    func spotifyLoginFailed(error: Error?)
 }
 
 let spotifyManager = SpotifyManager()
 
-class SpotifyManager: NSObject, SPTAppRemoteDelegate{
-    
-    
-    func appRemote(_ appRemote: SPTAppRemote, didFailConnectionAttemptWithError error: (any Error)?) {
-        delegate?.spotifyLoginFailed()
-        print("Connection failed")
+class SpotifyManager: NSObject, SessionManagerDelegate{
+    func sessionManager(manager: SpotifyLogin.SessionManager, didInitiate session: SpotifyLogin.Session) {
+        //auth succeded
+        signIntoFirebase(spotifyAccessToken: session.accessToken)
     }
     
-    func appRemote(_ appRemote: SPTAppRemote, didDisconnectWithError error: (any Error)?) {
-        delegate?.spotifyLoginFailed()
-        print("Spotify disconnected")
+    func sessionManager(manager: SpotifyLogin.SessionManager, didFailWith error: any Error) {
+        print("spotify auth failed: \(error.localizedDescription)")
+        delegate?.spotifyLoginFailed(error: error)
     }
-    
-    func appRemoteDidEstablishConnection(_ appRemote: SPTAppRemote) {
-        delegate?.spotifyLoginSucceeded()
-        print("Connected to Spotify")
-    }
-    
-    
-    let appRemote: SPTAppRemote
     
     var delegate: SpotifyManagerDelegate?
     
+    var sessionManager: SessionManager!
+    
     override init(){
-        let configuration = SPTConfiguration(clientID: "488a5b1453634b68bc6a0905dcc0f0c9", redirectURL: URL(string: "utcs.heardle://spotify-login-callback")!)
-         appRemote = SPTAppRemote(configuration: configuration, logLevel: .debug)
         super.init()
-        appRemote.delegate = self
+        
+        let configuration = Configuration(clientID: "488a5b1453634b68bc6a0905dcc0f0c9", redirectURL: URL(string: "utcs.heardle://spotify-login-callback")!)
+        
+        sessionManager = SessionManager(configuration: configuration, delegate: self)
     }
     
     func login(){
-        appRemote.authorizeAndPlayURI("", asRadio: false, additionalScopes: ["user-read-private"])
+        let scopes : [Scope] = [.userReadPrivate, .userReadEmail, .userLibraryRead, .playlistReadPrivate]
+        
+        sessionManager.initiateSession(with: scopes, authorizationFlow: .default)
+        
+    }
+    func handleCallback(url: URL){
+        sessionManager.openURL(url)
     }
     
-    func handleCallback(url: URL){
-        guard let parameters = appRemote.authorizationParameters(from: url) else {
-            print("invalid spotify callback")
-            delegate?.spotifyLoginFailed()
-            return
-        }
-        
-        if let errorMessage = parameters[SPTAppRemoteErrorDescriptionKey]{
-            print("Spotify error \(errorMessage)")
-            delegate?.spotifyLoginFailed()
-            return
-        }
-        
-        guard let accessToken = parameters[SPTAppRemoteAccessTokenKey] else{
-            print("No access token")
-            delegate?.spotifyLoginFailed()
-            return
-        }
-        appRemote.connectionParameters.accessToken = accessToken
-            
-        appRemote.connect()
-        
-        signIntoFirebase(spotifyAccessToken: accessToken)
-        
-    }
     func signIntoFirebase(spotifyAccessToken: String){
         let function = Functions.functions().httpsCallable("spotifySignIn")
         function.call(["accessToken": spotifyAccessToken]) { (result, error) in
-            if let error = error {
-                print(error)
-                self.delegate?.spotifyLoginFailed()
+            if let error = error{
+                print("error: \(error.localizedDescription)")
                 return
             }
-            
             let data = result?.data as? [String: Any]
-            guard let customToken = data?["customToken"] as? String else{
-                print("No custom token received")
-                self.delegate?.spotifyLoginFailed()
-                return
-            }
             
-            Auth.auth().signIn(withCustomToken: customToken){
-                authResult, error in
-                if let error = error{
-                    print("Firebase login error \(error.localizedDescription)")
-                    self.delegate?.spotifyLoginFailed()
+            guard let customToken = data?["customToken"] as? String else {
+                    print("No custom token returned")
+                    self.delegate?.spotifyLoginFailed(error: nil)
                     return
                 }
-                
+            
+            Auth.auth().signIn(withCustomToken: customToken) { (result, error) in
+                if let error = error{
+                    print("error: \(error.localizedDescription)")
+                    return
+                }
                 self.delegate?.spotifyLoginSucceeded()
             }
-            
-            
-
         }
         
-        
     }
+    
+    
+    
+    
 
 }

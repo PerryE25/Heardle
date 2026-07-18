@@ -12,6 +12,10 @@
 import UIKit
 
 class CreateAccountViewController: UIViewController, SpotifyManagerDelegate {
+    func spotifyLoginFailed(error: Error?) {
+        print(error?.localizedDescription ?? "Spotify login failed")
+    }
+    
 
     @IBOutlet weak var spotifyButton: UIButton!
     @IBOutlet weak var emailField: UITextField!
@@ -81,9 +85,14 @@ class CreateAccountViewController: UIViewController, SpotifyManagerDelegate {
         performSegue(withIdentifier: "accountToHomeSegue", sender: self)
     }
     
-    func spotifyLoginFailed() {
-        print("login failed")
+    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
+        if segue.identifier == "accountToPasswordSegue"{
+            let passwordVC = segue.destination as! CreatePasswordViewController
+            
+            passwordVC.email = emailField.text!
+        }
     }
+    
     
 
     /*

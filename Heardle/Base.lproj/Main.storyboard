@@ -86,7 +86,7 @@
                         <outlet property="appleButton" destination="jOj-zP-Nrh" id="sHg-vw-hK3"/>
                         <outlet property="googleButton" destination="dET-8n-gZS" id="zqf-fP-6yb"/>
                         <outlet property="spotifyButton" destination="kfh-QU-fJx" id="UAt-I5-0b6"/>
-                        <segue destination="RbG-dU-v1b" kind="presentation" identifier="loginToHomeSegue" id="9Gv-KU-6HM"/>
+                        <segue destination="F3C-hQ-FlU" kind="presentation" identifier="loginToHomeSegue" modalPresentationStyle="fullScreen" id="f4b-ZM-rzg"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="dkx-z0-nzr" sceneMemberID="firstResponder"/>
@@ -194,7 +194,7 @@
                         <outlet property="googleButton" destination="fjU-qg-9Tf" id="9zH-c9-omd"/>
                         <outlet property="spotifyButton" destination="RpL-bt-mLY" id="hBl-YM-HiT"/>
                         <segue destination="Y6M-TE-w5W" kind="presentation" identifier="accountToPasswordSegue" modalPresentationStyle="fullScreen" id="UEb-19-qTT"/>
-                        <segue destination="RbG-dU-v1b" kind="presentation" identifier="accountToHomeSegue" id="sHr-9k-2nT"/>
+                        <segue destination="F3C-hQ-FlU" kind="presentation" identifier="accountToHomeSegue" modalPresentationStyle="fullScreen" id="geK-T4-x3J"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="7Ot-rr-LvI" sceneMemberID="firstResponder"/>
@@ -270,7 +270,7 @@
             <objects>
                 <viewController id="zb9-as-Tbr" customClass="HomeViewController" customModule="Heardle" customModuleProvider="target" sceneMemberID="viewController">
                     <view key="view" contentMode="scaleToFill" id="aNQ-qi-gRU">
-                        <rect key="frame" x="0.0" y="0.0" width="440" height="894"/>
+                        <rect key="frame" x="0.0" y="0.0" width="440" height="956"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" text="Agent P" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="VCe-sw-wnR">
@@ -371,7 +371,7 @@
             <objects>
                 <viewController id="dXl-yN-Qab" customClass="SettingsViewController" customModule="Heardle" customModuleProvider="target" sceneMemberID="viewController">
                     <view key="view" contentMode="scaleToFill" id="qNW-3F-agf">
-                        <rect key="frame" x="0.0" y="0.0" width="440" height="894"/>
+                        <rect key="frame" x="0.0" y="0.0" width="440" height="884"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" text="settings" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Ze7-qm-dpC">
@@ -1405,11 +1405,11 @@
             <objects>
                 <viewController modalTransitionStyle="crossDissolve" modalPresentationStyle="overCurrentContext" id="IXp-DI-Sma" customClass="RulesViewController" customModule="Heardle" customModuleProvider="target" sceneMemberID="viewController">
                     <view key="view" contentMode="scaleToFill" id="ggH-R1-4ap">
-                        <rect key="frame" x="0.0" y="0.0" width="440" height="956"/>
+                        <rect key="frame" x="0.0" y="0.0" width="440" height="884"/>
                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                         <subviews>
                             <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="MH7-Nu-Oic">
-                                <rect key="frame" x="16" y="97" width="408" height="764"/>
+                                <rect key="frame" x="16" y="97" width="408" height="726"/>
                                 <subviews>
                                     <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="LogoImage" translatesAutoresizingMaskIntoConstraints="NO" id="QT5-FB-h3h">
                                         <rect key="frame" x="65" y="8" width="277" height="111.33333333333333"/>
@@ -1441,7 +1441,7 @@
                                         <color key="tintColor" name="SpotifyGreenGlow"/>
                                     </imageView>
                                     <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" translatesAutoresizingMaskIntoConstraints="NO" id="ngR-nS-vPF">
-                                        <rect key="frame" x="8" y="214" width="137" height="475"/>
+                                        <rect key="frame" x="8" y="214" width="137" height="437"/>
                                     </stackView>
                                     <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" text="Hearing a longer clip counts as 1 guess" lineBreakMode="tailTruncation" numberOfLines="2" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="myX-4a-vUd">
                                         <rect key="frame" x="164" y="329" width="198" height="47"/>
@@ -1472,10 +1472,10 @@
                                         <nil key="highlightedColor"/>
                                     </label>
                                     <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" translatesAutoresizingMaskIntoConstraints="NO" id="Eum-w3-s4W">
-                                        <rect key="frame" x="147" y="189" width="253" height="501"/>
+                                        <rect key="frame" x="147" y="189" width="253" height="463"/>
                                     </stackView>
                                     <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Uzd-3c-q3w">
-                                        <rect key="frame" x="47" y="707" width="314" height="35"/>
+                                        <rect key="frame" x="47" y="669" width="314" height="35"/>
                                         <color key="tintColor" name="SpotifyGreenGlow"/>
                                         <state key="normal" title="Button"/>
                                         <buttonConfiguration key="configuration" style="filled" title="Got it"/>
@@ -1942,7 +1942,7 @@
                 <navigationController automaticallyAdjustsScrollViewInsets="NO" id="F3C-hQ-FlU" sceneMemberID="viewController">
                     <toolbarItems/>
                     <navigationBar key="navigationBar" contentMode="scaleToFill" id="Fhx-Ei-tO8">
-                        <rect key="frame" x="0.0" y="124" width="440" height="54"/>
+                        <rect key="frame" x="0.0" y="62" width="440" height="54"/>
                         <autoresizingMask key="autoresizingMask"/>
                     </navigationBar>
                     <nil name="viewControllers"/>
@@ -1976,11 +1976,12 @@
         </scene>
     </scenes>
     <inferredMetricsTieBreakers>
-        <segue reference="9Gv-KU-6HM"/>
+        <segue reference="3vW-iT-aCE"/>
+        <segue reference="geK-T4-x3J"/>
         <segue reference="PRU-We-7et"/>
-        <segue reference="GKt-vI-IEd"/>
-        <segue reference="jRB-L0-kcP"/>
-        <segue reference="9Q0-3w-hLZ"/>
+        <segue reference="DsA-I4-RRF"/>
+        <segue reference="aMZ-4R-O37"/>
+        <segue reference="pmw-PS-eta"/>
     </inferredMetricsTieBreakers>
     <resources>
         <image name="6.circle" catalog="system" width="128" height="123"/>

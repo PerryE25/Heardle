@@ -12,6 +12,10 @@
 import UIKit
 
 class LoginViewController: UIViewController, SpotifyManagerDelegate {
+    func spotifyLoginFailed(error: Error?) {
+        print(error?.localizedDescription ?? "Spotify login failed")
+    }
+    
 
     @IBOutlet weak var spotifyButton: UIButton!
     
@@ -69,12 +73,18 @@ class LoginViewController: UIViewController, SpotifyManagerDelegate {
     }
     
     func spotifyLoginSucceeded(){
-        performSegue(withIdentifier: "loginToHomeSegue", sender: self)
+            performSegue(withIdentifier: "loginToHomeSegue", sender: self)
+        
     }
     
     func spotifyLoginFailed(){
+        
         print("Spotify Login Failed")
     }
+    
+    
+
+
     
 
     /*

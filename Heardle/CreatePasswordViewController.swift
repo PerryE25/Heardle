@@ -10,11 +10,14 @@
 //
 
 import UIKit
+import FirebaseAuth
 
 class CreatePasswordViewController: UIViewController {
 
     @IBOutlet weak var passwordField: UITextField!
     @IBOutlet weak var nextButton: UIButton!
+    
+    var email : String?
     let eyeButton = UIButton(type: .system)
 
     override func viewDidLoad() {
@@ -53,6 +56,15 @@ class CreatePasswordViewController: UIViewController {
 
     
     @IBAction func nextButtonPressed(_ sender: Any) {
+        Auth.auth().createUser(withEmail: email!, password: passwordField.text!){
+            result, error in
+            if let error = error{
+                print(error.localizedDescription)
+            }
+            return
+        }
+        
+        
         performSegue(withIdentifier: "passwordToHomeSegue", sender: nil)
     }
     

@@ -10,7 +10,6 @@
 //
 
 import UIKit
-import SpotifyiOS
 class SceneDelegate: UIResponder, UIWindowSceneDelegate {
 
     var window: UIWindow?
@@ -24,9 +23,13 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
     }
     
     func scene(_ scene: UIScene, openURLContexts URLContexts: Set<UIOpenURLContext>){
-        guard let url = URLContexts.first?.url else { return }
+        guard let url = URLContexts.first?.url else{
+            return
+        }
         spotifyManager.handleCallback(url: url)
     }
+    
+
 
     func sceneDidDisconnect(_ scene: UIScene) {
         // Called as the scene is being released by the system.
@@ -38,17 +41,13 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
     func sceneDidBecomeActive(_ scene: UIScene) {
         // Called when the scene has moved from an inactive state to an active state.
         // Use this method to restart any tasks that were paused (or not yet started) when the scene was inactive.
-        if spotifyManager.appRemote.connectionParameters.accessToken != nil && !spotifyManager.appRemote.isConnected {
-            spotifyManager.appRemote.connect()
-        }
+
     }
 
     func sceneWillResignActive(_ scene: UIScene) {
         // Called when the scene will move from an active state to an inactive state.
         // This may occur due to temporary interruptions (ex. an incoming phone call).
-        if spotifyManager.appRemote.isConnected {
-            spotifyManager.appRemote.disconnect()
-        }
+
     }
 
     func sceneWillEnterForeground(_ scene: UIScene) {
