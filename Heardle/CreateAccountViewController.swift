@@ -9,11 +9,15 @@
 //  Course: CS371L
 //
 
+import FirebaseAuth
+import FirebaseFirestore
 import UIKit
 
 class CreateAccountViewController: UIViewController, SpotifyManagerDelegate {
+    var isNavigatingHome = false
+
     func spotifyLoginFailed(error: Error?) {
-        print(error?.localizedDescription ?? "Spotify login failed")
+        showError(error?.localizedDescription ?? "Spotify login failed.")
     }
     
 
@@ -33,6 +37,10 @@ class CreateAccountViewController: UIViewController, SpotifyManagerDelegate {
     
     @IBAction func spotifyButtonPressed(_ sender: Any) {
         spotifyManager.login()
+    }
+
+    @IBAction func emailLoginButtonPressed(_ sender: Any) {
+        presentEmailLoginAlert()
     }
     
     
@@ -82,6 +90,115 @@ class CreateAccountViewController: UIViewController, SpotifyManagerDelegate {
     }
     
     func spotifyLoginSucceeded(){
+        goHome()
+    }
+
+    func presentEmailLoginAlert() {
+        let alert = UIAlertController(
+            title: "Log in",
+            message: "Enter your email and password.",
+            preferredStyle: .alert
+        )
+
+        alert.addTextField { field in
+            field.placeholder = "Email"
+            field.keyboardType = .emailAddress
+            field.autocapitalizationType = .none
+        }
+
+        alert.addTextField { field in
+            field.placeholder = "Password"
+            field.isSecureTextEntry = true
+        }
+
+        let emailField = alert.textFields![0]
+        let passwordField = alert.textFields![1]
+
+        alert.addAction(UIAlertAction(title: "Cancel", style: .cancel))
+        alert.addAction(UIAlertAction(title: "Log in", style: .default) { _ in
+            let email = emailField.text?
+                .trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
+            let password = passwordField.text ?? ""
+
+            guard !email.isEmpty, !password.isEmpty else {
+                self.showError("Enter your email and password.")
+                return
+            }
+
+            self.signInWithEmail(email, password: password)
+        })
+
+        present(alert, animated: true)
+    }
+
+    func signInWithEmail(_ email: String, password: String) {
+        Auth.auth().signIn(withEmail: email, password: password) { result, error in
+            if let error {
+                self.showError(error.localizedDescription)
+                return
+            }
+
+            guard let user = result?.user else {
+                self.showError("The account could not be loaded.")
+                return
+            }
+
+            self.checkSpotifyConnection(for: user)
+        }
+    }
+
+    func checkSpotifyConnection(for user: User) {
+        Firestore.firestore()
+            .collection("users")
+            .document(user.uid)
+            .getDocument { snapshot, error in
+                if let error {
+                    self.showError(error.localizedDescription)
+                    return
+                }
+
+                let spotifyConnected =
+                    snapshot?.data()?["spotifyConnected"] as? Bool ?? false
+
+                if spotifyConnected {
+                    self.goHome()
+                } else {
+                    self.presentConnectSpotifyAlert()
+                }
+            }
+    }
+
+    func presentConnectSpotifyAlert() {
+        let alert = UIAlertController(
+            title: "Connect Spotify?",
+            message: "Connect Spotify so Heardle can use your favorite songs.",
+            preferredStyle: .alert
+        )
+
+        alert.addAction(UIAlertAction(title: "Connect Spotify", style: .default) {
+            _ in spotifyManager.connect()
+        })
+
+        alert.addAction(UIAlertAction(title: "Not Now", style: .cancel) {
+            _ in self.goHome()
+        })
+
+        present(alert, animated: true)
+    }
+
+    private func showError(_ message: String) {
+        let alert = UIAlertController(
+            title: "Login Error",
+            message: message,
+            preferredStyle: .alert
+        )
+        alert.addAction(UIAlertAction(title: "OK", style: .default))
+        present(alert, animated: true)
+    }
+
+    private func goHome() {
+        guard !isNavigatingHome else { return }
+        isNavigatingHome = true
         performSegue(withIdentifier: "accountToHomeSegue", sender: self)
     }
     

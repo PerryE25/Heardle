@@ -9,6 +9,7 @@ import Foundation
 import SpotifyLogin
 import FirebaseFunctions
 import FirebaseAuth
+import FirebaseFirestore
 protocol SpotifyManagerDelegate{
     func spotifyLoginSucceeded()
     func spotifyLoginFailed(error: Error?)
@@ -19,7 +20,11 @@ let spotifyManager = SpotifyManager()
 class SpotifyManager: NSObject, SessionManagerDelegate{
     func sessionManager(manager: SpotifyLogin.SessionManager, didInitiate session: SpotifyLogin.Session) {
         //auth succeded
-        signIntoFirebase(spotifyAccessToken: session.accessToken)
+        if connectingExistingAccount{
+            connectSpotify(spotifyAccessToken: session.accessToken)
+        }else {
+            signIntoFirebase(spotifyAccessToken: session.accessToken)
+        }
     }
     
     func sessionManager(manager: SpotifyLogin.SessionManager, didFailWith error: any Error) {
@@ -31,6 +36,8 @@ class SpotifyManager: NSObject, SessionManagerDelegate{
     
     var sessionManager: SessionManager!
     
+    var connectingExistingAccount = false
+    
     override init(){
         super.init()
         
@@ -40,11 +47,21 @@ class SpotifyManager: NSObject, SessionManagerDelegate{
     }
     
     func login(){
-        let scopes : [Scope] = [.userReadPrivate, .userReadEmail, .userLibraryRead, .playlistReadPrivate]
-        
-        sessionManager.initiateSession(with: scopes, authorizationFlow: .default)
-        
+        connectingExistingAccount = false
+        startSpotifyAuthorization()
     }
+    
+    func connect(){
+        connectingExistingAccount = true
+        startSpotifyAuthorization()
+    }
+    
+    func startSpotifyAuthorization(){
+        let scopes : [Scope] = [.userReadPrivate, .userReadEmail, .userLibraryRead, .playlistReadPrivate, .userTopRead]
+        sessionManager.initiateSession(with: scopes, authorizationFlow: .default)
+
+    }
+    
     func handleCallback(url: URL){
         sessionManager.openURL(url)
     }
@@ -73,6 +90,49 @@ class SpotifyManager: NSObject, SessionManagerDelegate{
             }
         }
         
+    }
+    func connectSpotify(spotifyAccessToken: String) {
+        guard let user = Auth.auth().currentUser else {
+            print("No Firebase user signed in")
+            delegate?.spotifyLoginFailed(error: nil)
+            return
+        }
+
+        let function = Functions.functions().httpsCallable("spotifySignIn")
+
+        function.call(["accessToken": spotifyAccessToken]) { result, error in
+            if let error = error {
+                print(error.localizedDescription)
+                self.delegate?.spotifyLoginFailed(error: error)
+                return
+            }
+
+            let data = result?.data as? [String: Any]
+
+            guard let spotifyID = data?["spotifyAccountID"] as? String else {
+                print("Spotify ID missing")
+                self.delegate?.spotifyLoginFailed(error: nil)
+                return
+            }
+
+            let spotifyName = data?["spotifyDisplayName"] as? String ?? ""
+
+            Firestore.firestore()
+                .collection("users")
+                .document(user.uid)
+                .setData([
+                    "spotifyConnected": true,
+                    "spotifyAccountID": spotifyID,
+                    "spotifyDisplayName": spotifyName], merge: true) { error in
+                    if let error = error {
+                        print(error.localizedDescription)
+                        self.delegate?.spotifyLoginFailed(error: error)
+                        return
+                    }
+
+                    self.delegate?.spotifyLoginSucceeded()
+                }
+        }
     }
     
     

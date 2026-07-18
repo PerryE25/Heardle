@@ -76,6 +76,9 @@
                                 <color key="tintColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                 <state key="normal" title="Button"/>
                                 <buttonConfiguration key="configuration" style="plain" title="Log in"/>
+                                <connections>
+                                    <action selector="emailLoginButtonPressed:" destination="BYZ-38-t0r" eventType="touchUpInside" id="R2C-Kh-0nL"/>
+                                </connections>
                             </button>
                         </subviews>
                         <viewLayoutGuide key="safeArea" id="6Tk-OE-BBY"/>
@@ -183,6 +186,9 @@
                                 <color key="tintColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                 <state key="normal" title="Button"/>
                                 <buttonConfiguration key="configuration" style="plain" title="Log in"/>
+                                <connections>
+                                    <action selector="emailLoginButtonPressed:" destination="Kwy-bb-gbc" eventType="touchUpInside" id="kec-9k-fdB"/>
+                                </connections>
                             </button>
                         </subviews>
                         <viewLayoutGuide key="safeArea" id="tSP-eQ-tkl"/>
@@ -249,7 +255,6 @@
                                 <buttonConfiguration key="configuration" style="plain" title="Next"/>
                                 <connections>
                                     <action selector="nextButtonPressed:" destination="Y6M-TE-w5W" eventType="touchUpInside" id="3ft-c7-tB2"/>
-                                    <segue destination="RbG-dU-v1b" kind="presentation" identifier="passwordToHomeSegue" modalPresentationStyle="fullScreen" id="3vW-iT-aCE"/>
                                 </connections>
                             </button>
                         </subviews>
@@ -259,6 +264,7 @@
                     <connections>
                         <outlet property="nextButton" destination="ULS-U5-67T" id="8FR-r5-fgh"/>
                         <outlet property="passwordField" destination="Kv5-DF-Gb6" id="lhg-vy-h6R"/>
+                        <segue destination="F3C-hQ-FlU" kind="presentation" modalPresentationStyle="fullScreen" id="LG1-gM-50d"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="u10-Kr-lfj" sceneMemberID="firstResponder"/>
@@ -1976,8 +1982,8 @@
         </scene>
     </scenes>
     <inferredMetricsTieBreakers>
-        <segue reference="3vW-iT-aCE"/>
-        <segue reference="geK-T4-x3J"/>
+        <segue reference="i1r-4U-xdo"/>
+        <segue reference="LG1-gM-50d"/>
         <segue reference="PRU-We-7et"/>
         <segue reference="DsA-I4-RRF"/>
         <segue reference="aMZ-4R-O37"/>
