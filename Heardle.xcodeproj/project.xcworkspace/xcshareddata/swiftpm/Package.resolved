@@ -1,5 +1,5 @@
 {
-  "originHash" : "ab34b2fced8d024bc21f37c84a4dadfe06be682b172b7d87e06516ef056b9084",
+  "originHash" : "2e6c71210d57b440885a6ffcaa3cd0f4ab3898745b3d8f2b6c7df64ca0127546",
   "pins" : [
     {
       "identity" : "abseil-cpp-binary",
@@ -98,6 +98,15 @@
       "state" : {
         "branch" : "main",
         "revision" : "1e92eb3ddd632a3ab3b2ed852057948f8ef05067"
+      }
+    },
+    {
+      "identity" : "ios-sdk",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/spotify/ios-sdk",
+      "state" : {
+        "revision" : "abb7052d6c6969c79d52ba7fe8b9ddb5f2613f79",
+        "version" : "1.2.5"
       }
     },
     {

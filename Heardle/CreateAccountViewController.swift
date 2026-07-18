@@ -11,7 +11,7 @@
 
 import UIKit
 
-class CreateAccountViewController: UIViewController {
+class CreateAccountViewController: UIViewController, SpotifyManagerDelegate {
 
     @IBOutlet weak var spotifyButton: UIButton!
     @IBOutlet weak var emailField: UITextField!
@@ -27,10 +27,14 @@ class CreateAccountViewController: UIViewController {
         }
     }
     
+    @IBAction func spotifyButtonPressed(_ sender: Any) {
+        spotifyManager.login()
+    }
     
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        spotifyManager.delegate = self
         emailField.layer.borderColor = UIColor.darkGray.cgColor
         emailField.layer.borderWidth = 1.0
         emailField.layer.cornerRadius = 6
@@ -71,6 +75,14 @@ class CreateAccountViewController: UIViewController {
         }
         
         // Do any additional setup after loading the view.
+    }
+    
+    func spotifyLoginSucceeded(){
+        performSegue(withIdentifier: "accountToHomeSegue", sender: self)
+    }
+    
+    func spotifyLoginFailed() {
+        print("login failed")
     }
     
 

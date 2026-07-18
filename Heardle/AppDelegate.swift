@@ -11,6 +11,7 @@
 
 import UIKit
 import FirebaseCore
+import SpotifyiOS
 
 @main
 class AppDelegate: UIResponder, UIApplicationDelegate {

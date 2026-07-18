@@ -18,46 +18,80 @@
                         <rect key="frame" x="0.0" y="0.0" width="440" height="956"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
-                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" text="SIGN IN!" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="MCt-IO-kJU">
-                                <rect key="frame" x="175" y="416" width="65" height="21"/>
+                            <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" image="LogoImage" translatesAutoresizingMaskIntoConstraints="NO" id="FLY-G9-O0C">
+                                <rect key="frame" x="100" y="178" width="240" height="128"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
-                                <fontDescription key="fontDescription" type="system" pointSize="17"/>
-                                <nil key="textColor"/>
+                            </imageView>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" text="Get 6 chances to guess a song" textAlignment="center" lineBreakMode="tailTruncation" numberOfLines="2" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="BEl-IU-chf">
+                                <rect key="frame" x="42" y="290" width="357" height="108"/>
+                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                <fontDescription key="fontDescription" type="system" pointSize="26"/>
+                                <color key="textColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                 <nil key="highlightedColor"/>
                             </label>
-                            <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="dRa-Vk-ci8">
-                                <rect key="frame" x="30" y="628" width="337" height="35"/>
+                            <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="O7H-Ud-HEM">
+                                <rect key="frame" x="20" y="406" width="400" height="53"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                <color key="backgroundColor" name="SpotifyGreen"/>
+                                <color key="tintColor" white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                 <state key="normal" title="Button"/>
-                                <buttonConfiguration key="configuration" style="plain" title="connect with spotify/google/apple/LOGIN"/>
+                                <buttonConfiguration key="configuration" style="plain" title="Sign up free"/>
                                 <connections>
-                                    <segue destination="F3C-hQ-FlU" kind="presentation" identifier="LoginToHomeSegueID" modalPresentationStyle="fullScreen" id="NDh-Cu-g7o"/>
+                                    <action selector="continueButtonPressed:" destination="Kwy-bb-gbc" eventType="touchUpInside" id="I3x-f3-xIJ"/>
+                                    <segue destination="Kwy-bb-gbc" kind="presentation" modalPresentationStyle="fullScreen" id="odD-fW-2Ja"/>
                                 </connections>
                             </button>
-                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" text="Haroon's screen to make" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="5Tu-bT-90Q">
-                                <rect key="frame" x="74" y="844" width="190" height="21"/>
+                            <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="kfh-QU-fJx">
+                                <rect key="frame" x="20" y="479" width="400" height="50"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
-                                <fontDescription key="fontDescription" type="system" pointSize="17"/>
-                                <nil key="textColor"/>
-                                <nil key="highlightedColor"/>
-                            </label>
-                            <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="6hJ-Uv-KL5">
-                                <rect key="frame" x="299" y="326" width="141" height="35"/>
-                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                <color key="backgroundColor" white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                <color key="tintColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                 <state key="normal" title="Button"/>
-                                <buttonConfiguration key="configuration" style="plain" title="Create account"/>
+                                <buttonConfiguration key="configuration" style="plain" image="spotify-xxl" title="Continue with Spotify">
+                                    <preferredSymbolConfiguration key="preferredSymbolConfigurationForImage" scale="small"/>
+                                </buttonConfiguration>
                                 <connections>
-                                    <segue destination="Kwy-bb-gbc" kind="show" identifier="SignUpSegueID" id="xuY-lX-5Mc"/>
+                                    <action selector="spotifyButtonPressed:" destination="BYZ-38-t0r" eventType="touchUpInside" id="qvj-Xn-PFy"/>
                                 </connections>
+                            </button>
+                            <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="dET-8n-gZS">
+                                <rect key="frame" x="20" y="553" width="400" height="46"/>
+                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                <color key="backgroundColor" white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                <color key="tintColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                <state key="normal" title="Button"/>
+                                <buttonConfiguration key="configuration" style="plain" image="Google_&quot;G&quot;_logo.svg" title="Continue with Google"/>
+                            </button>
+                            <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="jOj-zP-Nrh">
+                                <rect key="frame" x="20" y="607" width="400" height="43"/>
+                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                <color key="backgroundColor" white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                <color key="tintColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                <state key="normal" title="Button"/>
+                                <buttonConfiguration key="configuration" style="plain" image="Apple_logo_white.svg" title="Continue with Apple"/>
+                            </button>
+                            <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="S9V-W8-Dkc">
+                                <rect key="frame" x="185" y="826" width="70" height="35"/>
+                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                <color key="tintColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                <state key="normal" title="Button"/>
+                                <buttonConfiguration key="configuration" style="plain" title="Log in"/>
                             </button>
                         </subviews>
                         <viewLayoutGuide key="safeArea" id="6Tk-OE-BBY"/>
+                        <color key="backgroundColor" white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                     </view>
                     <navigationItem key="navigationItem" id="Cxl-Jg-1un"/>
+                    <connections>
+                        <outlet property="appleButton" destination="jOj-zP-Nrh" id="sHg-vw-hK3"/>
+                        <outlet property="googleButton" destination="dET-8n-gZS" id="zqf-fP-6yb"/>
+                        <outlet property="spotifyButton" destination="kfh-QU-fJx" id="UAt-I5-0b6"/>
+                        <segue destination="RbG-dU-v1b" kind="presentation" identifier="loginToHomeSegue" id="9Gv-KU-6HM"/>
+                    </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="dkx-z0-nzr" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="955.90909090909099" y="115.48117154811716"/>
+            <point key="canvasLocation" x="975" y="115"/>
         </scene>
         <!--Create Account View Controller-->
         <scene sceneID="Biv-Rp-LrL">
@@ -116,6 +150,9 @@
                                 <buttonConfiguration key="configuration" style="plain" image="spotify-xxl" title="Continue with Spotify">
                                     <preferredSymbolConfiguration key="preferredSymbolConfigurationForImage" scale="small"/>
                                 </buttonConfiguration>
+                                <connections>
+                                    <action selector="spotifyButtonPressed:" destination="Kwy-bb-gbc" eventType="touchUpInside" id="BH6-94-XQQ"/>
+                                </connections>
                             </button>
                             <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="fjU-qg-9Tf">
                                 <rect key="frame" x="20" y="485" width="400" height="46"/>
@@ -157,6 +194,7 @@
                         <outlet property="googleButton" destination="fjU-qg-9Tf" id="9zH-c9-omd"/>
                         <outlet property="spotifyButton" destination="RpL-bt-mLY" id="hBl-YM-HiT"/>
                         <segue destination="Y6M-TE-w5W" kind="presentation" identifier="accountToPasswordSegue" modalPresentationStyle="fullScreen" id="UEb-19-qTT"/>
+                        <segue destination="RbG-dU-v1b" kind="presentation" identifier="accountToHomeSegue" id="sHr-9k-2nT"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="7Ot-rr-LvI" sceneMemberID="firstResponder"/>
@@ -232,7 +270,7 @@
             <objects>
                 <viewController id="zb9-as-Tbr" customClass="HomeViewController" customModule="Heardle" customModuleProvider="target" sceneMemberID="viewController">
                     <view key="view" contentMode="scaleToFill" id="aNQ-qi-gRU">
-                        <rect key="frame" x="0.0" y="0.0" width="440" height="956"/>
+                        <rect key="frame" x="0.0" y="0.0" width="440" height="894"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" text="Agent P" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="VCe-sw-wnR">
@@ -333,7 +371,7 @@
             <objects>
                 <viewController id="dXl-yN-Qab" customClass="SettingsViewController" customModule="Heardle" customModuleProvider="target" sceneMemberID="viewController">
                     <view key="view" contentMode="scaleToFill" id="qNW-3F-agf">
-                        <rect key="frame" x="0.0" y="0.0" width="440" height="956"/>
+                        <rect key="frame" x="0.0" y="0.0" width="440" height="884"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" text="settings" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Ze7-qm-dpC">
@@ -1904,7 +1942,7 @@
                 <navigationController automaticallyAdjustsScrollViewInsets="NO" id="F3C-hQ-FlU" sceneMemberID="viewController">
                     <toolbarItems/>
                     <navigationBar key="navigationBar" contentMode="scaleToFill" id="Fhx-Ei-tO8">
-                        <rect key="frame" x="0.0" y="62" width="440" height="54"/>
+                        <rect key="frame" x="0.0" y="124" width="440" height="54"/>
                         <autoresizingMask key="autoresizingMask"/>
                     </navigationBar>
                     <nil name="viewControllers"/>
@@ -1940,7 +1978,11 @@
     <inferredMetricsTieBreakers>
         <segue reference="i1r-4U-xdo"/>
         <segue reference="PRU-We-7et"/>
+        <segue reference="DsA-I4-RRF"/>
+        <segue reference="K3Q-8M-PM7"/>
+        <segue reference="sHr-9k-2nT"/>
         <segue reference="GKt-vI-IEd"/>
+        <segue reference="aMZ-4R-O37"/>
         <segue reference="jRB-L0-kcP"/>
         <segue reference="9Q0-3w-hLZ"/>
     </inferredMetricsTieBreakers>
