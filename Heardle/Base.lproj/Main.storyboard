@@ -371,7 +371,7 @@
             <objects>
                 <viewController id="dXl-yN-Qab" customClass="SettingsViewController" customModule="Heardle" customModuleProvider="target" sceneMemberID="viewController">
                     <view key="view" contentMode="scaleToFill" id="qNW-3F-agf">
-                        <rect key="frame" x="0.0" y="0.0" width="440" height="884"/>
+                        <rect key="frame" x="0.0" y="0.0" width="440" height="894"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" text="settings" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Ze7-qm-dpC">
@@ -1976,13 +1976,9 @@
         </scene>
     </scenes>
     <inferredMetricsTieBreakers>
-        <segue reference="i1r-4U-xdo"/>
+        <segue reference="9Gv-KU-6HM"/>
         <segue reference="PRU-We-7et"/>
-        <segue reference="DsA-I4-RRF"/>
-        <segue reference="K3Q-8M-PM7"/>
-        <segue reference="sHr-9k-2nT"/>
         <segue reference="GKt-vI-IEd"/>
-        <segue reference="aMZ-4R-O37"/>
         <segue reference="jRB-L0-kcP"/>
         <segue reference="9Q0-3w-hLZ"/>
     </inferredMetricsTieBreakers>
