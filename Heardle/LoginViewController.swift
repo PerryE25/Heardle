@@ -12,6 +12,8 @@
 import FirebaseAuth
 import FirebaseFirestore
 import UIKit
+import GoogleSignIn
+import FirebaseCore
 
 class LoginViewController: UIViewController, SpotifyManagerDelegate {
     var isNavigatingHome = false
@@ -35,6 +37,29 @@ class LoginViewController: UIViewController, SpotifyManagerDelegate {
         presentEmailLoginAlert()
     }
     
+    @IBAction func googleButtonPressed(_ sender: Any) {
+        guard let clientID = FirebaseApp.app()?.options.clientID else { return }
+        GIDSignIn.sharedInstance.configuration = GIDConfiguration(clientID: clientID)
+        GIDSignIn.sharedInstance.signIn(withPresenting: self){ result, error in
+            guard error == nil else{
+                return
+            }
+            guard let user = result?.user, let idToken = user.idToken?.tokenString else { return }
+            
+            let credential = GoogleAuthProvider.credential(withIDToken: idToken, accessToken: user.accessToken.tokenString)
+            
+            Auth.auth().signIn(with: credential) { authResult, error in
+                guard error == nil else {
+                    return
+                }
+                guard let user = authResult?.user else{
+                    return
+                }
+                self.checkSpotifyConnection(for: user, loginProvider: "google")
+            }
+            
+        }
+    }
     
     
     override func viewDidLoad() {
@@ -134,17 +159,27 @@ class LoginViewController: UIViewController, SpotifyManagerDelegate {
                 return
             }
 
-            self.checkSpotifyConnection(for: user)
+            self.checkSpotifyConnection(for: user, loginProvider: "email")
         }
     }
 
-    private func checkSpotifyConnection(for user: User) {
-        Firestore.firestore()
-            .collection("users")
-            .document(user.uid)
-            .getDocument { snapshot, error in
+    private func checkSpotifyConnection(for user: User, loginProvider: String) {
+        let document = Firestore.firestore().collection("users").document(user.uid)
+            document.getDocument { snapshot, error in
                 if let error {
                     self.showError(error.localizedDescription)
+                    return
+                }
+                
+                if snapshot?.exists == false {
+                    document.setData([
+                        "email": user.email ?? "",
+                        "displayName": user.displayName ?? "",
+                        "loginProvider": loginProvider,
+                        "spotifyConnected": false,
+                        "songsImported": false
+                    ])
+                    self.presentConnectSpotifyAlert()
                     return
                 }
 

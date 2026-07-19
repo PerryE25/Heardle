@@ -5,91 +5,174 @@
 //  Created by Memon, Haroon on 7/16/26.
 //
 
-import Foundation
-import SpotifyLogin
-import FirebaseFunctions
 import FirebaseAuth
 import FirebaseFirestore
-protocol SpotifyManagerDelegate{
+import FirebaseFunctions
+import Foundation
+import SpotifyLogin
+
+protocol SpotifyManagerDelegate {
     func spotifyLoginSucceeded()
     func spotifyLoginFailed(error: Error?)
 }
 
 let spotifyManager = SpotifyManager()
 
-class SpotifyManager: NSObject, SessionManagerDelegate{
-    func sessionManager(manager: SpotifyLogin.SessionManager, didInitiate session: SpotifyLogin.Session) {
+class SpotifyManager: NSObject, SessionManagerDelegate {
+    func sessionManager(
+        manager: SpotifyLogin.SessionManager,
+        didInitiate session: SpotifyLogin.Session
+    ) {
         //auth succeded
-        if connectingExistingAccount{
+        if connectingExistingAccount {
             connectSpotify(spotifyAccessToken: session.accessToken)
-        }else {
+        } else {
             signIntoFirebase(spotifyAccessToken: session.accessToken)
         }
     }
-    
-    func sessionManager(manager: SpotifyLogin.SessionManager, didFailWith error: any Error) {
+
+    func sessionManager(
+        manager: SpotifyLogin.SessionManager,
+        didFailWith error: any Error
+    ) {
         print("spotify auth failed: \(error.localizedDescription)")
         delegate?.spotifyLoginFailed(error: error)
     }
-    
+
     var delegate: SpotifyManagerDelegate?
-    
+
     var sessionManager: SessionManager!
-    
+
     var connectingExistingAccount = false
-    
-    override init(){
+
+    override init() {
         super.init()
-        
-        let configuration = Configuration(clientID: "488a5b1453634b68bc6a0905dcc0f0c9", redirectURL: URL(string: "utcs.heardle://spotify-login-callback")!)
-        
-        sessionManager = SessionManager(configuration: configuration, delegate: self)
+
+        let configuration = Configuration(
+            clientID: "488a5b1453634b68bc6a0905dcc0f0c9",
+            redirectURL: URL(string: "utcs.heardle://spotify-login-callback")!
+        )
+
+        sessionManager = SessionManager(
+            configuration: configuration,
+            delegate: self
+        )
     }
-    
-    func login(){
+
+    func login() {
         connectingExistingAccount = false
         startSpotifyAuthorization()
     }
-    
-    func connect(){
+
+    func connect() {
         connectingExistingAccount = true
         startSpotifyAuthorization()
     }
-    
-    func startSpotifyAuthorization(){
-        let scopes : [Scope] = [.userReadPrivate, .userReadEmail, .userLibraryRead, .playlistReadPrivate, .userTopRead]
-        sessionManager.initiateSession(with: scopes, authorizationFlow: .default)
+
+    func startSpotifyAuthorization() {
+        let scopes: [Scope] = [
+            .userReadPrivate, .userReadEmail, .userLibraryRead,
+            .playlistReadPrivate, .userTopRead,
+        ]
+        sessionManager.initiateSession(
+            with: scopes,
+            authorizationFlow: .default
+        )
 
     }
-    
-    func handleCallback(url: URL){
+
+    func handleCallback(url: URL) {
         sessionManager.openURL(url)
     }
-    
-    func signIntoFirebase(spotifyAccessToken: String){
-        let function = Functions.functions().httpsCallable("spotifySignIn")
-        function.call(["accessToken": spotifyAccessToken]) { (result, error) in
-            if let error = error{
-                print("error: \(error.localizedDescription)")
+
+    func signIntoFirebase(spotifyAccessToken: String) {
+        let function = Functions.functions()
+            .httpsCallable("spotifySignIn")
+
+        function.call([
+            "accessToken": spotifyAccessToken
+        ]) { result, error in
+
+            if let error = error {
+                print(error.localizedDescription)
+                self.delegate?.spotifyLoginFailed(error: error)
                 return
             }
+
             let data = result?.data as? [String: Any]
-            
-            guard let customToken = data?["customToken"] as? String else {
-                    print("No custom token returned")
+
+            guard
+                let customToken =
+                    data?["customToken"] as? String,
+                let spotifyID =
+                    data?["spotifyAccountID"] as? String
+            else {
+                print("Spotify information missing")
+                self.delegate?.spotifyLoginFailed(error: nil)
+                return
+            }
+
+            let displayName =
+                data?["spotifyDisplayName"] as? String
+                ?? "Spotify User"
+
+            Auth.auth().signIn(
+                withCustomToken: customToken
+            ) { authResult, error in
+
+                if let error = error {
+                    print(error.localizedDescription)
+                    self.delegate?.spotifyLoginFailed(error: error)
+                    return
+                }
+
+                guard let user = authResult?.user else {
+                    print("Firebase user missing")
                     self.delegate?.spotifyLoginFailed(error: nil)
                     return
                 }
-            
-            Auth.auth().signIn(withCustomToken: customToken) { (result, error) in
-                if let error = error{
-                    print("error: \(error.localizedDescription)")
-                    return
+
+                let document = Firestore.firestore()
+                    .collection("users")
+                    .document(user.uid)
+
+                document.getDocument { snapshot, error in
+                    if let error = error {
+                        print(error.localizedDescription)
+                        self.delegate?.spotifyLoginFailed(error: error)
+                        return
+                    }
+
+                    var userData: [String: Any] = [
+                        "loginProvider": "spotify",
+                        "spotifyConnected": true,
+                        "spotifyAccountID": spotifyID,
+                        "spotifyDisplayName": displayName,
+                    ]
+
+                    // Only set these values for a new user document.
+                    if snapshot?.exists != true {
+                        userData["songsImported"] = false
+                        userData["createdAt"] =
+                            FieldValue.serverTimestamp()
+                    }
+
+                    document.setData(
+                        userData,
+                        merge: true
+                    ) { error in
+
+                        if let error = error {
+                            print(error.localizedDescription)
+                            self.delegate?.spotifyLoginFailed(error: error)
+                            return
+                        }
+
+                        self.delegate?.spotifyLoginSucceeded()
+                    }
                 }
-                self.delegate?.spotifyLoginSucceeded()
             }
         }
-        
     }
     func connectSpotify(spotifyAccessToken: String) {
         guard let user = Auth.auth().currentUser else {
@@ -120,10 +203,14 @@ class SpotifyManager: NSObject, SessionManagerDelegate{
             Firestore.firestore()
                 .collection("users")
                 .document(user.uid)
-                .setData([
-                    "spotifyConnected": true,
-                    "spotifyAccountID": spotifyID,
-                    "spotifyDisplayName": spotifyName], merge: true) { error in
+                .setData(
+                    [
+                        "spotifyConnected": true,
+                        "spotifyAccountID": spotifyID,
+                        "spotifyDisplayName": spotifyName,
+                    ],
+                    merge: true
+                ) { error in
                     if let error = error {
                         print(error.localizedDescription)
                         self.delegate?.spotifyLoginFailed(error: error)
@@ -134,9 +221,5 @@ class SpotifyManager: NSObject, SessionManagerDelegate{
                 }
         }
     }
-    
-    
-    
-    
 
 }

@@ -10,6 +10,7 @@
 //
 
 import UIKit
+import GoogleSignIn
 class SceneDelegate: UIResponder, UIWindowSceneDelegate {
 
     var window: UIWindow?
@@ -26,7 +27,11 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         guard let url = URLContexts.first?.url else{
             return
         }
-        spotifyManager.handleCallback(url: url)
+        if url.scheme == "utcs.heardle"{
+            spotifyManager.handleCallback(url: url)
+        }else{
+            GIDSignIn.sharedInstance.handle(url)
+        }
     }
     
 
