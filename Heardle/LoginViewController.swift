@@ -44,6 +44,8 @@ class LoginViewController: UIViewController, SpotifyManagerDelegate {
     }
     
 
+
+
     @IBOutlet weak var spotifyButton: UIButton!
     
     @IBOutlet weak var googleButton: UIButton!

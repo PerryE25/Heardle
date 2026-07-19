@@ -19,6 +19,9 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
         // Set up default songs and firebase
         FirebaseApp.configure()
+        UIView.setAnimationsEnabled(
+            !UserDefaults.standard.bool(forKey: skipAnimationsEnabledKey)
+        )
 
         Task {
             let loadedSongs = await songService.fetchSongsForCurrentUser()

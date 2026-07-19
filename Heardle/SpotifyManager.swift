@@ -105,6 +105,34 @@ class SpotifyManager: NSObject, SessionManagerDelegate {
         }
     }
 
+    func fetchSpotifyProfilePicture(
+        spotifyAccessToken: String,
+        completion: @escaping (String?) -> Void
+    ) {
+        guard let url = URL(string: "https://api.spotify.com/v1/me") else {
+            completion(nil)
+            return
+        }
+
+        var request = URLRequest(url: url)
+        request.setValue(
+            "Bearer \(spotifyAccessToken)",
+            forHTTPHeaderField: "Authorization"
+        )
+
+        Task {
+            do {
+                let (data, _) = try await URLSession.shared.data(for: request)
+                let json = try JSONSerialization.jsonObject(with: data)
+                    as? [String: Any]
+                let images = json?["images"] as? [[String: Any]]
+                completion(images?.first?["url"] as? String)
+            } catch {
+                completion(nil)
+            }
+        }
+    }
+
     func signIntoFirebase(spotifyAccessToken: String) {
         let function = Functions.functions()
             .httpsCallable("spotifySignIn")
@@ -152,29 +180,36 @@ class SpotifyManager: NSObject, SessionManagerDelegate {
                     return
                 }
 
-                Firestore.firestore()
-                    .collection("users")
-                    .document(user.uid)
-                    .setData(
-                        [
+                self.fetchSpotifyProfilePicture(
+                    spotifyAccessToken: spotifyAccessToken
+                ) { profilePictureURL in
+                    var userData: [String: Any] = [
                         "loginProvider": "spotify",
                         "spotifyConnected": true,
                         "spotifyAccountID": spotifyID,
                         "spotifyDisplayName": displayName,
-                        ],
-                        merge: true
-                    ) { error in
-                        if let error = error {
-                            print(error.localizedDescription)
-                            self.delegate?.spotifyLoginFailed(error: error)
-                            return
-                        }
+                    ]
 
-                        self.finishSpotifySetup(
-                            user: user,
-                            spotifyAccessToken: spotifyAccessToken
-                        )
+                    if let profilePictureURL = profilePictureURL {
+                        userData["spotifyProfilePictureURL"] = profilePictureURL
                     }
+
+                    Firestore.firestore()
+                        .collection("users")
+                        .document(user.uid)
+                        .setData(userData, merge: true) { error in
+                            if let error = error {
+                                print(error.localizedDescription)
+                                self.delegate?.spotifyLoginFailed(error: error)
+                                return
+                            }
+
+                            self.finishSpotifySetup(
+                                user: user,
+                                spotifyAccessToken: spotifyAccessToken
+                            )
+                        }
+                }
             }
         }
     }
@@ -204,28 +239,35 @@ class SpotifyManager: NSObject, SessionManagerDelegate {
 
             let spotifyName = data?["spotifyDisplayName"] as? String ?? ""
 
-            Firestore.firestore()
-                .collection("users")
-                .document(user.uid)
-                .setData(
-                    [
-                        "spotifyConnected": true,
-                        "spotifyAccountID": spotifyID,
-                        "spotifyDisplayName": spotifyName,
-                    ],
-                    merge: true
-                ) { error in
-                    if let error = error {
-                        print(error.localizedDescription)
-                        self.delegate?.spotifyLoginFailed(error: error)
-                        return
-                    }
+            self.fetchSpotifyProfilePicture(
+                spotifyAccessToken: spotifyAccessToken
+            ) { profilePictureURL in
+                var userData: [String: Any] = [
+                    "spotifyConnected": true,
+                    "spotifyAccountID": spotifyID,
+                    "spotifyDisplayName": spotifyName,
+                ]
 
-                    self.finishSpotifySetup(
-                        user: user,
-                        spotifyAccessToken: spotifyAccessToken
-                    )
+                if let profilePictureURL = profilePictureURL {
+                    userData["spotifyProfilePictureURL"] = profilePictureURL
                 }
+
+                Firestore.firestore()
+                    .collection("users")
+                    .document(user.uid)
+                    .setData(userData, merge: true) { error in
+                        if let error = error {
+                            print(error.localizedDescription)
+                            self.delegate?.spotifyLoginFailed(error: error)
+                            return
+                        }
+
+                        self.finishSpotifySetup(
+                            user: user,
+                            spotifyAccessToken: spotifyAccessToken
+                        )
+                    }
+            }
         }
     }
 
