@@ -15,6 +15,19 @@ import UIKit
 
 class CreatePasswordViewController: UIViewController, SpotifyManagerDelegate {
 
+    private var spotifyLoadingAlert: UIAlertController?
+
+    func spotifyLoadingStarted() {
+        let alert = UIAlertController(
+            title: "Loading Your Spotify Songs...",
+            message: "This may take a few seconds.",
+            preferredStyle: .alert
+        )
+
+        spotifyLoadingAlert = alert
+        present(alert, animated: true)
+    }
+
     @IBOutlet weak var passwordField: UITextField!
     @IBOutlet weak var nextButton: UIButton!
 
@@ -143,7 +156,7 @@ class CreatePasswordViewController: UIViewController, SpotifyManagerDelegate {
 
         alert.addAction(
             UIAlertAction(title: "Not Now", style: .cancel) {
-                _ in self.goHome()
+                _ in self.loadSongsAndGoHome()
             }
         )
         present(alert, animated: true)
@@ -154,11 +167,41 @@ class CreatePasswordViewController: UIViewController, SpotifyManagerDelegate {
     }
     
     func spotifyLoginSucceeded(){
-        goHome()
+        if let alert = spotifyLoadingAlert {
+            alert.dismiss(animated: true) {
+                self.spotifyLoadingAlert = nil
+                self.loadSongsAndGoHome()
+            }
+        } else {
+            loadSongsAndGoHome()
+        }
     }
     
     func spotifyLoginFailed(error: Error?){
-        showError(error?.localizedDescription ?? "Could not connect Spotify.")
+        let message = error?.localizedDescription ?? "Could not connect Spotify."
+
+        if let alert = spotifyLoadingAlert {
+            alert.dismiss(animated: true) {
+                self.spotifyLoadingAlert = nil
+                self.showError(message)
+            }
+        } else {
+            showError(message)
+        }
+    }
+
+    private func loadSongsAndGoHome() {
+        Task {
+            let loadedSongs = await songService.fetchSongsForCurrentUser()
+
+            guard !loadedSongs.isEmpty else {
+                self.showError("Songs could not be loaded.")
+                return
+            }
+
+            songs = loadedSongs
+            self.goHome()
+        }
     }
 
     /*

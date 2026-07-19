@@ -18,9 +18,14 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
         // Set up default songs and firebase
+        FirebaseApp.configure()
+
         Task {
-            songs = await songService.fetchDefaults()
-            await songService.updateAlbumArtData()
+            let loadedSongs = await songService.fetchSongsForCurrentUser()
+
+            if songs.isEmpty {
+                songs = loadedSongs
+            }
             
             print("Fetched \(songs.count) songs")
             
@@ -29,7 +34,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
                 return
             }
         }
-        FirebaseApp.configure()
         return true
     }
 
@@ -49,4 +53,3 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
 
 }
-

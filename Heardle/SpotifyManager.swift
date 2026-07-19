@@ -12,6 +12,7 @@ import Foundation
 import SpotifyLogin
 
 protocol SpotifyManagerDelegate {
+    func spotifyLoadingStarted()
     func spotifyLoginSucceeded()
     func spotifyLoginFailed(error: Error?)
 }
@@ -23,7 +24,8 @@ class SpotifyManager: NSObject, SessionManagerDelegate {
         manager: SpotifyLogin.SessionManager,
         didInitiate session: SpotifyLogin.Session
     ) {
-        //auth succeded
+        delegate?.spotifyLoadingStarted()
+
         if connectingExistingAccount {
             connectSpotify(spotifyAccessToken: session.accessToken)
         } else {
@@ -85,6 +87,24 @@ class SpotifyManager: NSObject, SessionManagerDelegate {
         sessionManager.openURL(url)
     }
 
+    func finishSpotifySetup(
+        user: User,
+        spotifyAccessToken: String
+    ) {
+        Task {
+            let success = await songImporter.importSongsIfNeeded(
+                spotifyAccessToken: spotifyAccessToken,
+                user: user
+            )
+
+            if success {
+                self.delegate?.spotifyLoginSucceeded()
+            } else {
+                self.delegate?.spotifyLoginFailed(error: nil)
+            }
+        }
+    }
+
     func signIntoFirebase(spotifyAccessToken: String) {
         let function = Functions.functions()
             .httpsCallable("spotifySignIn")
@@ -132,45 +152,29 @@ class SpotifyManager: NSObject, SessionManagerDelegate {
                     return
                 }
 
-                let document = Firestore.firestore()
+                Firestore.firestore()
                     .collection("users")
                     .document(user.uid)
-
-                document.getDocument { snapshot, error in
-                    if let error = error {
-                        print(error.localizedDescription)
-                        self.delegate?.spotifyLoginFailed(error: error)
-                        return
-                    }
-
-                    var userData: [String: Any] = [
+                    .setData(
+                        [
                         "loginProvider": "spotify",
                         "spotifyConnected": true,
                         "spotifyAccountID": spotifyID,
                         "spotifyDisplayName": displayName,
-                    ]
-
-                    // Only set these values for a new user document.
-                    if snapshot?.exists != true {
-                        userData["songsImported"] = false
-                        userData["createdAt"] =
-                            FieldValue.serverTimestamp()
-                    }
-
-                    document.setData(
-                        userData,
+                        ],
                         merge: true
                     ) { error in
-
                         if let error = error {
                             print(error.localizedDescription)
                             self.delegate?.spotifyLoginFailed(error: error)
                             return
                         }
 
-                        self.delegate?.spotifyLoginSucceeded()
+                        self.finishSpotifySetup(
+                            user: user,
+                            spotifyAccessToken: spotifyAccessToken
+                        )
                     }
-                }
             }
         }
     }
@@ -217,7 +221,10 @@ class SpotifyManager: NSObject, SessionManagerDelegate {
                         return
                     }
 
-                    self.delegate?.spotifyLoginSucceeded()
+                    self.finishSpotifySetup(
+                        user: user,
+                        spotifyAccessToken: spotifyAccessToken
+                    )
                 }
         }
     }

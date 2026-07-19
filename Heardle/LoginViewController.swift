@@ -16,10 +16,31 @@ import GoogleSignIn
 import FirebaseCore
 
 class LoginViewController: UIViewController, SpotifyManagerDelegate {
-    var isNavigatingHome = false
+
+    private var spotifyLoadingAlert: UIAlertController?
+
+    func spotifyLoadingStarted() {
+        let alert = UIAlertController(
+            title: "Loading Your Spotify Songs...",
+            message: "This may take a few seconds.",
+            preferredStyle: .alert
+        )
+
+        spotifyLoadingAlert = alert
+        present(alert, animated: true)
+    }
 
     func spotifyLoginFailed(error: Error?) {
-        showError(error?.localizedDescription ?? "Spotify login failed.")
+        let message = error?.localizedDescription ?? "Spotify login failed."
+
+        if let alert = spotifyLoadingAlert {
+            alert.dismiss(animated: true) {
+                self.spotifyLoadingAlert = nil
+                self.showError(message)
+            }
+        } else {
+            showError(message)
+        }
     }
     
 
@@ -106,7 +127,14 @@ class LoginViewController: UIViewController, SpotifyManagerDelegate {
     }
     
     func spotifyLoginSucceeded() {
-        goHome()
+        if let alert = spotifyLoadingAlert {
+            alert.dismiss(animated: true) {
+                self.spotifyLoadingAlert = nil
+                self.loadSongsAndGoHome()
+            }
+        } else {
+            loadSongsAndGoHome()
+        }
     }
 
     private func presentEmailLoginAlert() {
@@ -171,23 +199,32 @@ class LoginViewController: UIViewController, SpotifyManagerDelegate {
                     return
                 }
                 
-                if snapshot?.exists == false {
+                if snapshot?.exists != true {
                     document.setData([
                         "email": user.email ?? "",
                         "displayName": user.displayName ?? "",
                         "loginProvider": loginProvider,
                         "spotifyConnected": false,
                         "songsImported": false
-                    ])
-                    self.presentConnectSpotifyAlert()
+                    ]) { error in
+                        if let error = error {
+                            self.showError(error.localizedDescription)
+                            return
+                        }
+
+                        self.presentConnectSpotifyAlert()
+                    }
                     return
                 }
 
+                let data = snapshot?.data()
                 let spotifyConnected =
-                    snapshot?.data()?["spotifyConnected"] as? Bool ?? false
+                    data?["spotifyConnected"] as? Bool ?? false
+                let songsImported =
+                    data?["songsImported"] as? Bool ?? false
 
-                if spotifyConnected {
-                    self.goHome()
+                if spotifyConnected && songsImported {
+                    self.loadSongsAndGoHome()
                 } else {
                     self.presentConnectSpotifyAlert()
                 }
@@ -206,7 +243,7 @@ class LoginViewController: UIViewController, SpotifyManagerDelegate {
         })
 
         alert.addAction(UIAlertAction(title: "Not Now", style: .cancel) {
-            _ in self.goHome()
+            _ in self.loadSongsAndGoHome()
         })
 
         present(alert, animated: true)
@@ -222,9 +259,21 @@ class LoginViewController: UIViewController, SpotifyManagerDelegate {
         present(alert, animated: true)
     }
 
+    private func loadSongsAndGoHome() {
+        Task {
+            let loadedSongs = await songService.fetchSongsForCurrentUser()
+
+            guard !loadedSongs.isEmpty else {
+                self.showError("Songs could not be loaded.")
+                return
+            }
+
+            songs = loadedSongs
+            self.goHome()
+        }
+    }
+
     private func goHome() {
-        guard !isNavigatingHome else { return }
-        isNavigatingHome = true
         performSegue(withIdentifier: "loginToHomeSegue", sender: self)
     }
     

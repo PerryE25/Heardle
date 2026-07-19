@@ -10,6 +10,7 @@
 //
 
 import Foundation
+import FirebaseAuth
 import FirebaseCore
 import FirebaseFirestore
 import FirebaseStorage
@@ -19,6 +20,87 @@ let db = Firestore.firestore()
 let storage = Storage.storage()
 
 class SongService {
+
+    func fetchSongsForCurrentUser() async -> [Song] {
+        if let user = Auth.auth().currentUser {
+            let userDocument = db.collection("users").document(user.uid)
+
+            do {
+                let snapshot = try await userDocument.getDocument()
+                let data = snapshot.data()
+                let spotifyConnected =
+                    data?["spotifyConnected"] as? Bool ?? false
+                let songsImported =
+                    data?["songsImported"] as? Bool ?? false
+
+                if spotifyConnected && songsImported {
+                    let userSongs = await fetchUserSongs(userID: user.uid)
+
+                    if !userSongs.isEmpty {
+                        print("Loaded \(userSongs.count) Spotify songs")
+                        return userSongs
+                    }
+                }
+            } catch {
+                print("Could not check user songs: \(error.localizedDescription)")
+            }
+        }
+
+        let defaultSongs = await fetchDefaults()
+        await updateAlbumArtData(songs: defaultSongs)
+        print("Loaded \(defaultSongs.count) default songs")
+        return defaultSongs
+    }
+
+    func fetchUserSongs(userID: String) async -> [Song] {
+        do {
+            let snapshot = try await db
+                .collection("users")
+                .document(userID)
+                .collection("songs")
+                .order(by: "order")
+                .getDocuments()
+
+            var userSongs: [Song] = []
+
+            for document in snapshot.documents {
+                let data = document.data()
+
+                guard
+                    let name = data["name"] as? String,
+                    let artist = data["artist"] as? String,
+                    let album = data["album"] as? String,
+                    let audioURLString = data["audioURL"] as? String,
+                    let albumArtString = data["albumArt"] as? String,
+                    !albumArtString.isEmpty,
+                    let audioURL = URL(string: audioURLString),
+                    let albumArtURL = URL(string: albumArtString),
+                    let albumArtData = try? await downloadData(
+                        from: albumArtString
+                    )
+                else {
+                    continue
+                }
+
+                let song = Song(
+                    name: name,
+                    artist: artist,
+                    album: album,
+                    audioURL: audioURL,
+                    albumArt: albumArtURL
+                )
+                song.previewURL = audioURLString
+                song.itunesArtworkURL = albumArtString
+                song.albumArtData = albumArtData
+                userSongs.append(song)
+            }
+
+            return userSongs
+        } catch {
+            print("Could not load user songs: \(error.localizedDescription)")
+            return []
+        }
+    }
     
     // Grab all default songs on Firestore and return a list of them
     func fetchDefaults() async -> [Song] {
@@ -61,13 +143,22 @@ class SongService {
     // Given api artwork url, download data of all songs
     func updateAlbumArtData(songs: [Song]) async {
         for curSong in songs {
+            guard let artworkURL = curSong.itunesArtworkURL else {
+                continue
+            }
+
             do {
-                curSong.albumArtData = try await downloadData(from: curSong.itunesArtworkURL!)
+                curSong.albumArtData = try await downloadData(from: artworkURL)
             } catch {
                 print(error)
             }
-            
-            print("cursong artwork and preview audio url are \(curSong.itunesArtworkURL!) and \(curSong.previewURL!)")
+
+            if let previewURL = curSong.previewURL {
+                print(
+                    "cursong artwork and preview audio url are " +
+                    "\(artworkURL) and \(previewURL)"
+                )
+            }
         }
     }
     
