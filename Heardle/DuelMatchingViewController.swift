@@ -13,9 +13,25 @@ import UIKit
 
 class DuelMatchingViewController: UIViewController {
 
+    @IBOutlet weak var playerOneView: UIStackView!
+    @IBOutlet weak var playerTwoView: UIStackView!
+    @IBOutlet weak var matchSettingsView: UIStackView!
+    
     override func viewDidLoad() {
         super.viewDidLoad()
-
+        matchSettingsView.layer.borderWidth = 1
+        matchSettingsView.layer.borderColor = UIColor.spotifyLightGrey.cgColor
+        playerOneView.layer.borderWidth = 2
+        playerOneView.layer.borderColor = UIColor.spotifyGreenGlow.cgColor
+        
+        let dashedBorder = CAShapeLayer()
+        dashedBorder.strokeColor = UIColor.spotifyLightGrey.cgColor
+        dashedBorder.fillColor = nil
+        dashedBorder.lineWidth = 2
+        dashedBorder.lineDashPattern = [6, 3]
+        dashedBorder.frame = playerTwoView.bounds
+        dashedBorder.path = UIBezierPath(roundedRect: playerTwoView.bounds, cornerRadius: 10).cgPath
+        playerTwoView.layer.addSublayer(dashedBorder)
         // Do any additional setup after loading the view.
     }
     
