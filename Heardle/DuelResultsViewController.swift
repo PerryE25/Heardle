@@ -22,6 +22,10 @@ class DuelResultsViewController: UIViewController, UITableViewDelegate, UITableV
     @IBOutlet weak var player2ScoreSmall: UILabel!
     @IBOutlet weak var continueButtonLabel: UIButton!
     
+    @IBOutlet weak var matchBreakdownView: UIStackView!
+    
+    @IBOutlet weak var resultScoreView: UIStackView!
+    
     var matchResultList: [Song] = songs
     var player1ScoreValue = 13
     var player2ScoreValue = 10
@@ -32,12 +36,15 @@ class DuelResultsViewController: UIViewController, UITableViewDelegate, UITableV
         super.viewDidLoad()
         tableView.delegate = self
         tableView.dataSource = self
+        matchBreakdownView.layer.borderWidth = 1
+        matchBreakdownView.layer.borderColor = UIColor.spotifyLightGrey.cgColor
+        resultScoreView.layer.borderWidth = 1
+        resultScoreView.layer.borderColor = UIColor.spotifyLightGrey.cgColor
         // Do any additional setup after loading the view.
     }
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-        print(matchResultList.count)
         if didWin {
             resultTitle.text = "VICTORY"
             resultTitle.textColor = UIColor.spotifyGreenGlow
