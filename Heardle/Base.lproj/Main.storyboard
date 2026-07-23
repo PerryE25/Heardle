@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="24506" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES" initialViewController="BYZ-38-t0r">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="24506" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES" initialViewController="ffy-iy-ieZ">
     <device id="retina6_9" orientation="portrait" appearance="light"/>
     <dependencies>
         <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="24504"/>
@@ -38,7 +38,7 @@
                                 <buttonConfiguration key="configuration" style="plain" title="Sign up free"/>
                                 <connections>
                                     <action selector="continueButtonPressed:" destination="Kwy-bb-gbc" eventType="touchUpInside" id="I3x-f3-xIJ"/>
-                                    <segue destination="Kwy-bb-gbc" kind="presentation" modalPresentationStyle="fullScreen" id="odD-fW-2Ja"/>
+                                    <segue destination="Kwy-bb-gbc" kind="show" id="odD-fW-2Ja"/>
                                 </connections>
                             </button>
                             <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="kfh-QU-fJx">
@@ -97,7 +97,7 @@
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="dkx-z0-nzr" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="975" y="115"/>
+            <point key="canvasLocation" x="884" y="115"/>
         </scene>
         <!--Create Account View Controller-->
         <scene sceneID="Biv-Rp-LrL">
@@ -206,7 +206,7 @@
                         <outlet property="emailField" destination="brw-wt-Jry" id="S98-a8-uHk"/>
                         <outlet property="googleButton" destination="fjU-qg-9Tf" id="9zH-c9-omd"/>
                         <outlet property="spotifyButton" destination="RpL-bt-mLY" id="hBl-YM-HiT"/>
-                        <segue destination="Y6M-TE-w5W" kind="presentation" identifier="accountToPasswordSegue" modalPresentationStyle="fullScreen" id="UEb-19-qTT"/>
+                        <segue destination="Y6M-TE-w5W" kind="show" identifier="accountToPasswordSegue" id="UEb-19-qTT"/>
                         <segue destination="F3C-hQ-FlU" kind="presentation" identifier="accountToHomeSegue" modalPresentationStyle="fullScreen" id="geK-T4-x3J"/>
                     </connections>
                 </viewController>
@@ -793,6 +793,7 @@
                                         <connections>
                                             <action selector="continueButtonTouchDown:" destination="Cdx-EA-8HK" eventType="touchDown" id="rK6-CS-ppG"/>
                                             <action selector="continueButtonTouchUp:" destination="Cdx-EA-8HK" eventType="touchUpOutside" id="ji4-ze-Qdb"/>
+                                            <segue destination="zb9-as-Tbr" kind="presentation" identifier="cancelBackHome" modalPresentationStyle="fullScreen" id="Tzh-aD-koy"/>
                                         </connections>
                                     </button>
                                     <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Gxc-f7-5qq">
@@ -2331,13 +2332,13 @@
         </scene>
     </scenes>
     <inferredMetricsTieBreakers>
-        <segue reference="v2c-7G-U1j"/>
-        <segue reference="K3Q-8M-PM7"/>
-        <segue reference="i1r-4U-xdo"/>
-        <segue reference="LG1-gM-50d"/>
+        <segue reference="aMZ-4R-O37"/>
+        <segue reference="Ucl-sU-Gh6"/>
+        <segue reference="f4b-ZM-rzg"/>
         <segue reference="GKt-vI-IEd"/>
-        <segue reference="9Q0-3w-hLZ"/>
-        <segue reference="bV6-aH-5AP"/>
+        <segue reference="pmw-PS-eta"/>
+        <segue reference="Tzh-aD-koy"/>
+        <segue reference="4Eg-kg-jEC"/>
     </inferredMetricsTieBreakers>
     <resources>
         <image name="6.circle" catalog="system" width="128" height="123"/>
