@@ -59,6 +59,7 @@ class GameViewController: UIViewController, SearchViewDelegate {
         didSet {
             globalTotalAttempts = currentAttempts
             prevAttemptsButton.setTitle("Attempt \(currentAttempts) / 6 ", for: .normal)
+            presentUnlockButton()
             if self.currentAttempts == 6 {
                 print("final results are didWin: \(didWin), globalAttempts: \(globalTotalAttempts), current song name is: \(songs[currentSongIndex].name)")
                 performSegue(withIdentifier: gameOverSegueID, sender: self)
@@ -309,6 +310,16 @@ class GameViewController: UIViewController, SearchViewDelegate {
         maxTimeLabel.text = formatTime(Double(currentMaxTime))
     }
     
+    // Only allow user to unlock more of song up until 5th attempt
+    // Once user has 16 seconds to listen to, that's the max
+    private func presentUnlockButton() {
+        if currentAttempts < 5 {
+            unlockSongButton.isUserInteractionEnabled = true
+        } else {
+            unlockSongButton.isUserInteractionEnabled = false
+        }
+    }
+    
     // Skips to the next song, animating the album art transition and resetting state.
     @IBAction func skipButtonPressed(_ sender: Any) {
         view.layoutIfNeeded()
@@ -357,7 +368,7 @@ class GameViewController: UIViewController, SearchViewDelegate {
             prevGuesses.append(answer)
             if answer == songs[currentSongIndex] {
                 didWin = true
-                performSegue(withIdentifier: "GameOverSegue", sender: self)
+                performSegue(withIdentifier: gameOverSegueID, sender: self)
             } else {
                 shake()
                 performSegue(withIdentifier: wrongGuessSegueID, sender: self)
