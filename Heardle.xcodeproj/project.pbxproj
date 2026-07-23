@@ -8,8 +8,8 @@
 
 /* Begin PBXBuildFile section */
 		6A076BE4300ABB5E00296B9A /* FirebaseStorage in Frameworks */ = {isa = PBXBuildFile; productRef = 6A076BE3300ABB5E00296B9A /* FirebaseStorage */; };
-		6A0A03E230114906005728E6 /* SpotifyiOS.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6A0A03E130114906005728E6 /* SpotifyiOS.xcframework */; };
-		6A0A03E330114906005728E6 /* SpotifyiOS.xcframework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 6A0A03E130114906005728E6 /* SpotifyiOS.xcframework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		6C9660993011AB6D009BAAB3 /* SpotifyiOS.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6A0A03E130114906005728E6 /* SpotifyiOS.xcframework */; };
+		6C96609A3011AB6D009BAAB3 /* SpotifyiOS.xcframework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 6A0A03E130114906005728E6 /* SpotifyiOS.xcframework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		8A0C9B70300C721800CA6C97 /* GoogleSignIn in Frameworks */ = {isa = PBXBuildFile; productRef = 8A0C9B6F300C721800CA6C97 /* GoogleSignIn */; };
 		8A0C9B72300C721800CA6C97 /* GoogleSignInSwift in Frameworks */ = {isa = PBXBuildFile; productRef = 8A0C9B71300C721800CA6C97 /* GoogleSignInSwift */; };
 		8A2198382FFC517400E60A9B /* FirebaseAuth in Frameworks */ = {isa = PBXBuildFile; productRef = 8A2198372FFC517400E60A9B /* FirebaseAuth */; };
@@ -20,13 +20,13 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
-		6A0A03E430114906005728E6 /* Embed Frameworks */ = {
+		6C96609B3011AB6D009BAAB3 /* Embed Frameworks */ = {
 			isa = PBXCopyFilesBuildPhase;
 			buildActionMask = 2147483647;
 			dstPath = "";
 			dstSubfolderSpec = 10;
 			files = (
-				6A0A03E330114906005728E6 /* SpotifyiOS.xcframework in Embed Frameworks */,
+				6C96609A3011AB6D009BAAB3 /* SpotifyiOS.xcframework in Embed Frameworks */,
 			);
 			name = "Embed Frameworks";
 			runOnlyForDeploymentPostprocessing = 0;
@@ -68,10 +68,10 @@
 				8A21983A2FFC517400E60A9B /* FirebaseCore in Frameworks */,
 				8A0C9B70300C721800CA6C97 /* GoogleSignIn in Frameworks */,
 				8A2198382FFC517400E60A9B /* FirebaseAuth in Frameworks */,
+				6C9660993011AB6D009BAAB3 /* SpotifyiOS.xcframework in Frameworks */,
 				8AC5E6FA3009A498003E29ED /* FirebaseFunctions in Frameworks */,
 				8A21983C2FFC517400E60A9B /* FirebaseFirestore in Frameworks */,
 				6A076BE4300ABB5E00296B9A /* FirebaseStorage in Frameworks */,
-				6A0A03E230114906005728E6 /* SpotifyiOS.xcframework in Frameworks */,
 				8A2198432FFC565E00E60A9B /* SpotifyLogin in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -114,7 +114,7 @@
 				6C7CA35C2FF351C90052676F /* Sources */,
 				6C7CA35D2FF351C90052676F /* Frameworks */,
 				6C7CA35E2FF351C90052676F /* Resources */,
-				6A0A03E430114906005728E6 /* Embed Frameworks */,
+				6C96609B3011AB6D009BAAB3 /* Embed Frameworks */,
 			);
 			buildRules = (
 			);

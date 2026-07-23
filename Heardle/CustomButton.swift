@@ -60,7 +60,7 @@ class CustomButton: UIButton {
     
     // Configures the submit button to indicate the song has already been guessed.
     static func alreadyGuessSubmitConfig(_ submitButton: CustomButton) {
-        configureSubmitButton(submitButton, title: "ALREADY GUESSED", color: .systemRed, alpha: 1.0, enabled: true)
+        configureSubmitButton(submitButton, title: "ALREADY GUESSED", color: .systemRed, alpha: 1.0, enabled: false)
     }
     
     // Configures the submit button for a valid guess.

@@ -152,7 +152,7 @@ class GameViewController: UIViewController, SearchViewDelegate {
         guard let player = player else { return }
         
         // Poll playback twice per second for smooth progress updates.
-        let interval = CMTime(value: 1, timescale: 2) // 0.5 seconds
+        let interval = CMTime(value: 1, timescale: 100) // 0.1 seconds
         
         timeObserverToken = player.addPeriodicTimeObserver(forInterval: interval, queue: .main) { [weak self] time in
             guard let self = self, let currentItem = self.player?.currentItem else { return }
@@ -306,6 +306,7 @@ class GameViewController: UIViewController, SearchViewDelegate {
     @IBAction func unlockMore(_ sender: Any) {
         currentAttempts += 1
         displayPopup()
+        maxTimeLabel.text = formatTime(Double(currentMaxTime))
     }
     
     // Skips to the next song, animating the album art transition and resetting state.
@@ -340,6 +341,7 @@ class GameViewController: UIViewController, SearchViewDelegate {
                 self.updateOffScreenAlbum()
                 
         })
+        maxTimeLabel.text = formatTime(Double(currentMaxTime))
         setupAudioPlayer(song: songs[currentSongIndex])
     }
     
@@ -349,7 +351,6 @@ class GameViewController: UIViewController, SearchViewDelegate {
             // Added by Jeremiah in order to keep track of if the user has already guessed a song so it doesnt count towards the currentAttempts total that is used in the WrongGuessesVC (Not sure we keep this in or not)
             for guess in prevGuesses where guess == answer {
                 shake()
-                performSegue(withIdentifier: wrongGuessSegueID, sender: self)
                 return
             }
             
@@ -359,9 +360,11 @@ class GameViewController: UIViewController, SearchViewDelegate {
                 performSegue(withIdentifier: "GameOverSegue", sender: self)
             } else {
                 shake()
+                performSegue(withIdentifier: wrongGuessSegueID, sender: self)
             }
         }
         currentAttempts += 1
+        maxTimeLabel.text = formatTime(Double(currentMaxTime))
         selectedSongCanidate = nil
         showSelectedSearch()
         
