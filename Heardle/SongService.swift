@@ -248,6 +248,9 @@ class SongService {
 
                 print(json["resultCount"] ?? "none")
                 song.itunesArtworkURL = first["artworkUrl100"] as? String
+                // make high resolution for large album display
+                song.itunesArtworkURL = song.itunesArtworkURL?.replacingOccurrences(of: "100x100bb", with: "600x600bb")
+//                print("artwork url 100 is \(song.itunesArtworkURL ?? "none")\n the url name contains 100x100bb is \(song.itunesArtworkURL?.contains("100x100bb") ?? false)")
                 song.previewURL = first["previewUrl"] as? String
 
                 if let preview = song.previewURL {

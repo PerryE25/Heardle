@@ -83,7 +83,7 @@ class SoloGameResultsViewController: UIViewController {
             resultLabel.textColor = UIColor.spotifyGreen
             resultIcon.tintColor = UIColor.spotifyGreen
             solvedAmountLabel.text = "Solved in \(globalTotalAttempts)/\(totalTries)"
-            solvedSecondsLabel.text = "NEEDED \(songTimes[globalTotalAttempts]) SEC"
+            solvedSecondsLabel.text = "NEEDED \(songTimes[globalTotalAttempts - 1]) SEC"
         } else {
             resultLabel.text = "Wrong"
             resultIcon.image = UIImage(systemName: "x.circle")
