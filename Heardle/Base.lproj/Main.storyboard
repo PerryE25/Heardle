@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="24765" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES" initialViewController="ffy-iy-ieZ">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="24506" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES" initialViewController="ffy-iy-ieZ">
     <device id="retina6_9" orientation="portrait" appearance="light"/>
     <dependencies>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="24743"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="24504"/>
         <capability name="Image references" minToolsVersion="12.0"/>
         <capability name="Named colors" minToolsVersion="9.0"/>
         <capability name="Safe area layout guides" minToolsVersion="9.0"/>
@@ -1010,6 +1010,9 @@
                                                 <color key="tintColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                                 <inset key="imageEdgeInsets" minX="0.0" minY="0.0" maxX="2.2250738585072014e-308" maxY="0.0"/>
                                                 <state key="normal" image="copy"/>
+                                                <connections>
+                                                    <action selector="copyButtonPressed:" destination="ZDs-eH-4q4" eventType="touchUpInside" id="joH-Gn-v4S"/>
+                                                </connections>
                                             </button>
                                         </subviews>
                                         <color key="backgroundColor" white="0.33333333333333331" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
@@ -1032,6 +1035,9 @@
                                             <fontDescription key="titleFontDescription" type="system" weight="semibold" pointSize="13"/>
                                             <color key="baseBackgroundColor" name="SpotifyGrey"/>
                                         </buttonConfiguration>
+                                        <connections>
+                                            <action selector="shareButtonPressed:" destination="ZDs-eH-4q4" eventType="touchUpInside" id="gMR-sx-9T0"/>
+                                        </connections>
                                     </button>
                                 </subviews>
                                 <color key="backgroundColor" name="SpotifyGrey"/>
@@ -1069,9 +1075,9 @@
                     <connections>
                         <outlet property="explicitButtonLabel" destination="OsG-8P-ztR" id="Nov-6r-JdH"/>
                         <outlet property="guessTimerButtonLabel" destination="0Za-Pj-5JB" id="iOI-TS-pGg"/>
-                        <outlet property="inviteCodeCopyLabel" destination="O8d-le-wIg" id="3mO-so-TNo"/>
                         <outlet property="inviteCodeLabel" destination="iYE-Gw-Eae" id="U5Z-RV-BGk"/>
-                        <outlet property="inviteFriendView" destination="VEy-6n-vuB" id="f07-Eb-sbY"/>
+                        <outlet property="inviteFriendView" destination="VEy-6n-vuB" id="JRL-6G-I2Y"/>
+                        <outlet property="inviteTextLabel" destination="2Ib-EH-rEV" id="aat-9b-tyR"/>
                         <outlet property="matchSettingsView" destination="g7U-IX-E8Q" id="J75-p7-0Ol"/>
                         <outlet property="playerOneView" destination="osO-o4-34c" id="ZiD-jK-vHU"/>
                         <outlet property="playerTwoView" destination="Uk9-YB-f91" id="oEO-AZ-96a"/>
@@ -2380,7 +2386,6 @@
         </scene>
     </scenes>
     <inferredMetricsTieBreakers>
-        <segue reference="v2c-7G-U1j"/>
         <segue reference="K3Q-8M-PM7"/>
         <segue reference="i1r-4U-xdo"/>
         <segue reference="f4b-ZM-rzg"/>
@@ -2450,7 +2455,7 @@
             <color white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
         </systemColor>
         <systemColor name="separatorColor">
-            <color red="0.23529411759999999" green="0.23529411759999999" blue="0.26274509800000001" alpha="0.12" colorSpace="custom" customColorSpace="sRGB"/>
+            <color red="0.23529411759999999" green="0.23529411759999999" blue="0.26274509800000001" alpha="0.28999999999999998" colorSpace="custom" customColorSpace="sRGB"/>
         </systemColor>
         <systemColor name="systemBackgroundColor">
             <color white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
@@ -2462,7 +2467,7 @@
             <color red="0.20392156859999999" green="0.78039215689999997" blue="0.34901960780000002" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
         </systemColor>
         <systemColor name="systemRedColor">
-            <color red="1" green="0.21960784310000001" blue="0.23529411759999999" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+            <color red="1" green="0.23137254900000001" blue="0.18823529410000001" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
         </systemColor>
     </resources>
 </document>

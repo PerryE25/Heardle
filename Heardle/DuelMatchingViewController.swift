@@ -21,13 +21,12 @@ class DuelMatchingViewController: UIViewController {
     
     @IBOutlet weak var inviteCodeLabel: UIStackView!
     @IBOutlet weak var shareLinkButtonLabel: UIButton!
-    @IBOutlet weak var inviteCodeCopyLabel: UIButton!
-    @IBOutlet weak var inviteFriendView: UIStackView!
     @IBOutlet weak var playlistButtonLabel: UIButton!
     @IBOutlet weak var roundsButtonLabel: UIButton!
     @IBOutlet weak var guessTimerButtonLabel: UIButton!
-    @IBOutlet weak var explicitButtonLabel: UIButton!
-    
+    @IBOutlet weak var explicitButtonLabel: UIButton! // TODO: remove
+    @IBOutlet weak var inviteFriendView: UIStackView!
+    @IBOutlet weak var inviteTextLabel: UILabel!
     
     let playlistOptions = [("Today's Favorites", UIColor.white), ("Top 50", UIColor.white), ("Top 100", UIColor.white), ("Top 200", UIColor.white), ("Top 500", UIColor.white), ("Top 1000", UIColor.white)]
     let songRoundOptions = [("1 Round", UIColor.white), ("2 Rounds", UIColor.white), ("3 Rounds", UIColor.white), ("4 Rounds", UIColor.white), ("5 Rounds", UIColor.white)]
@@ -73,6 +72,18 @@ class DuelMatchingViewController: UIViewController {
         settingOptionAdd(button: roundsButtonLabel, options: songRoundOptions, key: "Song Round")
         settingOptionAdd(button: guessTimerButtonLabel, options: guessTimerOptions, key: "Guess Timer")
         settingOptionAdd(button: explicitButtonLabel, options: explicitSongOptions, key: "Explicit")
+    }
+    
+    @IBAction func copyButtonPressed(_ sender: Any) {
+        UIPasteboard.general.string = inviteTextLabel.text
+    }
+    
+    @IBAction func shareButtonPressed(_ sender: Any) {
+        let vc = UIActivityViewController(activityItems: ["""
+            Think you can beat me at Heardle? Join my 1v1 with code: \(String(describing: inviteTextLabel.text))
+            """], applicationActivities: nil)
+        
+        present(vc, animated: true)
     }
     
     func settingOptionAdd(button: UIButton, options: [(String, UIColor)], key: String) {

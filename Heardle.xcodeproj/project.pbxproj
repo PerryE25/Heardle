@@ -8,6 +8,8 @@
 
 /* Begin PBXBuildFile section */
 		6A076BE4300ABB5E00296B9A /* FirebaseStorage in Frameworks */ = {isa = PBXBuildFile; productRef = 6A076BE3300ABB5E00296B9A /* FirebaseStorage */; };
+		6A1E78523014127800834A2D /* SpotifyiOS.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6A1E78513014127800834A2D /* SpotifyiOS.xcframework */; };
+		6A1E78533014127800834A2D /* SpotifyiOS.xcframework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 6A1E78513014127800834A2D /* SpotifyiOS.xcframework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		8A0C9B70300C721800CA6C97 /* GoogleSignIn in Frameworks */ = {isa = PBXBuildFile; productRef = 8A0C9B6F300C721800CA6C97 /* GoogleSignIn */; };
 		8A0C9B72300C721800CA6C97 /* GoogleSignInSwift in Frameworks */ = {isa = PBXBuildFile; productRef = 8A0C9B71300C721800CA6C97 /* GoogleSignInSwift */; };
 		8A2198382FFC517400E60A9B /* FirebaseAuth in Frameworks */ = {isa = PBXBuildFile; productRef = 8A2198372FFC517400E60A9B /* FirebaseAuth */; };
@@ -24,6 +26,7 @@
 			dstPath = "";
 			dstSubfolderSpec = 10;
 			files = (
+				6A1E78533014127800834A2D /* SpotifyiOS.xcframework in Embed Frameworks */,
 			);
 			name = "Embed Frameworks";
 			runOnlyForDeploymentPostprocessing = 0;
@@ -31,6 +34,7 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		6A1E78513014127800834A2D /* SpotifyiOS.xcframework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcframework; name = SpotifyiOS.xcframework; path = "../../Downloads/ios-sdk-5.0.1 2/SpotifyiOS.xcframework"; sourceTree = "<group>"; };
 		6C7CA3602FF351C90052676F /* Heardle.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Heardle.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
@@ -64,6 +68,7 @@
 				8A21983A2FFC517400E60A9B /* FirebaseCore in Frameworks */,
 				8A0C9B70300C721800CA6C97 /* GoogleSignIn in Frameworks */,
 				8A2198382FFC517400E60A9B /* FirebaseAuth in Frameworks */,
+				6A1E78523014127800834A2D /* SpotifyiOS.xcframework in Frameworks */,
 				8AC5E6FA3009A498003E29ED /* FirebaseFunctions in Frameworks */,
 				8A21983C2FFC517400E60A9B /* FirebaseFirestore in Frameworks */,
 				6A076BE4300ABB5E00296B9A /* FirebaseStorage in Frameworks */,
@@ -77,6 +82,7 @@
 		6A076BE2300ABACB00296B9A /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				6A1E78513014127800834A2D /* SpotifyiOS.xcframework */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
