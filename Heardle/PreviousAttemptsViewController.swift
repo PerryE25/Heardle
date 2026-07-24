@@ -20,14 +20,6 @@ class PreviousAttemptsViewController: UIViewController {
     }
     
 
-    /*
-    // MARK: - Navigation
-
-    // In a storyboard-based application, you will often want to do a little preparation before navigation
-    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-        // Get the new view controller using segue.destination.
-        // Pass the selected object to the new view controller.
-    }
-    */
+    // prev guesses are either display the song or if the prevGuess[currentIndex] is nil, then that means I skipped the song and display wtv was on the demo video
 
 }
