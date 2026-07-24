@@ -11,6 +11,9 @@
 
 import UIKit
 
+var songList: [Song] = []
+var clipDurations = [1, 2, 4, 7, 11, 16]
+var playerStatus = ["host": 0, "guest": 0]
 class DuelMatchingViewController: UIViewController {
     
 
@@ -108,6 +111,8 @@ class DuelMatchingViewController: UIViewController {
         button.menu = UIMenu(title: key, children: result)
         button.showsMenuAsPrimaryAction = true
     }
+    
+
         
 
     /*
