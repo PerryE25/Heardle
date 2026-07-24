@@ -63,9 +63,13 @@ class SongService {
 
             var userSongs: [Song] = []
 
+            var docIdx = 0
             for document in snapshot.documents {
                 let data = document.data()
 
+                print("docidx is \(docIdx)")
+                print("name is \(data["name"] ?? "nil name"), artist is \(data["artist"] ?? "nil artist"), album is \(data["album"] ?? "nil album"), audioURL is \(data["audioURL"] ?? "nil"), albumArt is \(data["albumArt"] ?? "nil")")
+                
                 guard
                     let name = data["name"] as? String,
                     let artist = data["artist"] as? String,
@@ -151,13 +155,6 @@ class SongService {
                 curSong.albumArtData = try await downloadData(from: artworkURL)
             } catch {
                 print(error)
-            }
-
-            if let previewURL = curSong.previewURL {
-                print(
-                    "cursong artwork and preview audio url are " +
-                    "\(artworkURL) and \(previewURL)"
-                )
             }
         }
     }

@@ -104,7 +104,7 @@
             <objects>
                 <viewController id="Kwy-bb-gbc" customClass="CreateAccountViewController" customModule="Heardle" customModuleProvider="target" sceneMemberID="viewController">
                     <view key="view" contentMode="scaleToFill" id="Xbs-2c-s3s">
-                        <rect key="frame" x="0.0" y="0.0" width="440" height="956"/>
+                        <rect key="frame" x="0.0" y="0.0" width="440" height="884"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="gZv-go-lLu">
@@ -219,7 +219,7 @@
             <objects>
                 <viewController id="Y6M-TE-w5W" customClass="CreatePasswordViewController" customModule="Heardle" customModuleProvider="target" sceneMemberID="viewController">
                     <view key="view" contentMode="scaleToFill" id="bhq-Ww-mFa">
-                        <rect key="frame" x="0.0" y="0.0" width="440" height="956"/>
+                        <rect key="frame" x="0.0" y="0.0" width="440" height="884"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" text="Create account" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="JqO-bd-8Uz">
@@ -492,7 +492,7 @@
                                                 <color key="textColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                                 <nil key="highlightedColor"/>
                                             </label>
-                                            <switch opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" contentHorizontalAlignment="center" contentVerticalAlignment="center" on="YES" translatesAutoresizingMaskIntoConstraints="NO" id="Hap-Row-Swt">
+                                            <switch opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" contentHorizontalAlignment="center" contentVerticalAlignment="center" translatesAutoresizingMaskIntoConstraints="NO" id="Hap-Row-Swt">
                                                 <rect key="frame" x="327" y="31" width="63" height="28"/>
                                                 <color key="onTintColor" name="SpotifyGreen"/>
                                                 <connections>
@@ -516,7 +516,7 @@
                                                 <color key="textColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                                 <nil key="highlightedColor"/>
                                             </label>
-                                            <switch opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" contentHorizontalAlignment="center" contentVerticalAlignment="center" translatesAutoresizingMaskIntoConstraints="NO" id="Ani-Row-Swt">
+                                            <switch opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" contentHorizontalAlignment="center" contentVerticalAlignment="center" on="YES" translatesAutoresizingMaskIntoConstraints="NO" id="Ani-Row-Swt">
                                                 <rect key="frame" x="327" y="31" width="63" height="28"/>
                                                 <color key="onTintColor" name="SpotifyGreen"/>
                                                 <connections>
@@ -740,7 +740,7 @@
                                         <rect key="frame" x="0.0" y="110" width="360" height="100"/>
                                         <subviews>
                                             <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="questionmark.circle.dashed" catalog="system" translatesAutoresizingMaskIntoConstraints="NO" id="e8T-wl-zrF">
-                                                <rect key="frame" x="160" y="15.666666666666668" width="40" height="38.666666666666657"/>
+                                                <rect key="frame" x="160" y="15.666666666666664" width="40" height="38.666666666666664"/>
                                                 <color key="tintColor" white="0.66666666666666663" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                                 <constraints>
                                                     <constraint firstAttribute="height" constant="40" id="Eja-4G-olc"/>
@@ -2332,14 +2332,13 @@
         </scene>
     </scenes>
     <inferredMetricsTieBreakers>
-        <segue reference="v2c-7G-U1j"/>
         <segue reference="K3Q-8M-PM7"/>
         <segue reference="i1r-4U-xdo"/>
         <segue reference="f4b-ZM-rzg"/>
         <segue reference="GKt-vI-IEd"/>
         <segue reference="pmw-PS-eta"/>
         <segue reference="Tzh-aD-koy"/>
-        <segue reference="4Eg-kg-jEC"/>
+        <segue reference="bV6-aH-5AP"/>
     </inferredMetricsTieBreakers>
     <resources>
         <image name="6.circle" catalog="system" width="128" height="123"/>
