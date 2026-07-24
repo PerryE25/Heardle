@@ -1425,6 +1425,21 @@
                                 <color key="textColor" systemColor="secondarySystemGroupedBackgroundColor"/>
                                 <nil key="highlightedColor"/>
                             </label>
+                            <button opaque="NO" clipsSubviews="YES" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="2n5-c6-sle" customClass="CustomButton" customModule="Heardle" customModuleProvider="target">
+                                <rect key="frame" x="192" y="574" width="75" height="75"/>
+                                <color key="backgroundColor" systemColor="systemBackgroundColor"/>
+                                <accessibility key="accessibilityConfiguration" identifier="PlayButton"/>
+                                <constraints>
+                                    <constraint firstAttribute="height" constant="75" id="7fP-Vv-sRp"/>
+                                    <constraint firstAttribute="width" constant="75" id="NK5-oY-LdH"/>
+                                </constraints>
+                                <color key="tintColor" systemColor="labelColor"/>
+                                <state key="normal" title="Button"/>
+                                <buttonConfiguration key="configuration" style="plain" image="play.fill" catalog="system"/>
+                                <connections>
+                                    <action selector="playButtonPressed:" destination="q1k-Zy-Y3Z" eventType="touchUpInside" id="FzK-sK-3WB"/>
+                                </connections>
+                            </button>
                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="nOf-Xh-jE9" userLabel="Skip Button">
                                 <rect key="frame" x="294" y="574" width="75" height="75"/>
                                 <constraints>
@@ -1547,47 +1562,32 @@
                                 </subviews>
                                 <color key="backgroundColor" systemColor="systemBackgroundColor"/>
                             </view>
-                            <view alpha="0.0" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="FxB-6j-cci" userLabel="Unlock Popup View">
-                                <rect key="frame" x="109" y="400" width="222" height="221"/>
+                            <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="FxB-6j-cci" userLabel="Unlock Popup View">
+                                <rect key="frame" x="68" y="400" width="323" height="221"/>
                                 <subviews>
+                                    <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" image="lock" catalog="system" translatesAutoresizingMaskIntoConstraints="NO" id="gmf-jZ-bKa">
+                                        <rect key="frame" x="55" y="37" width="212" height="115"/>
+                                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                        <color key="tintColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                    </imageView>
                                     <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" text="+4s unlocked!" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="53m-ZV-rIn">
-                                        <rect key="frame" x="58" y="166" width="236" height="52"/>
+                                        <rect key="frame" x="43" y="161" width="236" height="52"/>
                                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                                         <fontDescription key="fontDescription" name="NotoSansKannada-Regular" family="Noto Sans Kannada" pointSize="38"/>
                                         <color key="textColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                         <nil key="highlightedColor"/>
                                     </label>
-                                    <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" image="lock" catalog="system" translatesAutoresizingMaskIntoConstraints="NO" id="gmf-jZ-bKa">
-                                        <rect key="frame" x="70" y="42" width="212" height="115"/>
-                                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
-                                        <color key="tintColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
-                                    </imageView>
                                 </subviews>
                                 <color key="backgroundColor" name="SpotifyGrey"/>
                             </view>
-                            <button opaque="NO" clipsSubviews="YES" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="2n5-c6-sle" customClass="CustomButton" customModule="Heardle" customModuleProvider="target">
-                                <rect key="frame" x="192" y="574" width="75" height="75"/>
-                                <color key="backgroundColor" systemColor="systemBackgroundColor"/>
-                                <accessibility key="accessibilityConfiguration" identifier="PlayButton"/>
-                                <constraints>
-                                    <constraint firstAttribute="height" constant="75" id="7fP-Vv-sRp"/>
-                                    <constraint firstAttribute="width" constant="75" id="NK5-oY-LdH"/>
-                                </constraints>
-                                <color key="tintColor" systemColor="labelColor"/>
-                                <state key="normal" title="Button"/>
-                                <buttonConfiguration key="configuration" style="plain" image="play.fill" catalog="system"/>
-                                <connections>
-                                    <action selector="playButtonPressed:" destination="q1k-Zy-Y3Z" eventType="touchUpInside" id="FzK-sK-3WB"/>
-                                </connections>
-                            </button>
                         </subviews>
                         <viewLayoutGuide key="safeArea" id="efy-QW-tw7"/>
                         <constraints>
                             <constraint firstItem="9eB-VM-qbf" firstAttribute="top" secondItem="2n5-c6-sle" secondAttribute="bottom" constant="18" id="0v7-Un-HAY"/>
                             <constraint firstItem="feB-VX-A76" firstAttribute="top" secondItem="bB0-DB-3s7" secondAttribute="bottom" constant="8" id="1rW-u0-rob"/>
-                            <constraint firstItem="G6i-u5-LtF" firstAttribute="centerX" secondItem="FxB-6j-cci" secondAttribute="centerX" id="21a-fj-oKW"/>
+                            <constraint firstItem="G6i-u5-LtF" firstAttribute="centerX" secondItem="FxB-6j-cci" secondAttribute="centerX" constant="-9.5" id="21a-fj-oKW"/>
                             <constraint firstItem="k3h-V9-8MO" firstAttribute="top" secondItem="bB0-DB-3s7" secondAttribute="bottom" constant="7" id="5gX-3z-YYe"/>
-                            <constraint firstItem="Bgu-3D-u24" firstAttribute="centerX" secondItem="FxB-6j-cci" secondAttribute="centerX" id="6n8-Yq-wR5"/>
+                            <constraint firstItem="Bgu-3D-u24" firstAttribute="centerX" secondItem="FxB-6j-cci" secondAttribute="centerX" constant="-9.4999999999999716" id="6n8-Yq-wR5"/>
                             <constraint firstItem="bB0-DB-3s7" firstAttribute="leading" secondItem="ktv-Pi-cs2" secondAttribute="leading" constant="4" id="AXr-1S-lbU"/>
                             <constraint firstItem="bB0-DB-3s7" firstAttribute="centerX" secondItem="SZs-Ab-te7" secondAttribute="centerX" constant="4.5" id="Aob-Io-4ei"/>
                             <constraint firstItem="9F5-O5-5tx" firstAttribute="bottom" secondItem="Bgu-3D-u24" secondAttribute="bottom" id="B6Z-0B-CWC"/>
@@ -1603,7 +1603,7 @@
                             <constraint firstItem="9F5-O5-5tx" firstAttribute="leading" secondItem="SZs-Ab-te7" secondAttribute="leadingMargin" constant="-42" id="U07-ZQ-bdO"/>
                             <constraint firstItem="ktv-Pi-cs2" firstAttribute="leading" secondItem="efy-QW-tw7" secondAttribute="leading" constant="38" id="Wlg-C5-lCs"/>
                             <constraint firstItem="s19-Go-LBJ" firstAttribute="leading" secondItem="efy-QW-tw7" secondAttribute="leading" constant="42" id="XZK-Vo-sru"/>
-                            <constraint firstItem="FxB-6j-cci" firstAttribute="leading" secondItem="feB-VX-A76" secondAttribute="leading" constant="67" id="Z86-Vc-UZN"/>
+                            <constraint firstItem="FxB-6j-cci" firstAttribute="leading" secondItem="feB-VX-A76" secondAttribute="leading" constant="26" id="Z86-Vc-UZN"/>
                             <constraint firstItem="feB-VX-A76" firstAttribute="leading" secondItem="efy-QW-tw7" secondAttribute="leading" constant="42" id="Zwf-NN-9qw"/>
                             <constraint firstItem="nOf-Xh-jE9" firstAttribute="leading" secondItem="efy-QW-tw7" secondAttribute="leading" constant="294" id="dx0-6c-aK1"/>
                             <constraint firstItem="nOf-Xh-jE9" firstAttribute="top" secondItem="bB0-DB-3s7" secondAttribute="bottom" constant="26" id="fYp-tZ-Rj5"/>

@@ -17,6 +17,7 @@ var songs: [Song] = []
 var currentSongIndex = 0
 var didWin: Bool = false
 var globalTotalAttempts: Int = 0
+var prevGuesses: [Song?] = []    // either wrong guess or skip [nil]
 let songService = SongService()
 let songTimes = [1, 2, 4, 7, 11, 16]
 
@@ -66,9 +67,6 @@ class GameViewController: UIViewController, SearchViewDelegate {
             }
         }
     }
-    
-    // Keeps a history of submitted guesses to prevent duplicates and drive UI state.
-    var prevGuesses: [Song] = []
     
     // Primary audio player for song samples during a round.
     // Token used to remove the periodic time observer when deinitializing.
@@ -308,6 +306,7 @@ class GameViewController: UIViewController, SearchViewDelegate {
         currentAttempts += 1
         displayPopup()
         maxTimeLabel.text = formatTime(Double(currentMaxTime))
+        prevGuesses.append(nil)   // user didn't guess, but skipped
     }
     
     // Only allow user to unlock more of song up until 5th attempt
@@ -324,6 +323,7 @@ class GameViewController: UIViewController, SearchViewDelegate {
     @IBAction func skipButtonPressed(_ sender: Any) {
         view.layoutIfNeeded()
         currentAttempts = 0
+        prevGuesses = []
         selectedSongCanidate = nil
         showSelectedSearch()
         currentSongIndex = (currentSongIndex + 1) % songs.count
@@ -359,12 +359,6 @@ class GameViewController: UIViewController, SearchViewDelegate {
     // Submits the current guess, checks correctness, provides feedback, and advances attempts.
     @IBAction func submitGuess(_ sender: Any) {
         if let answer = selectedSongCanidate {
-            // Added by Jeremiah in order to keep track of if the user has already guessed a song so it doesnt count towards the currentAttempts total that is used in the WrongGuessesVC (Not sure we keep this in or not)
-            for guess in prevGuesses where guess == answer {
-                shake()
-                return
-            }
-            
             prevGuesses.append(answer)
             if answer == songs[currentSongIndex] {
                 didWin = true
