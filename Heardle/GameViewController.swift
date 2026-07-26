@@ -45,7 +45,7 @@ class GameViewController: UIViewController, SearchViewDelegate {
     
     // Per-attempt time gates (in seconds) that cap how long the sample may play.
     
-
+    
     // Current playback cap derived from the attempt count and time gates.
     var currentMaxTime: Int {
         songTimes[min(currentAttempts, songTimes.count - 1)]
@@ -79,20 +79,20 @@ class GameViewController: UIViewController, SearchViewDelegate {
         super.viewDidLoad()
         
         prevGuesses = []
-//        Task {
-//            songs = await songService.fetchDefaults()
-//            await songService.updateAlbumArtData()
-//            //                songs = songService.fetchImportSongs()
-//            
-//            print("Fetched \(songs.count) songs")
-//            
-//            guard !songs.isEmpty else {
-//                print("No songs found")
-//                return
-//            }
-//            
-//            
-//        }
+        //        Task {
+        //            songs = await songService.fetchDefaults()
+        //            await songService.updateAlbumArtData()
+        //            //                songs = songService.fetchImportSongs()
+        //
+        //            print("Fetched \(songs.count) songs")
+        //
+        //            guard !songs.isEmpty else {
+        //                print("No songs found")
+        //                return
+        //            }
+        //
+        //
+        //        }
         setupAudioPlayer(song: songs[currentSongIndex])
         
         // Background gradient styled similar to Spotify’s player.
@@ -117,7 +117,7 @@ class GameViewController: UIViewController, SearchViewDelegate {
         selectedSongCardView.layer.sublayers?[0].cornerRadius = 10
         searchView.delegate = self
         updateOffScreenAlbum()
-//        setupAudioPlayer(song: songs[currentSongIndex])
+        //        setupAudioPlayer(song: songs[currentSongIndex])
     }
     
     // Update the user's song selection and make nextAlbum invisible
@@ -138,7 +138,7 @@ class GameViewController: UIViewController, SearchViewDelegate {
     func setupAudioPlayer(song: Song) {
         let playerItem = AVPlayerItem(url: song.audioURL)
         player = AVPlayer(playerItem: playerItem)
-
+        
         // Reset progress view initially
         progressBar.progress = 0.0
         
@@ -171,7 +171,7 @@ class GameViewController: UIViewController, SearchViewDelegate {
                 CustomButton.playButtonConfig(systemName: "play.fill", playButton as! CustomButton)
                 player.pause()
                 player.seek(to: .zero)
-
+                
                 progressBar.setProgress(0, animated: false)
                 progressBar.progress = 0.0
                 currentTimeLabel.text = formatTime(0)
@@ -289,7 +289,7 @@ class GameViewController: UIViewController, SearchViewDelegate {
     }
     
     // MARK: - Actions
-
+    
     // Toggles playback and updates the play/pause button configuration.
     @IBAction func playButtonPressed(_ sender: Any) {
         if playButton.imageView?.image == UIImage(systemName: "play.fill") {
@@ -351,7 +351,7 @@ class GameViewController: UIViewController, SearchViewDelegate {
                 
                 self.updateOffScreenAlbum()
                 
-        })
+            })
         maxTimeLabel.text = formatTime(Double(currentMaxTime))
         setupAudioPlayer(song: songs[currentSongIndex])
     }
@@ -389,6 +389,40 @@ class GameViewController: UIViewController, SearchViewDelegate {
             timeObserverToken = nil
         }
     }
-    
+    // Added for the dynamic height  of the prevAttemptsVC
+    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
+        if segue.identifier == "GameToPrevAttemptsSegueID" { // Set this identifier on the segue in the Storyboard
+            if let sheetVC = segue.destination as? PreviousAttemptsViewController {
+                
+                
+                if let sheet = sheetVC.sheetPresentationController {
+                    // iOS 16+ allows for custom height calculations
+                    if #available(iOS 16.0, *) {
+                        let dynamicDetent = UISheetPresentationController.Detent.custom { context in
+                            
+                            let rowHeight: CGFloat = 85
+                            let headerHeight: CGFloat = 100
+                            let totalContentHeight = (CGFloat(sheetVC.validGuesses.count) * rowHeight) + headerHeight
+                            
+                            return totalContentHeight
+                        }
+                        
+                        sheet.detents = [dynamicDetent, .large()]
+                        
+                    } else {
+                        // Fallback for iOS 15
+                        sheet.detents = [.medium(), .large()]
+                    }
+                    
+                    sheet.prefersGrabberVisible = true
+                    sheet.preferredCornerRadius = 24
+                }
+                
+                present(sheetVC, animated: true)
+            }
+        }
+    }
 }
+
+
 

@@ -7,9 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		5A3C8DA23015AA2C00185521 /* SpotifyiOS in Frameworks */ = {isa = PBXBuildFile; productRef = 5A3C8DA13015AA2C00185521 /* SpotifyiOS */; };
 		6A076BE4300ABB5E00296B9A /* FirebaseStorage in Frameworks */ = {isa = PBXBuildFile; productRef = 6A076BE3300ABB5E00296B9A /* FirebaseStorage */; };
-		6C7CE1BF301572AE00060369 /* SpotifyiOS.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6C7CE1BE301572AE00060369 /* SpotifyiOS.xcframework */; };
-		6C7CE1C0301572AE00060369 /* SpotifyiOS.xcframework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 6C7CE1BE301572AE00060369 /* SpotifyiOS.xcframework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		8A0C9B70300C721800CA6C97 /* GoogleSignIn in Frameworks */ = {isa = PBXBuildFile; productRef = 8A0C9B6F300C721800CA6C97 /* GoogleSignIn */; };
 		8A0C9B72300C721800CA6C97 /* GoogleSignInSwift in Frameworks */ = {isa = PBXBuildFile; productRef = 8A0C9B71300C721800CA6C97 /* GoogleSignInSwift */; };
 		8A2198382FFC517400E60A9B /* FirebaseAuth in Frameworks */ = {isa = PBXBuildFile; productRef = 8A2198372FFC517400E60A9B /* FirebaseAuth */; };
@@ -26,7 +25,6 @@
 			dstPath = "";
 			dstSubfolderSpec = 10;
 			files = (
-				6C7CE1C0301572AE00060369 /* SpotifyiOS.xcframework in Embed Frameworks */,
 			);
 			name = "Embed Frameworks";
 			runOnlyForDeploymentPostprocessing = 0;
@@ -34,9 +32,7 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
-		6A1E78513014127800834A2D /* SpotifyiOS.xcframework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcframework; name = SpotifyiOS.xcframework; path = "../../Downloads/ios-sdk-5.0.1 2/SpotifyiOS.xcframework"; sourceTree = "<group>"; };
 		6C7CA3602FF351C90052676F /* Heardle.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Heardle.app; sourceTree = BUILT_PRODUCTS_DIR; };
-		6C7CE1BE301572AE00060369 /* SpotifyiOS.xcframework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcframework; name = SpotifyiOS.xcframework; path = "../../Downloads/ios-sdk-5.0.1/SpotifyiOS.xcframework"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
@@ -66,10 +62,10 @@
 			buildActionMask = 2147483647;
 			files = (
 				8A0C9B72300C721800CA6C97 /* GoogleSignInSwift in Frameworks */,
+				5A3C8DA23015AA2C00185521 /* SpotifyiOS in Frameworks */,
 				8A21983A2FFC517400E60A9B /* FirebaseCore in Frameworks */,
 				8A0C9B70300C721800CA6C97 /* GoogleSignIn in Frameworks */,
 				8A2198382FFC517400E60A9B /* FirebaseAuth in Frameworks */,
-				6C7CE1BF301572AE00060369 /* SpotifyiOS.xcframework in Frameworks */,
 				8AC5E6FA3009A498003E29ED /* FirebaseFunctions in Frameworks */,
 				8A21983C2FFC517400E60A9B /* FirebaseFirestore in Frameworks */,
 				6A076BE4300ABB5E00296B9A /* FirebaseStorage in Frameworks */,
@@ -83,8 +79,6 @@
 		6A076BE2300ABACB00296B9A /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
-				6C7CE1BE301572AE00060369 /* SpotifyiOS.xcframework */,
-				6A1E78513014127800834A2D /* SpotifyiOS.xcframework */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
@@ -135,6 +129,7 @@
 				8AC5E6F93009A498003E29ED /* FirebaseFunctions */,
 				8A0C9B6F300C721800CA6C97 /* GoogleSignIn */,
 				8A0C9B71300C721800CA6C97 /* GoogleSignInSwift */,
+				5A3C8DA13015AA2C00185521 /* SpotifyiOS */,
 			);
 			productName = Heardle;
 			productReference = 6C7CA3602FF351C90052676F /* Heardle.app */;
@@ -168,6 +163,7 @@
 				8A2198362FFC517400E60A9B /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */,
 				8A2198412FFC565E00E60A9B /* XCRemoteSwiftPackageReference "ios-auth" */,
 				8A0C9B6E300C721800CA6C97 /* XCRemoteSwiftPackageReference "GoogleSignIn-iOS" */,
+				5A3C8DA03015AA2C00185521 /* XCRemoteSwiftPackageReference "ios-sdk" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 6C7CA3612FF351C90052676F /* Products */;
@@ -409,6 +405,14 @@
 /* End XCConfigurationList section */
 
 /* Begin XCRemoteSwiftPackageReference section */
+		5A3C8DA03015AA2C00185521 /* XCRemoteSwiftPackageReference "ios-sdk" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/spotify/ios-sdk.git";
+			requirement = {
+				branch = master;
+				kind = branch;
+			};
+		};
 		8A0C9B6E300C721800CA6C97 /* XCRemoteSwiftPackageReference "GoogleSignIn-iOS" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/google/GoogleSignIn-iOS";
@@ -436,6 +440,11 @@
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
+		5A3C8DA13015AA2C00185521 /* SpotifyiOS */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 5A3C8DA03015AA2C00185521 /* XCRemoteSwiftPackageReference "ios-sdk" */;
+			productName = SpotifyiOS;
+		};
 		6A076BE3300ABB5E00296B9A /* FirebaseStorage */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = 8A2198362FFC517400E60A9B /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;

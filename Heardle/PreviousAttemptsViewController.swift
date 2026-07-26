@@ -28,6 +28,8 @@ class PreviousAttemptsViewController: UIViewController, UITableViewDelegate, UIT
         tableView.delegate = self
         tableView.dataSource = self
         self.view.overrideUserInterfaceStyle = .dark
+        tableView.backgroundColor = .black
+        tableView.rowHeight = 85
         prevGuessesTitle.font = UIFont.systemFont(ofSize: 20, weight: .bold)
     }
     
@@ -52,6 +54,7 @@ class PreviousAttemptsViewController: UIViewController, UITableViewDelegate, UIT
         content.imageProperties.maximumSize = CGSize(width: 75, height: 575)
         content.imageProperties.reservedLayoutSize = CGSize(width: 75, height: 75)
         cell.contentConfiguration = content
+        cell.backgroundColor = .black
         return cell
     }
     
