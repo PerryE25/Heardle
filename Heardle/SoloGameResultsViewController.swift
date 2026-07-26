@@ -27,7 +27,7 @@ class SoloGameResultsViewController: UIViewController {
     @IBOutlet weak var resultLabel: UILabel!
     @IBOutlet weak var resultIcon: UIImageView!
     
-    var audioPlayer: AVAudioPlayer?
+    var audioPlayer: AVPlayer?
     var progressBlocks: [UIView] = []
     let totalTries = songTimes.count
     var currentSong: Song? = nil
@@ -43,15 +43,18 @@ class SoloGameResultsViewController: UIViewController {
         startButtonAnimation()
         setupProgressBlocks()
 
-        currentSong = songs[0]
+        currentSong = songs[currentSongIndex]
         
         songLargeImage.image = UIImage(data: currentSong!.albumArtData!)
         songSmallImage.image = UIImage(data: currentSong!.albumArtData!)
         
         if let url = currentSong?.audioURL {
-            audioPlayer = try? AVAudioPlayer(contentsOf: url)
-            audioPlayer?.prepareToPlay()
+//            audioPlayer = try? AVAudioPlayer(contentsOf: url)
+//            audioPlayer?.prepareToPlay()
+            let playerItem = AVPlayerItem(url: songs[currentSongIndex].audioURL)
+            audioPlayer = AVPlayer(playerItem: playerItem)
         }
+        
         songNameLabel.text = currentSong?.name
         songAuthorLabel.text = currentSong?.artist
         if let url = currentSong?.albumArt, let data = try? Data(contentsOf: url) {
@@ -92,6 +95,7 @@ class SoloGameResultsViewController: UIViewController {
             solvedAmountLabel.text = "Could not solve in \(totalTries) attempts"
             solvedSecondsLabel.text = ""
         }
+        playButtonButtonPressed(self)
     }
     
     @IBAction func continueButtonTouchDown(_ sender: Any) {
@@ -111,7 +115,7 @@ class SoloGameResultsViewController: UIViewController {
             print(currentSong?.audioURL.absoluteString ?? "test")
         }
         else{
-            audioPlayer?.stop()
+            audioPlayer?.pause()
         }
     }
     func startButtonAnimation() {

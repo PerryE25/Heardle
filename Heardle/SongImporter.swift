@@ -3,6 +3,10 @@
 //  Heardle
 //
 //  Created by Memon, Haroon on 7/18/26.
+//  Project: Heardle
+//  Team Number: 3
+//  Team Members: Jeremiah Franklin, Victor Sanchez, Haroon Memon, Perry Ehimuh
+//  Course: CS371L
 //
 
 import FirebaseAuth
@@ -11,10 +15,12 @@ import Foundation
 
 let songImporter = SongImporter()
 
+// Imports Spotify songs for a user and saves playable tracks to Firestore.
 class SongImporter {
 
     let songService = SongService()
 
+    // Imports songs only if not already imported; returns true on success.
     func importSongsIfNeeded(spotifyAccessToken: String, user: User) async -> Bool {
 
         let userDocument = Firestore.firestore()
@@ -75,6 +81,7 @@ class SongImporter {
         }
     }
 
+    // Fetches the user's top Spotify tracks.
     func fetchTopTracks(spotifyAccessToken: String) async -> [Song] {
 
         let urlString =
@@ -132,6 +139,7 @@ class SongImporter {
         }
     }
 
+    // Fetches the user's saved Spotify tracks.
     func fetchSavedTracks(
         spotifyAccessToken: String
     ) async -> [Song] {
@@ -195,6 +203,7 @@ class SongImporter {
         }
     }
 
+    // Creates a Song from a Spotify track JSON payload.
     func createSong(from track: [String: Any]) -> Song? {
         guard
             let name = track["name"] as? String,
@@ -209,6 +218,7 @@ class SongImporter {
         return Song(name: name, artist: artist, album: album)
     }
 
+    // Combines and de-duplicates top and saved tracks, up to 100 songs.
     func combineSongs(
         topSongs: [Song],
         savedSongs: [Song]
@@ -235,6 +245,7 @@ class SongImporter {
         return combinedSongs
     }
 
+    // Saves the provided songs to Firestore with ordering metadata.
     func saveSongs(
         _ songs: [Song],
         for user: User
@@ -281,3 +292,4 @@ class SongImporter {
         print("Songs saved to Firestore")
     }
 }
+

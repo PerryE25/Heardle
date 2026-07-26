@@ -363,7 +363,7 @@ class GameViewController: UIViewController, SearchViewDelegate {
             if answer == songs[currentSongIndex] {
                 didWin = true
                 performSegue(withIdentifier: gameOverSegueID, sender: self)
-            } else {
+            } else if currentAttempts < 5 {
                 shake()
                 performSegue(withIdentifier: wrongGuessSegueID, sender: self)
             }

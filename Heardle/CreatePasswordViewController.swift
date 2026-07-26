@@ -13,10 +13,10 @@ import FirebaseAuth
 import FirebaseFirestore
 import UIKit
 
+// Creates a password for new accounts and optionally connects Spotify.
 class CreatePasswordViewController: UIViewController, SpotifyManagerDelegate {
 
-    private var spotifyLoadingAlert: UIAlertController?
-
+    // Presents a loading alert while Spotify songs are being prepared.
     func spotifyLoadingStarted() {
         let alert = UIAlertController(
             title: "Loading Your Spotify Songs...",
@@ -34,6 +34,7 @@ class CreatePasswordViewController: UIViewController, SpotifyManagerDelegate {
     var email: String?
     let eyeButton = UIButton(type: .system)
 
+    // Configures the password field, eye toggle, and initial button state.
     override func viewDidLoad() {
         super.viewDidLoad()
         spotifyManager.delegate = self
@@ -53,12 +54,14 @@ class CreatePasswordViewController: UIViewController, SpotifyManagerDelegate {
 
     }
 
+    // Toggles secure entry and updates the eye icon.
     private func togglePasswordAction(_ action: UIAction) {
         passwordField.isSecureTextEntry.toggle()
         let symbol = passwordField.isSecureTextEntry ? "eye" : "eye.slash"
         eyeButton.setImage(UIImage(systemName: symbol), for: .normal)
     }
 
+    // Enables or disables the Next button based on password length.
     private func checkNextEnabled() {
         let isValid = (passwordField.text?.count ?? 0) >= 8
         nextButton.isEnabled = isValid ? true : false
@@ -67,10 +70,12 @@ class CreatePasswordViewController: UIViewController, SpotifyManagerDelegate {
 
     }
 
+    // Revalidates the Next button as the user types.
     @IBAction func passwordFieldEditingChanged(_ sender: UITextField) {
         checkNextEnabled()
     }
 
+    // Creates the Firebase account and user document, then prompts Spotify connect.
     @IBAction func nextButtonPressed(_ sender: Any) {
         guard let email = email, let password = passwordField.text, !password.isEmpty
         else {
@@ -97,6 +102,7 @@ class CreatePasswordViewController: UIViewController, SpotifyManagerDelegate {
         }
     }
     
+    // Creates/merges the Firestore user document with default flags.
     func createUserDocument(user: User) {
             let userData: [String: Any] = ["email": user.email ?? "", "loginProvider": "email", "spotifyConnected": false, "songsImported": false]
 
@@ -113,23 +119,26 @@ class CreatePasswordViewController: UIViewController, SpotifyManagerDelegate {
                 }
         }
 
-        func handleAccountCreationError(_ error: Error) {
-            let errorCode = AuthErrorCode(
-                rawValue: (error as NSError).code
-            )
+    // Presents a friendly message for common account creation errors.
+    func handleAccountCreationError(_ error: Error) {
+        let errorCode = AuthErrorCode(
+            rawValue: (error as NSError).code
+        )
 
-            if errorCode == .emailAlreadyInUse {
-                showError(
-                    """
-                    An account already exists with this email. \
-                    Log in instead, or use Continue with Google \
-                    if you originally registered with Google.
-                    """
-                )
-            } else {
-                showError(error.localizedDescription)
-            }
+        if errorCode == .emailAlreadyInUse {
+            showError(
+                """
+                An account already exists with this email. \
+                Log in instead, or use Continue with Google \
+                if you originally registered with Google.
+                """
+            )
+        } else {
+            showError(error.localizedDescription)
         }
+    }
+
+    // Shows a generic error alert.
     func showError(_ message: String) {
             let alert = UIAlertController(title: "Error", message: message, preferredStyle: .alert)
             
@@ -138,9 +147,7 @@ class CreatePasswordViewController: UIViewController, SpotifyManagerDelegate {
             self.present(alert, animated: true)
     }
 
-    //self.presentConnectSpotifyAlert()
-    //performSegue(withIdentifier: "passwordToHomeSegue", sender: nil)
-
+    // Prompts the user to connect Spotify or skip.
     func presentConnectSpotifyAlert() {
         let alert = UIAlertController(
             title: "Connect Spotify?",
@@ -162,10 +169,12 @@ class CreatePasswordViewController: UIViewController, SpotifyManagerDelegate {
         present(alert, animated: true)
     }
 
+    // Performs the segue to the home screen.
     func goHome() {
         performSegue(withIdentifier: "passwordToHomeSegue", sender: nil)
     }
     
+    // Dismisses loading and continues to load songs when Spotify login succeeds.
     func spotifyLoginSucceeded(){
         if let alert = spotifyLoadingAlert {
             alert.dismiss(animated: true) {
@@ -177,6 +186,7 @@ class CreatePasswordViewController: UIViewController, SpotifyManagerDelegate {
         }
     }
     
+    // Dismisses loading and shows an error if Spotify login fails.
     func spotifyLoginFailed(error: Error?){
         let message = error?.localizedDescription ?? "Could not connect Spotify."
 
@@ -190,6 +200,7 @@ class CreatePasswordViewController: UIViewController, SpotifyManagerDelegate {
         }
     }
 
+    // Loads the user's songs and navigates to the home screen.
     private func loadSongsAndGoHome() {
         Task {
             let loadedSongs = await songService.fetchSongsForCurrentUser()

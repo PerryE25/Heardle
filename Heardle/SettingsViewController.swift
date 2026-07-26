@@ -20,6 +20,7 @@ import UIKit
 let hapticsEnabledKey = "hapticsEnabled"
 let skipAnimationsEnabledKey = "skipAnimationsEnabled"
 
+// Manages profile settings, Spotify connection, and gameplay preferences.
 class SettingsViewController: UIViewController, PHPickerViewControllerDelegate {
     @IBOutlet weak var profilePictureImageView: UIImageView!
     @IBOutlet weak var editButton: UIButton!
@@ -32,10 +33,12 @@ class SettingsViewController: UIViewController, PHPickerViewControllerDelegate {
     var spotifyIsConnected = false
     var spotifyName = ""
 
+    // Dismisses the settings screen.
     @IBAction func backButtonPressed(_ sender: Any) {
         dismiss(animated: true)
     }
 
+    // Loads profile data, Spotify status, and gameplay settings.
     override func viewDidLoad() {
         super.viewDidLoad()
 
@@ -45,6 +48,7 @@ class SettingsViewController: UIViewController, PHPickerViewControllerDelegate {
         loadGameplaySettings()
     }
 
+    // Loads and applies stored preferences for haptics and animations.
     func loadGameplaySettings() {
         let savedHaptics =
             UserDefaults.standard.object(
@@ -57,6 +61,7 @@ class SettingsViewController: UIViewController, PHPickerViewControllerDelegate {
         )
     }
 
+    // Saves the haptics preference and provides haptic feedback when enabled.
     @IBAction func hapticsSwitchChanged(_ sender: UISwitch) {
         UserDefaults.standard.set(sender.isOn, forKey: hapticsEnabledKey)
 
@@ -65,6 +70,7 @@ class SettingsViewController: UIViewController, PHPickerViewControllerDelegate {
         }
     }
 
+    // Saves the skip animations preference and toggles UIView animations.
     @IBAction func skipAnimationsSwitchChanged(_ sender: UISwitch) {
         UserDefaults.standard.set(
             sender.isOn,
@@ -73,6 +79,7 @@ class SettingsViewController: UIViewController, PHPickerViewControllerDelegate {
         UIView.setAnimationsEnabled(!sender.isOn)
     }
 
+    // Loads the display name from Firestore (or Spotify/user defaults as fallback).
     func loadDisplayName() {
         guard let user = Auth.auth().currentUser else { return }
 
@@ -99,6 +106,7 @@ class SettingsViewController: UIViewController, PHPickerViewControllerDelegate {
             }
     }
 
+    // Validates and saves the display name to Firestore.
     @IBAction func displayNameEditingDidEnd(_ sender: UITextField) {
         guard let user = Auth.auth().currentUser else { return }
 
@@ -126,6 +134,7 @@ class SettingsViewController: UIViewController, PHPickerViewControllerDelegate {
                 }
             }
     }
+    // Loads Spotify connection status and display name from Firestore.
     func loadSpotifyConnection() {
         guard let user = Auth.auth().currentUser else { return }
 
@@ -147,6 +156,7 @@ class SettingsViewController: UIViewController, PHPickerViewControllerDelegate {
             }
     }
 
+    // Updates the Spotify connection labels based on current state.
     func updateSpotifyConnectionLabel() {
         spotifyTitleLabel.text =
             spotifyIsConnected
@@ -162,6 +172,7 @@ class SettingsViewController: UIViewController, PHPickerViewControllerDelegate {
             : UIColor.lightGray
     }
 
+    // Shows an alert to disconnect Spotify or informs the current status.
     @IBAction func spotifyConnectionPressed(_ sender: Any) {
         let alert = UIAlertController(
             title: spotifyIsConnected
@@ -189,6 +200,7 @@ class SettingsViewController: UIViewController, PHPickerViewControllerDelegate {
         present(alert, animated: true)
     }
 
+    // Disconnects Spotify and removes imported songs and metadata from Firestore.
     func disconnectSpotify() {
         guard let user = Auth.auth().currentUser else { return }
 
@@ -232,6 +244,7 @@ class SettingsViewController: UIViewController, PHPickerViewControllerDelegate {
         }
     }
 
+    // Signs the user out and returns to the login screen.
     @IBAction func signOutPressed(_ sender: Any) {
         let alert = UIAlertController(
             title: "Sign Out?",
@@ -259,6 +272,7 @@ class SettingsViewController: UIViewController, PHPickerViewControllerDelegate {
         present(alert, animated: true)
     }
 
+    // Prompts to permanently delete the account and imported data.
     @IBAction func deleteAccountPressed(_ sender: Any) {
         let alert = UIAlertController(
             title: "Delete Account?",
@@ -280,6 +294,7 @@ class SettingsViewController: UIViewController, PHPickerViewControllerDelegate {
         present(alert, animated: true)
     }
 
+    // Deletes the Firebase user, Firestore data, and profile picture.
     func deleteAccount() {
         guard let user = Auth.auth().currentUser else { return }
 
@@ -319,10 +334,12 @@ class SettingsViewController: UIViewController, PHPickerViewControllerDelegate {
         }
     }
 
+    // Navigates back to the login screen.
     func showLoginScreen() {
         performSegue(withIdentifier: "settingsToLoginSegue", sender: self)
     }
 
+    // Presents the photo picker to update the profile picture.
     @IBAction func editButtonPressed(_ sender: Any) {
         var configuration = PHPickerConfiguration()
         configuration.filter = .images
@@ -333,6 +350,7 @@ class SettingsViewController: UIViewController, PHPickerViewControllerDelegate {
         present(picker, animated: true)
     }
 
+    // Handles a selected image and starts saving it to storage and Firestore.
     func picker(
         _ picker: PHPickerViewController,
         didFinishPicking results: [PHPickerResult]
@@ -356,6 +374,7 @@ class SettingsViewController: UIViewController, PHPickerViewControllerDelegate {
         }
     }
 
+    // Uploads the profile picture to Firebase Storage and saves its URL in Firestore.
     func saveProfilePicture(_ image: UIImage) {
         guard let user = Auth.auth().currentUser,
             let imageData = image.jpegData(compressionQuality: 0.7)
@@ -398,6 +417,7 @@ class SettingsViewController: UIViewController, PHPickerViewControllerDelegate {
         }
     }
 
+    // Loads the profile picture from Firestore/Spotify and displays it.
     func loadProfilePicture() {
         guard let user = Auth.auth().currentUser else { return }
 
@@ -437,6 +457,7 @@ class SettingsViewController: UIViewController, PHPickerViewControllerDelegate {
             }
     }
 
+    // Presents a generic settings error alert.
     func showError(_ message: String) {
         let alert = UIAlertController(
             title: "Settings Error",
@@ -447,6 +468,7 @@ class SettingsViewController: UIViewController, PHPickerViewControllerDelegate {
         present(alert, animated: true)
     }
 
+    // Rounds the profile image and edit button after layout updates.
     override func viewDidLayoutSubviews() {
         super.viewDidLayoutSubviews()
         profilePictureImageView.layer.cornerRadius =

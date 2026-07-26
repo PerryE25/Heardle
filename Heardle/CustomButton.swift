@@ -15,12 +15,14 @@ import UIKit
 @IBDesignable
 class CustomButton: UIButton {
 
+    // Adjusts the corner radius of the button from Interface Builder.
     @IBInspectable var cornerRadius: CGFloat = 0 {
         didSet {
             layer.cornerRadius = cornerRadius
         }
     }
     
+    // Sets the border color of the button from Interface Builder.
     @IBInspectable var borderColor: CGColor = UIColor.clear.cgColor {
         didSet {
             layer.borderColor = borderColor

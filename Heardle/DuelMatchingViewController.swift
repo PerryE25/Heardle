@@ -14,6 +14,7 @@ import UIKit
 var songList: [Song] = []
 var clipDurations = [1, 2, 4, 7, 11, 16]
 var playerStatus = ["host": 0, "guest": 0]
+// Manages 1v1 matchmaking UI and configurable match settings before a duel.
 class DuelMatchingViewController: UIViewController {
     
 
@@ -38,6 +39,7 @@ class DuelMatchingViewController: UIViewController {
     var settingOptions: [String: [(String, UIColor)]] = [:]
     var settingOptionsAnswers: [String: String]  = [:]
     
+    // Initializes setting options and default answers for match configuration.
     override func viewDidLoad() {
         super.viewDidLoad()
         settingOptions = [
@@ -49,6 +51,7 @@ class DuelMatchingViewController: UIViewController {
         
     }
     
+    // Styles the UI containers and attaches drop-down menus for match settings.
     override func viewDidAppear(_ animated: Bool) {
         matchSettingsView.layer.borderWidth = 1
         matchSettingsView.layer.borderColor = UIColor.spotifyLightGrey.cgColor
@@ -77,10 +80,12 @@ class DuelMatchingViewController: UIViewController {
         settingOptionAdd(button: explicitButtonLabel, options: explicitSongOptions, key: "Explicit")
     }
     
+    // Copies the invite code to the clipboard.
     @IBAction func copyButtonPressed(_ sender: Any) {
         UIPasteboard.general.string = inviteTextLabel.text
     }
     
+    // Presents the share sheet to send a match invite link.
     @IBAction func shareButtonPressed(_ sender: Any) {
         let vc = UIActivityViewController(activityItems: ["""
             Think you can beat me at Heardle? Join my 1v1 with code: \(String(describing: inviteTextLabel.text))
@@ -89,6 +94,7 @@ class DuelMatchingViewController: UIViewController {
         present(vc, animated: true)
     }
     
+    // Builds and assigns a UIMenu of options to a settings button, updating selection state.
     func settingOptionAdd(button: UIButton, options: [(String, UIColor)], key: String) {
         var result: [UIAction] = []
         for option in options {
@@ -111,18 +117,5 @@ class DuelMatchingViewController: UIViewController {
         button.menu = UIMenu(title: key, children: result)
         button.showsMenuAsPrimaryAction = true
     }
-    
-
-        
-
-    /*
-    // MARK: - Navigation
-
-    // In a storyboard-based application, you will often want to do a little preparation before navigation
-    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-        // Get the new view controller using segue.destination.
-        // Pass the selected object to the new view controller.
-    }
-    */
 
 }

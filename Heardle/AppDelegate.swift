@@ -9,13 +9,17 @@
 //  Course: CS371L
 //
 
+// App delegate responsible for app lifecycle setup and configuration.
+
 import UIKit
 import FirebaseCore
 import SpotifyiOS
 
+// Application delegate handling launch and scene session lifecycle.
 @main
 class AppDelegate: UIResponder, UIApplicationDelegate {
 
+    // Configure Firebase, UI defaults, and preload user songs on app launch.
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
         // Set up default songs and firebase
         FirebaseApp.configure()
@@ -40,19 +44,18 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         return true
     }
 
-    // MARK: UISceneSession Lifecycle
-
+    // Provide a configuration when creating a new scene session.
     func application(_ application: UIApplication, configurationForConnecting connectingSceneSession: UISceneSession, options: UIScene.ConnectionOptions) -> UISceneConfiguration {
         // Called when a new scene session is being created.
         // Use this method to select a configuration to create the new scene with.
         return UISceneConfiguration(name: "Default Configuration", sessionRole: connectingSceneSession.role)
     }
 
+    // Handle cleanup for discarded scene sessions.
     func application(_ application: UIApplication, didDiscardSceneSessions sceneSessions: Set<UISceneSession>) {
         // Called when the user discards a scene session.
         // If any sessions were discarded while the application was not running, this will be called shortly after application:didFinishLaunchingWithOptions.
         // Use this method to release any resources that were specific to the discarded scenes, as they will not return.
     }
-
 
 }

@@ -3,6 +3,10 @@
 //  Heardle
 //
 //  Created by Memon, Haroon on 7/16/26.
+//  Project: Heardle
+//  Team Number: 3
+//  Team Members: Jeremiah Franklin, Victor Sanchez, Haroon Memon, Perry Ehimuh
+//  Course: CS371L
 //
 
 import FirebaseAuth
@@ -19,7 +23,9 @@ protocol SpotifyManagerDelegate {
 
 let spotifyManager = SpotifyManager()
 
+// Manages Spotify authentication and Firebase sign-in/connection flows.
 class SpotifyManager: NSObject, SessionManagerDelegate {
+    // Called when Spotify auth succeeds; continues sign-in or connect flow.
     func sessionManager(
         manager: SpotifyLogin.SessionManager,
         didInitiate session: SpotifyLogin.Session
@@ -33,10 +39,12 @@ class SpotifyManager: NSObject, SessionManagerDelegate {
         }
     }
 
+    // Called when Spotify auth fails; notifies the delegate of the error.
     func sessionManager(
         manager: SpotifyLogin.SessionManager,
         didFailWith error: any Error
     ) {
+        print("calls session manager2")
         print("spotify auth failed: \(error.localizedDescription)")
         delegate?.spotifyLoginFailed(error: error)
     }
@@ -47,6 +55,7 @@ class SpotifyManager: NSObject, SessionManagerDelegate {
 
     var connectingExistingAccount = false
 
+    // Initializes the Spotify session manager with client credentials.
     override init() {
         super.init()
 
@@ -61,16 +70,20 @@ class SpotifyManager: NSObject, SessionManagerDelegate {
         )
     }
 
+    // Starts the Spotify login flow for new sign-ins.
     func login() {
+        print("login is called")
         connectingExistingAccount = false
         startSpotifyAuthorization()
     }
 
+    // Starts the Spotify connect flow for existing users.
     func connect() {
         connectingExistingAccount = true
         startSpotifyAuthorization()
     }
 
+    // Initiates Spotify authorization with required scopes.
     func startSpotifyAuthorization() {
         let scopes: [Scope] = [
             .userReadPrivate, .userReadEmail, .userLibraryRead,
@@ -83,14 +96,17 @@ class SpotifyManager: NSObject, SessionManagerDelegate {
 
     }
 
+    // Forwards the OAuth callback URL to the session manager.
     func handleCallback(url: URL) {
         sessionManager.openURL(url)
     }
 
+    // Imports songs if needed and notifies the delegate upon completion.
     func finishSpotifySetup(
         user: User,
         spotifyAccessToken: String
     ) {
+        print("finishSpotifySetup is called")
         Task {
             let success = await songImporter.importSongsIfNeeded(
                 spotifyAccessToken: spotifyAccessToken,
@@ -105,10 +121,12 @@ class SpotifyManager: NSObject, SessionManagerDelegate {
         }
     }
 
+    // Retrieves the user's Spotify profile picture URL.
     func fetchSpotifyProfilePicture(
         spotifyAccessToken: String,
         completion: @escaping (String?) -> Void
     ) {
+        print("fetchSpotifyProfilePicture is called")
         guard let url = URL(string: "https://api.spotify.com/v1/me") else {
             completion(nil)
             return
@@ -133,7 +151,9 @@ class SpotifyManager: NSObject, SessionManagerDelegate {
         }
     }
 
+    // Exchanges the Spotify token for a Firebase custom token and signs in.
     func signIntoFirebase(spotifyAccessToken: String) {
+        print("signIntoFirebase is called")
         let function = Functions.functions()
             .httpsCallable("spotifySignIn")
 
@@ -213,23 +233,37 @@ class SpotifyManager: NSObject, SessionManagerDelegate {
             }
         }
     }
+    // Connects Spotify to an existing Firebase account and finalizes setup.
     func connectSpotify(spotifyAccessToken: String) {
+        print("connecting spotify")
         guard let user = Auth.auth().currentUser else {
             print("No Firebase user signed in")
             delegate?.spotifyLoginFailed(error: nil)
             return
         }
-
+        print("access token: \(spotifyAccessToken)")
         let function = Functions.functions().httpsCallable("spotifySignIn")
 
         function.call(["accessToken": spotifyAccessToken]) { result, error in
             if let error = error {
+                print("ERROR:", error)
+
+                if let error = error as NSError? {
+                    print("Domain:", error.domain)
+                    print("Code:", error.code)
+                    print("UserInfo:", error.userInfo)
+                }
+                
                 print(error.localizedDescription)
                 self.delegate?.spotifyLoginFailed(error: error)
                 return
             }
 
+            print("Cloud Function result:")
+            print(result?.data ?? "nil")
+
             let data = result?.data as? [String: Any]
+            print("Parsed data:", data ?? [:])
 
             guard let spotifyID = data?["spotifyAccountID"] as? String else {
                 print("Spotify ID missing")

@@ -11,6 +11,7 @@
 
 import UIKit
 
+// Displays duel results, scores, and a breakdown list for both players.
 class DuelResultsViewController: UIViewController, UITableViewDelegate, UITableViewDataSource {
 
     
@@ -32,6 +33,7 @@ class DuelResultsViewController: UIViewController, UITableViewDelegate, UITableV
     
     let textCellIdentifier = "TextCell"
     
+    // Initializes table view delegates and styles the results UI.
     override func viewDidLoad() {
         super.viewDidLoad()
         tableView.delegate = self
@@ -43,6 +45,7 @@ class DuelResultsViewController: UIViewController, UITableViewDelegate, UITableV
         // Do any additional setup after loading the view.
     }
     
+    // Updates the title, colors, and score labels each time the view appears.
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         if didWin {
@@ -65,10 +68,12 @@ class DuelResultsViewController: UIViewController, UITableViewDelegate, UITableV
         
     }
     
+    // Returns the number of rows for the match breakdown list.
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         return matchResultList.count
     }
     
+    // Dequeues and configures a results cell for the given row.
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: textCellIdentifier, for: indexPath) as! DuelResultsCustomTableViewCell
                 
@@ -87,3 +92,4 @@ class DuelResultsViewController: UIViewController, UITableViewDelegate, UITableV
     */
 
 }
+
