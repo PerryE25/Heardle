@@ -10,14 +10,16 @@
 //
 
 import UIKit
+import FirebaseFirestore
 
 var songList: [Song] = []
 var clipDurations = [1, 2, 4, 7, 11, 16]
 var playerStatus = ["host": 0, "guest": 0]
 // Manages 1v1 matchmaking UI and configurable match settings before a duel.
+
 class DuelMatchingViewController: UIViewController {
     
-
+    
     @IBOutlet weak var playerOneView: UIStackView!
     @IBOutlet weak var playerTwoView: UIStackView!
     @IBOutlet weak var matchSettingsView: UIStackView!
@@ -38,10 +40,22 @@ class DuelMatchingViewController: UIViewController {
     let explicitSongOptions = [("Allowed", UIColor.spotifyGreen), ("Restricted", UIColor.systemRed)]
     var settingOptions: [String: [(String, UIColor)]] = [:]
     var settingOptionsAnswers: [String: String]  = [:]
+    var gameCode: String!
+    
+    private var listener: ListenerRegistration?
     
     // Initializes setting options and default answers for match configuration.
     override func viewDidLoad() {
         super.viewDidLoad()
+        listener = GameService.shared.observeGame(code: gameCode) {
+            result in
+            switch result {
+            case .success(let game):
+                print("Found match")
+            case .failure(let error):
+                print(error.localizedDescription)
+            }
+        }
         settingOptions = [
             "Playlist": playlistOptions, "Song Round": songRoundOptions, "Guess Timer": guessTimerOptions, "Explicit": explicitSongOptions]
         for (key, _) in settingOptions {
@@ -49,6 +63,10 @@ class DuelMatchingViewController: UIViewController {
         }
         
         
+    }
+    
+    deinit {
+        listener?.remove()
     }
     
     // Styles the UI containers and attaches drop-down menus for match settings.

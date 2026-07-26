@@ -42,6 +42,7 @@ final class GameService {
     private let db = Firestore.firestore()
     private static let alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ23456789"
     private static let codeLength = 6
+    private static let defaultClipDurations = [1, 2, 4, 7, 11, 16]
     private init() {
         
     }
@@ -52,24 +53,27 @@ final class GameService {
         })
     }
     
-    func pickRandomSong(playlist: [Song]) -> Song {
-        return playlist.randomElement()!
+    func pickRandomSong(playlist: [Song]) throws -> Song {
+        guard let song = playlist.randomElement() else {
+            throw GameError.noSongsAvailable
+        }
+        return song
     }
     
-    func createGame() async throws -> String {
+    func createGame(playlist: [Song]) async throws -> String {
         guard let uid = Auth.auth().currentUser?.uid else {
             throw GameError.notSignedIn
         }
         
-        let song = pickRandomSong(playlist: songList)
+        let song = try pickRandomSong(playlist: playlist)
         
-        guard let trackId = song.trackId, let previewURL = song.previewURL else {
+        guard let songTrackId = song.trackId, let songPreviewURL = song.previewURL else {
             throw GameError.invalidSongData
         }
         
         let code = generateCode()
         
-        let game = Game(hostId: uid, status: .waiting, trackId: String(song.trackId!), trackTitle: song.name, trackArtist: song.artist, previewURL: song.previewURL!, clipDurations: clipDurations, playerAttempt: [uid: 0], playerStatus: [uid: .playing], playerFinishedAt: [:])
+        let game = Game(hostId: uid, status: .waiting, trackId: String(songTrackId), trackTitle: song.name, trackArtist: song.artist, previewURL: songPreviewURL, clipDurations: Self.defaultClipDurations, playerAttempt: [uid: 0], playerStatus: [uid: .playing], playerFinishedAt: [:])
         
         try await withCheckedThrowingContinuation { (cont: CheckedContinuation <Void, Error>) in
             do {
@@ -86,5 +90,103 @@ final class GameService {
             }
         }
         return code
+    }
+    
+    func fetchGame(code: String) async throws -> Game {
+        let snapshot = try await db.collection("games")
+            .document(code)
+            .getDocument(source: .server)
+        
+        guard snapshot.exists else {
+            throw GameError.gameNotFound
+        }
+        return try snapshot.data(as: Game.self)
+    }
+    
+    func joinGame(code: String) async throws -> Game {
+        guard let uid = Auth.auth().currentUser?.uid else {
+            throw GameError.notSignedIn
+        }
+        
+        let normalized = code
+            .trimmingCharacters(in: .whitespacesAndNewlines)
+            .uppercased()
+        
+        let ref = db.collection("games").document(normalized)
+        
+        var joinError: GameError?
+        
+        _ = try await db.runTransaction{
+            transaction, errorPointer -> Any? in
+            joinError = nil
+            
+            let snapshot: DocumentSnapshot
+            do {
+                snapshot = try transaction.getDocument(ref)
+            } catch let error as NSError {
+                errorPointer?.pointee = error
+                return nil
+            }
+            
+            guard let data = snapshot.data() else {
+                joinError = .gameNotFound
+                return nil
+            }
+            
+            if data["hostId"] as? String == uid {
+                joinError = .cannotJoinOwnGame
+                return nil
+            }
+            
+            if let existingGuest = data["guestId"] as? String {
+                if existingGuest != uid {
+                    joinError = .gameFull
+                    return nil
+                }
+                return nil
+            }
+            
+            guard data["status"] as? String == GameStatus.waiting.rawValue else {
+                joinError = .gameFull
+                return nil
+            }
+            
+            transaction.updateData([
+                "guestId": uid,
+                "status": GameStatus.playing.rawValue,
+                "startedAt": FieldValue.serverTimestamp(),
+                "playerAttempt.\(uid)": 0,
+                "playerStatus.\(uid)": PlayerStatus.playing.rawValue
+            ], forDocument: ref)
+            
+            return nil
+        }
+        
+        if let joinError {
+            throw joinError
+        }
+        
+        return try await fetchGame(code: normalized)
+    }
+    
+    func observeGame(
+        code: String,
+        onChange: @escaping (Result<Game, Error>) -> Void) -> ListenerRegistration {
+            db.collection("games").document(code).addSnapshotListener {
+                snapshot, error in
+                if let error {
+                    onChange(.failure(error))
+                    return
+                }
+                guard let snapshot, snapshot.exists else {
+                    onChange(.failure(GameError.gameNotFound))
+                    return
+                }
+                do {
+                    onChange(.success(try snapshot.data(as: Game.self)))
+                } catch {
+                    onChange(.failure(error))
+                }
+            }
     }
 }
