@@ -15,10 +15,10 @@ import UIKit
 import GoogleSignIn
 import FirebaseCore
 
-// Handles account creation and sign-in flows, including Spotify and Google.
 class CreateAccountViewController: UIViewController, SpotifyManagerDelegate {
 
-    // Presents a loading alert while Spotify songs are being prepared.
+    private var spotifyLoadingAlert: UIAlertController?
+
     func spotifyLoadingStarted() {
         let alert = UIAlertController(
             title: "Loading Your Spotify Songs...",
@@ -30,7 +30,6 @@ class CreateAccountViewController: UIViewController, SpotifyManagerDelegate {
         present(alert, animated: true)
     }
 
-    // Dismisses the loading alert (if shown) and presents an error.
     func spotifyLoginFailed(error: Error?) {
         let message = error?.localizedDescription ?? "Spotify login failed."
 
@@ -52,7 +51,6 @@ class CreateAccountViewController: UIViewController, SpotifyManagerDelegate {
     
     @IBOutlet weak var appleButton: UIButton!
     
-    // Proceeds to the password screen if a valid email has been entered.
     @IBAction func continueButtonPressed(_ sender: Any) {
         let email = emailField.text ?? ""
         if !(email == "") {
@@ -60,16 +58,13 @@ class CreateAccountViewController: UIViewController, SpotifyManagerDelegate {
         }
     }
     
-    // Starts the Spotify login flow.
     @IBAction func spotifyButtonPressed(_ sender: Any) {
         spotifyManager.login()
     }
 
-    // Opens an email/password login prompt.
     @IBAction func emailLoginButtonPressed(_ sender: Any) {
         presentEmailLoginAlert()
     }
-    // Starts the Google sign-in flow and signs into Firebase.
     @IBAction func googleButtonPressed(_ sender: Any) {
         guard let clientID = FirebaseApp.app()?.options.clientID else { return }
         GIDSignIn.sharedInstance.configuration = GIDConfiguration(clientID: clientID)
@@ -95,7 +90,6 @@ class CreateAccountViewController: UIViewController, SpotifyManagerDelegate {
     }
     
     
-    // Configures UI elements and sets up third-party login button icons.
     override func viewDidLoad() {
         super.viewDidLoad()
         spotifyManager.delegate = self
@@ -141,7 +135,6 @@ class CreateAccountViewController: UIViewController, SpotifyManagerDelegate {
         // Do any additional setup after loading the view.
     }
     
-    // Dismisses loading and continues to load songs when Spotify login succeeds.
     func spotifyLoginSucceeded(){
         if let alert = spotifyLoadingAlert {
             alert.dismiss(animated: true) {
@@ -153,7 +146,6 @@ class CreateAccountViewController: UIViewController, SpotifyManagerDelegate {
         }
     }
 
-    // Presents an alert to capture email and password for login.
     func presentEmailLoginAlert() {
         let alert = UIAlertController(
             title: "Log in",
@@ -192,7 +184,6 @@ class CreateAccountViewController: UIViewController, SpotifyManagerDelegate {
         present(alert, animated: true)
     }
 
-    // Signs in with email and password, then checks Spotify connection.
     func signInWithEmail(_ email: String, password: String) {
         Auth.auth().signIn(withEmail: email, password: password) { result, error in
             if let error {
@@ -209,7 +200,6 @@ class CreateAccountViewController: UIViewController, SpotifyManagerDelegate {
         }
     }
 
-    // Ensures a Firestore user document exists and prompts to connect Spotify if needed.
     func checkSpotifyConnection(for user: User, loginProvider: String) {
         let document = Firestore.firestore().collection("users").document(user.uid)
             document.getDocument { snapshot, error in
@@ -250,7 +240,6 @@ class CreateAccountViewController: UIViewController, SpotifyManagerDelegate {
             }
     }
 
-    // Prompts the user to connect Spotify or skip.
     func presentConnectSpotifyAlert() {
         let alert = UIAlertController(
             title: "Connect Spotify?",
@@ -269,7 +258,6 @@ class CreateAccountViewController: UIViewController, SpotifyManagerDelegate {
         present(alert, animated: true)
     }
 
-    // Shows a generic login error alert with the provided message.
     private func showError(_ message: String) {
         let alert = UIAlertController(
             title: "Login Error",
@@ -280,7 +268,6 @@ class CreateAccountViewController: UIViewController, SpotifyManagerDelegate {
         present(alert, animated: true)
     }
 
-    // Loads the user's songs and navigates to the home screen.
     private func loadSongsAndGoHome() {
         Task {
             let loadedSongs = await songService.fetchSongsForCurrentUser()
@@ -295,12 +282,10 @@ class CreateAccountViewController: UIViewController, SpotifyManagerDelegate {
         }
     }
 
-    // Performs the segue to the home screen.
     private func goHome() {
         performSegue(withIdentifier: "accountToHomeSegue", sender: self)
     }
     
-    // Passes the email to the password creation screen before navigation.
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
         if segue.identifier == "accountToPasswordSegue"{
             let passwordVC = segue.destination as! CreatePasswordViewController
@@ -322,4 +307,3 @@ class CreateAccountViewController: UIViewController, SpotifyManagerDelegate {
     */
 
 }
-
