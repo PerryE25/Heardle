@@ -23,10 +23,13 @@ struct Game: Codable {
     var guestId: String?
     var status: GameStatus
     
-    var trackId: String
-    var trackTitle: String
-    var trackArtist: String
-    var previewURL: String
+    var trackId: String?
+    var trackTitle: String?
+    var trackArtist: String?
+    var previewURL: String?
+    var playlistName: String?
+    var rounds: Int?
+    var guessTimerOn: Bool?
     var clipDurations: [Int]
     
     var playerAttempt: [String: Int]

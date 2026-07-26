@@ -11,6 +11,7 @@
 
 import UIKit
 import FirebaseFirestore
+import FirebaseAuth
 
 var songList: [Song] = []
 var clipDurations = [1, 2, 4, 7, 11, 16]
@@ -41,28 +42,49 @@ class DuelMatchingViewController: UIViewController {
     var settingOptions: [String: [(String, UIColor)]] = [:]
     var settingOptionsAnswers: [String: String]  = [:]
     var gameCode: String!
+    var hasTransitioned = false
+    var isCreating = true
     
     private var listener: ListenerRegistration?
     
     // Initializes setting options and default answers for match configuration.
     override func viewDidLoad() {
         super.viewDidLoad()
-        listener = GameService.shared.observeGame(code: gameCode) {
-            result in
-            switch result {
-            case .success(let game):
-                print("Found match")
-            case .failure(let error):
-                print(error.localizedDescription)
-            }
-        }
         settingOptions = [
             "Playlist": playlistOptions, "Song Round": songRoundOptions, "Guess Timer": guessTimerOptions, "Explicit": explicitSongOptions]
         for (key, _) in settingOptions {
             settingOptionsAnswers[key] = ""
         }
         
-        
+        if isCreating {
+            gameCode = GameService.shared.generateCode()
+            inviteTextLabel.text = gameCode
+            
+            Task {
+                do {
+                    try await GameService.shared.createGame(code: gameCode)
+                    startObserving()
+                } catch {
+                    print(error)
+                }
+            }
+        }
+        else {
+            inviteTextLabel.text = gameCode
+            startObserving()
+        }
+    }
+    
+    private func startObserving() {
+        listener = GameService.shared.observeGame(code: gameCode) {
+            [weak self] result in
+            switch result {
+            case .success(let game):
+                self?.render(game)
+            case .failure(let error):
+                print(error.localizedDescription)
+            }
+        }
     }
     
     deinit {
@@ -112,6 +134,32 @@ class DuelMatchingViewController: UIViewController {
         present(vc, animated: true)
     }
     
+    func render(_ game: Game) {
+        guard let myUID = Auth.auth().currentUser?.uid else {
+            return
+        }
+        let isHost = (game.hostId == myUID)
+        let guestJoined = (game.guestId != nil)
+        
+        switch game.status {
+        case .waiting:
+            waitingForPlayerView.isHidden = guestJoined
+            playerTwoView.isHidden = !guestJoined
+            setSettingsEnabled(isHost)
+            
+            inviteFriendView.isHidden = guestJoined
+            
+        case .playing:
+            guard !hasTransitioned else { return }
+            hasTransitioned = true
+            waitingForPlayerView.isHidden = true
+            playerTwoView.isHidden = false
+        
+        case .finished:
+            
+        }
+    }
+    
     // Builds and assigns a UIMenu of options to a settings button, updating selection state.
     func settingOptionAdd(button: UIButton, options: [(String, UIColor)], key: String) {
         var result: [UIAction] = []
@@ -135,5 +183,13 @@ class DuelMatchingViewController: UIViewController {
         button.menu = UIMenu(title: key, children: result)
         button.showsMenuAsPrimaryAction = true
     }
+    
+    private func setSettingsEnabled(_ enabled: Bool) {
+        playlistButtonLabel.isEnabled = enabled
+        roundsButtonLabel.isEnabled = enabled
+        guessTimerButtonLabel.isEnabled = enabled
+        explicitButtonLabel.isEnabled = enabled
+    }
+    
 
 }

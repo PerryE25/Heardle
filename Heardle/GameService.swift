@@ -47,7 +47,7 @@ final class GameService {
         
     }
     
-    private func generateCode() -> String {
+    func generateCode() -> String {
         String((0..<Self.codeLength).map { _ in
             Self.alphabet.randomElement()!
         })
@@ -60,36 +60,27 @@ final class GameService {
         return song
     }
     
-    func createGame(playlist: [Song]) async throws -> String {
+    func createGame(code: String) async throws {
         guard let uid = Auth.auth().currentUser?.uid else {
             throw GameError.notSignedIn
         }
-        
-        let song = try pickRandomSong(playlist: playlist)
-        
-        guard let songTrackId = song.trackId, let songPreviewURL = song.previewURL else {
-            throw GameError.invalidSongData
-        }
-        
-        let code = generateCode()
-        
-        let game = Game(hostId: uid, status: .waiting, trackId: String(songTrackId), trackTitle: song.name, trackArtist: song.artist, previewURL: songPreviewURL, clipDurations: Self.defaultClipDurations, playerAttempt: [uid: 0], playerStatus: [uid: .playing], playerFinishedAt: [:])
-        
-        try await withCheckedThrowingContinuation { (cont: CheckedContinuation <Void, Error>) in
+
+        let game = Game(
+            hostId: uid,
+            status: .waiting,
+            clipDurations: Self.defaultClipDurations,
+            playerAttempt: [uid: 0],
+            playerStatus: [uid: .playing],
+            playerFinishedAt: [:]
+        )
+
+        try await withCheckedThrowingContinuation { (cont: CheckedContinuation<Void, Error>) in
             do {
                 try db.collection("games").document(code).setData(from: game) { error in
-                    if let error {
-                        cont.resume(throwing: error)
-                    }
-                    else {
-                        cont.resume()
-                    }
+                    if let error { cont.resume(throwing: error) } else { cont.resume() }
                 }
-            } catch {
-                cont.resume(throwing: error)
-            }
+            } catch { cont.resume(throwing: error) }
         }
-        return code
     }
     
     func fetchGame(code: String) async throws -> Game {
