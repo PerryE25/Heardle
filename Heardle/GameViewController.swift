@@ -46,6 +46,8 @@ class GameViewController: UIViewController, SearchViewDelegate {
 
         private var session: GameSession = SoloSession(answerProvider: { songs[0] })
 
+        // Track the history of correct songs from previous rounds
+        var matchResultHistory: [RoundResult] = []
 
         var currentSongIndex = 0
         var didWin = false
@@ -54,7 +56,7 @@ class GameViewController: UIViewController, SearchViewDelegate {
 
         private var opponentAttempt = 0
         private var listener: ListenerRegistration?
-
+        private var hasShownResults = false
 
         private var clipDurations: [Int] { session.clipDurations }
 
@@ -65,10 +67,16 @@ class GameViewController: UIViewController, SearchViewDelegate {
         let searchSegueID = "SearchSongSegue"
         let wrongGuessSegueID = "WrongGuessSegueID"
         let gameOverSegueID = "GameOverSegue"
+        let duelResultSegueID = "duelResult"
 
         var currentAttempts = 0 {
             didSet {
                 totalAttempts = currentAttempts
+
+                // Everything below is UI work or a gameplay side effect —
+                // only valid once the view exists.
+                guard isViewLoaded else { return }
+
                 prevAttemptsButton.setTitle(
                     "Attempt \(currentAttempts) / \(session.maxAttempts) ", for: .normal)
                 presentUnlockButton()
@@ -89,6 +97,8 @@ class GameViewController: UIViewController, SearchViewDelegate {
             super.viewDidLoad()
 
             prevGuesses = []
+            
+            print("[GAME] viewDidLoad - Match history has \(matchResultHistory.count) songs")
 
             if let gameCode {
                 skipSongButton.isHidden = true
@@ -133,9 +143,14 @@ class GameViewController: UIViewController, SearchViewDelegate {
 
         private func startRound(from game: Game) {
             guard let urlString = game.previewURL, let url = URL(string: urlString) else {
-                print("Game has no playable preview URL")
+                print("[GAME] Game has no playable preview URL")
                 return
             }
+            
+            print("[GAME] Starting round \(game.currentRound ?? 0)")
+            print("[GAME] Correct answer: \(game.trackTitle ?? "Unknown") by \(game.trackArtist ?? "Unknown")")
+            print("[GAME] Preview URL: \(urlString)")
+            
             setupAudioPlayer(url: url)
             maxTimeLabel.text = formatTime(Double(currentMaxTime))
         }
@@ -155,8 +170,35 @@ class GameViewController: UIViewController, SearchViewDelegate {
             opponentAttempt = game.playerAttempt[opponentUID] ?? 0
             // TODO: surface opponentAttempt in the UI (progress dots, "on guess 3/6", etc.)
 
-            if game.status == .finished {
-                performSegue(withIdentifier: gameOverSegueID, sender: self)
+            // Handle different game states
+            switch game.status {
+            case .roundResults, .finished:
+                // One shot: segue to the results screen exactly once, then go
+                // quiet. Without this, every later snapshot re-fires the segue
+                // from this (now buried) instance — the "whose view is not in
+                // the window hierarchy" spam and the phantom results screens.
+                guard !hasShownResults else { break }
+                hasShownResults = true
+                if game.status == .finished {
+                    print("🏆 [GAME] Game finished! Transitioning to final results...")
+                } else {
+                    print("🏁 [GAME] Round finished! Transitioning to results...")
+                }
+                listener?.remove()
+                listener = nil
+                player?.pause()
+                performSegue(withIdentifier: duelResultSegueID, sender: game)
+                
+            case .playing:
+                // Check if I'm done but opponent is still playing
+                let myStatus = game.playerStatus[myUID]
+                if myStatus != .playing {
+                    print("⏳ [GAME] Waiting for opponent to finish...")
+                    // TODO: Show "Waiting for opponent..." UI
+                }
+                
+            default:
+                break
             }
         }
 
@@ -428,9 +470,61 @@ class GameViewController: UIViewController, SearchViewDelegate {
                 }
             }
 
+            if segue.identifier == duelResultSegueID {
+                // Multiplayer - pass to DuelResultsViewController
+                if let game = sender as? Game, let resultsVC = segue.destination as? DuelResultsViewController {
+                    resultsVC.gameCode = gameCode
+                    resultsVC.didWin = didWin
+                    resultsVC.myAttempts = currentAttempts
+                    resultsVC.prevGuesses = prevGuesses.compactMap { $0 }
+                    
+                    // Set round info
+                    resultsVC.currentRound = game.currentRound ?? 1
+                    resultsVC.totalRounds = game.totalRounds ?? 1
+                    resultsVC.isGameComplete = (game.status == .finished)
+                    
+                    // Get my and opponent scores
+                    if let myUID = Auth.auth().currentUser?.uid {
+                        // Round wins - who won each round
+                        resultsVC.myRoundsWon = game.playerRoundsWon?[myUID] ?? 0
+                        
+                        let opponentUID = (game.hostId == myUID) ? game.guestId : game.hostId
+                        if let opponentUID = opponentUID {
+                            resultsVC.opponentRoundsWon = game.playerRoundsWon?[opponentUID] ?? 0
+                            resultsVC.opponentAttempts = game.playerAttempt[opponentUID] ?? 0
+                        }
+                    }
+                    
+                    // Resolve the round's answer from the shared catalog by
+                    // trackId so the results screen gets real album artwork;
+                    // fall back to a bare title/artist Song if it's missing.
+                    var roundSong: Song?
+                    if let targetId = game.trackId {
+                        roundSong = songs.first { song in
+                            guard let id = song.trackId else { return false }
+                            return String(id) == targetId
+                        }
+                    }
+                    if roundSong == nil, let trackTitle = game.trackTitle, let trackArtist = game.trackArtist {
+                        roundSong = Song(name: trackTitle, artist: trackArtist, album: "")
+                    }
+                    if let roundSong {
+                        resultsVC.correctSong = roundSong
+                        print("[GAME→RESULTS] Passing correct song: \(roundSong.name) by \(roundSong.artist)")
+                    } else {
+                        print("[GAME→RESULTS] No track info available in game data")
+                    }
+                    
+                    // Pass the match breakdown history from previous rounds
+                    resultsVC.matchResultList = matchResultHistory
+                    print("[GAME→RESULTS] Passing \(matchResultHistory.count) previous songs in history")
+                }
+            }
+
+            
             if segue.identifier == gameOverSegueID {
-                // TODO: pass didWin, totalAttempts, prevGuesses, and gameCode
-                // to your results VC here instead of reading globals.
+                // Solo game - pass to SoloGameResultsViewController
+                // TODO: Set up solo results view controller if needed
             }
         }
     }

@@ -266,7 +266,7 @@ class SongImporter {
             }
 
             let songDocument = songsCollection.document()
-            let songData: [String: Any] = [
+            var songData: [String: Any] = [
                 "name": song.name,
                 "artist": song.artist,
                 "album": song.album,
@@ -274,6 +274,11 @@ class SongImporter {
                 "albumArt": song.itunesArtworkURL ?? "",
                 "order": order,
             ]
+            
+            // Add trackId if available (required for multiplayer)
+            if let trackId = song.trackId {
+                songData["trackId"] = trackId
+            }
 
             batch.setData(songData, forDocument: songDocument)
             order += 1
