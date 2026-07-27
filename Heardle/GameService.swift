@@ -68,7 +68,8 @@ final class GameService {
         let game = Game(
             hostId: uid,
             status: .waiting,
-            currentRound: 0,
+            totalRounds: 6,
+            currentRound: 0, // Default to 3 rounds
             clipDurations: Self.defaultClipDurations,
             playerAttempt: [uid: 0],
             playerStatus: [uid: .playing],
@@ -260,10 +261,47 @@ final class GameService {
                 }
                 
                 if everyoneDone {
-                    if won {
-                        let currentWins = (data["playerRoundsWon"] as? [String: Int])?[uid] ?? 0
-                        update["playerRoundsWon.\(uid)"] = currentWins + 1
+                    // Determine round winner based on attempts
+                    let playerAttempts = data["playerAttempt"] as? [String: Int] ?? [:]
+                    
+                    guard let hostId = hostId, let guestId = guestId else { return nil }
+                    
+                    let hostAttempts = playerAttempts[hostId] ?? 999
+                    let guestAttempts = playerAttempts[guestId] ?? 999
+                    let hostWon = statuses[hostId] == PlayerStatus.won.rawValue
+                    let guestWon = statuses[guestId] == PlayerStatus.won.rawValue
+                    
+                    var currentRoundsWon = data["playerRoundsWon"] as? [String: Int] ?? [:]
+                    let hostCurrentWins = currentRoundsWon[hostId] ?? 0
+                    let guestCurrentWins = currentRoundsWon[guestId] ?? 0
+                    
+                    // Scoring logic:
+                    // - Both wrong: no points
+                    // - Both correct with same attempts: TIE - both get 1 point
+                    // - Both correct with different attempts: fewest attempts wins 1 point
+                    // - Only one correct: that player gets 1 point
+                    
+                    if hostWon && guestWon {
+                        // Both got it right
+                        if hostAttempts == guestAttempts {
+                            // TIE - both gain 1 point
+                            update["playerRoundsWon.\(hostId)"] = hostCurrentWins + 1
+                            update["playerRoundsWon.\(guestId)"] = guestCurrentWins + 1
+                        } else if hostAttempts < guestAttempts {
+                            // Host wins (fewer attempts)
+                            update["playerRoundsWon.\(hostId)"] = hostCurrentWins + 1
+                        } else {
+                            // Guest wins (fewer attempts)
+                            update["playerRoundsWon.\(guestId)"] = guestCurrentWins + 1
+                        }
+                    } else if hostWon {
+                        // Only host got it right
+                        update["playerRoundsWon.\(hostId)"] = hostCurrentWins + 1
+                    } else if guestWon {
+                        // Only guest got it right
+                        update["playerRoundsWon.\(guestId)"] = guestCurrentWins + 1
                     }
+                    // else: both lost - no points awarded
                     
                     update["status"] = GameStatus.roundResults.rawValue
                     
@@ -277,13 +315,21 @@ final class GameService {
             }
         }
     
-    func markReady(code: String) async throws {
+    func markReady(code: String, playlist: [Song]) async throws {
         guard let uid = Auth.auth().currentUser?.uid else {
             throw GameError.notSignedIn
         }
-        
+
+        // Picked up front; only used if this call completes the pair
+        // and rounds remain. Transactions can retry, so the closure stays pure.
+        let candidate = try pickRandomSong(playlist: playlist)
+        guard let candidateId = candidate.trackId,
+              let candidateURL = candidate.previewURL else {
+            throw GameError.invalidSongData
+        }
+
         let ref = db.collection("games").document(code)
-        
+
         _ = try await db.runTransaction { transaction, errorPointer -> Any? in
             let snapshot: DocumentSnapshot
             do {
@@ -292,33 +338,55 @@ final class GameService {
                 errorPointer?.pointee = error
                 return nil
             }
-            
+
             guard let data = snapshot.data() else { return nil }
-            
-            var update: [String: Any] = [
-                "playerReadyForNext.\(uid)": true
-            ]
-            
+
             var readyStates = data["playerReadyForNext"] as? [String: Bool] ?? [:]
             readyStates[uid] = true
-            
+
             let hostId = data["hostId"] as? String
             let guestId = data["guestId"] as? String
             let seats = [hostId, guestId].compactMap { $0 }
-            
+
             let allReady = seats.count == 2 && seats.allSatisfy { readyStates[$0] == true }
-            
+
+            var update: [String: Any] = [
+                "playerReadyForNext.\(uid)": true
+            ]
+
             if allReady {
                 let currentRound = data["currentRound"] as? Int ?? 0
                 let totalRounds = data["totalRounds"] as? Int ?? 1
                 
+                print("🎲 [GAME SERVICE] Both players ready!")
+                print("   Current round: \(currentRound), Total rounds: \(totalRounds)")
+
+                // Check if we've completed all rounds
                 if currentRound >= totalRounds {
+                    print("🏁 [GAME SERVICE] All rounds complete, marking game as finished")
                     update["status"] = GameStatus.finished.rawValue
                 } else {
+                    // Advance to the next round, atomically with the ready flip
+                    print("▶️ [GAME SERVICE] Starting round \(currentRound + 1) of \(totalRounds)")
+                    print("   Next song: \(candidate.name) by \(candidate.artist)")
+                    
+                    update["trackId"] = String(candidateId)
+                    update["trackTitle"] = candidate.name
+                    update["trackArtist"] = candidate.artist
+                    update["previewURL"] = candidateURL
+                    update["status"] = GameStatus.playing.rawValue
+                    update["currentRound"] = currentRound + 1
+                    update["roundStartedAt"] = FieldValue.serverTimestamp()
 
+                    for seat in seats {
+                        update["playerAttempt.\(seat)"] = 0
+                        update["playerStatus.\(seat)"] = PlayerStatus.playing.rawValue
+                        update["playerReadyForNext.\(seat)"] = false
+                    }
+                    update["playerFinishedAt"] = [String: Any]()
                 }
             }
-            
+
             transaction.updateData(update, forDocument: ref)
             return nil
         }

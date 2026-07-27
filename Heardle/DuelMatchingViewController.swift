@@ -17,6 +17,62 @@ var songList: [Song] = []
 var clipDurations = [1, 2, 4, 7, 11, 16]
 var playerStatus = ["host": 0, "guest": 0]
 
+// Sample playlists for testing multiplayer
+// These playlists are populated from the global 'songs' array (loaded from Spotify/Firebase)
+var samplePlaylists: [String: [Song]] = [:]
+
+// Helper function to create playlists from the loaded songs
+func setupSamplePlaylists() {
+    guard !songs.isEmpty else {
+        print("[PLAYLISTS] Cannot setup playlists - songs array is empty")
+        return
+    }
+    
+    // Filter to only include songs with BOTH trackId AND previewURL (required for multiplayer)
+    let playableSongs = songs.filter { 
+        $0.trackId != nil && $0.previewURL != nil 
+    }
+    
+    guard !playableSongs.isEmpty else {
+        print("[PLAYLISTS] Cannot setup playlists - no playable songs found")
+        print("[PLAYLISTS] Songs need both trackId and previewURL to be playable in multiplayer")
+        return
+    }
+    
+    print("[PLAYLISTS] Setting up playlists from \(playableSongs.count) playable songs")
+    
+    // Today's Favorites - First 10 songs (or all if less than 10)
+    let favoritesCount = min(10, playableSongs.count)
+    samplePlaylists["Today's Favorites"] = Array(playableSongs.prefix(favoritesCount))
+    
+    // Top 50 - First 50 songs (or all if less)
+    let top50Count = min(50, playableSongs.count)
+    samplePlaylists["Top 50"] = Array(playableSongs.prefix(top50Count))
+    
+    // Top 100 - First 100 songs (or all if less)
+    let top100Count = min(100, playableSongs.count)
+    samplePlaylists["Top 100"] = Array(playableSongs.prefix(top100Count))
+    
+    // Top 200 - First 200 songs (or all if less)
+    let top200Count = min(200, playableSongs.count)
+    samplePlaylists["Top 200"] = Array(playableSongs.prefix(top200Count))
+    
+    // Top 500 - First 500 songs (or all if less)
+    let top500Count = min(500, playableSongs.count)
+    samplePlaylists["Top 500"] = Array(playableSongs.prefix(top500Count))
+    
+    // Top 1000 - All songs
+    samplePlaylists["Top 1000"] = playableSongs
+    
+    print("[PLAYLISTS] Created playlists:")
+    print("   - Today's Favorites: \(samplePlaylists["Today's Favorites"]?.count ?? 0) songs")
+    print("   - Top 50: \(samplePlaylists["Top 50"]?.count ?? 0) songs")
+    print("   - Top 100: \(samplePlaylists["Top 100"]?.count ?? 0) songs")
+    print("   - Top 200: \(samplePlaylists["Top 200"]?.count ?? 0) songs")
+    print("   - Top 500: \(samplePlaylists["Top 500"]?.count ?? 0) songs")
+    print("   - Top 1000: \(samplePlaylists["Top 1000"]?.count ?? 0) songs")
+}
+
 // Manages 1v1 matchmaking UI and configurable match settings before a duel.
 // Player order is always consistent: Host = Player 1, Guest = Player 2
 
@@ -60,18 +116,22 @@ class DuelMatchingViewController: UIViewController, UITextFieldDelegate {
         
         print("[MULTIPLAYER] ViewDidLoad - isCreating: \(isCreating)")
         
-        songList = songs.filter { song in
-            song.trackId != nil && song.previewURL != nil
+        // Setup playlists from loaded songs
+        if samplePlaylists.isEmpty {
+            setupSamplePlaylists()
         }
-        print("[SONGS] Loaded \(songList.count) playable songs (filtered from \(songs.count) total)")
+        
+        // Start with default playlist
+        songList = samplePlaylists["Today's Favorites"] ?? []
+        print("[SONGS] Loaded \(songList.count) songs from default playlist")
         
         if songList.isEmpty {
             print("[SONGS] WARNING: No playable songs available!")
             print("   This could mean:")
-            print("   - Spotify account has no songs with preview URLs")
-            print("   - Songs haven't finished loading yet")
+            print("   - Songs haven't loaded from Spotify/Firebase yet")
+            print("   - No songs have preview URLs")
             showAlert(title: "No Playable Songs", 
-                     message: "Your library doesn't have any songs with preview URLs. Please add more songs to your Spotify library.")
+                     message: "Please wait for songs to load from your library, or make sure you have songs with preview URLs.")
         }
         
         inviteJoinTextField?.delegate = self
@@ -307,6 +367,12 @@ class DuelMatchingViewController: UIViewController, UITextFieldDelegate {
                     result.foregroundColor = UIColor.white
                     return result
                 }
+            
+            // Guest also needs to update their local songList
+            if let newPlaylist = samplePlaylists[playlist] {
+                songList = newPlaylist
+                print("[GUEST_SETTINGS] Loaded playlist '\(playlist)' with \(songList.count) songs")
+            }
         }
         
         if let rounds = game.totalRounds {
@@ -386,10 +452,21 @@ class DuelMatchingViewController: UIViewController, UITextFieldDelegate {
 
         var update: [String: Any] = [:]
         switch key {
-        case "Playlist":    update["playlistName"] = value
-        case "Song Round":  update["totalRounds"] = Int(value.prefix(1)) ?? 1
-        case "Guess Timer": update["guessTimerOn"] = (value == "On")
-        default: return
+        case "Playlist":
+            update["playlistName"] = value
+            // Update the local songList when playlist changes
+            if let newPlaylist = samplePlaylists[value] {
+                songList = newPlaylist
+                print("[HOST_SETTINGS] Switched to playlist '\(value)' with \(songList.count) songs")
+            } else {
+                print("[HOST_SETTINGS] WARNING: Playlist '\(value)' not found, keeping current playlist")
+            }
+        case "Song Round":
+            update["totalRounds"] = Int(value.prefix(1)) ?? 1
+        case "Guess Timer":
+            update["guessTimerOn"] = (value == "On")
+        default:
+            return
         }
 
         print("[HOST_SETTINGS] Updating \(key) to '\(value)'")

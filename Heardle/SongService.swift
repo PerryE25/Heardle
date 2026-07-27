@@ -96,6 +96,19 @@ class SongService {
                 song.previewURL = audioURLString
                 song.itunesArtworkURL = albumArtString
                 song.albumArtData = albumArtData
+                
+                // Load trackId if available from Firebase
+                if let trackId = data["trackId"] as? Int {
+                    song.trackId = trackId
+                } else {
+                    // Generate a synthetic trackId from song name + artist for multiplayer compatibility
+                    // This creates a consistent ID even if iTunes trackId isn't available
+                    let combinedString = "\(name.lowercased())-\(artist.lowercased())"
+                    let hashValue = abs(combinedString.hashValue)
+                    song.trackId = hashValue
+                    print("Generated trackId \(hashValue) for \(name) by \(artist)")
+                }
+                
                 userSongs.append(song)
             }
 
@@ -121,6 +134,15 @@ class SongService {
                    let album = data["album"] as? String {
                     let curSong = Song(name: name, artist: artist, album: album)
                     await fetchArtworkAndPreview(song: curSong)
+                    
+                    // Generate synthetic trackId if not set by iTunes
+                    if curSong.trackId == nil {
+                        let combinedString = "\(name.lowercased())-\(artist.lowercased())"
+                        let hashValue = abs(combinedString.hashValue)
+                        curSong.trackId = hashValue
+                        print("Generated trackId \(hashValue) for default song \(name) by \(artist)")
+                    }
+                    
                     songs.append(curSong)
                 }
             }
@@ -215,7 +237,17 @@ class SongService {
                     let prevUrl = result["previewUrl"] as? String ?? ""
                     let artworkUrl = result["artworkUrl100"] as? String ?? ""
                     
-                    songResults.append(Song(name: name, artist: artist, album: album, previewURL: prevUrl, itunesArtworkURL: artworkUrl))
+                    let song = Song(name: name, artist: artist, album: album, previewURL: prevUrl, itunesArtworkURL: artworkUrl)
+                    
+                    // Try to get real trackId from iTunes, or generate synthetic one
+                    if let trackId = result["trackId"] as? Int {
+                        song.trackId = trackId
+                    } else {
+                        let combinedString = "\(name.lowercased())-\(artist.lowercased())"
+                        song.trackId = abs(combinedString.hashValue)
+                    }
+                    
+                    songResults.append(song)
                 }
             }
         } catch {
@@ -247,15 +279,35 @@ class SongService {
                 song.itunesArtworkURL = first["artworkUrl100"] as? String
                 // make high resolution for large album display
                 song.itunesArtworkURL = song.itunesArtworkURL?.replacingOccurrences(of: "100x100bb", with: "600x600bb")
-//                print("artwork url 100 is \(song.itunesArtworkURL ?? "none")\n the url name contains 100x100bb is \(song.itunesArtworkURL?.contains("100x100bb") ?? false)")
                 song.previewURL = first["previewUrl"] as? String
 
                 if let preview = song.previewURL {
                     song.audioURL = URL(string: preview)
                 }
+                
+                // Try to get trackId from iTunes, or generate synthetic one
+                if let trackId = first["trackId"] as? Int {
+                    song.trackId = trackId
+                } else {
+                    // Generate synthetic trackId for multiplayer compatibility
+                    let combinedString = "\(song.name.lowercased())-\(song.artist.lowercased())"
+                    let hashValue = abs(combinedString.hashValue)
+                    song.trackId = hashValue
+                    print("Generated synthetic trackId \(hashValue) for \(song.name)")
+                }
+            } else {
+                // No iTunes results - still generate synthetic ID
+                let combinedString = "\(song.name.lowercased())-\(song.artist.lowercased())"
+                let hashValue = abs(combinedString.hashValue)
+                song.trackId = hashValue
+                print("No iTunes result - Generated trackId \(hashValue) for \(song.name)")
             }
         } catch {
             print(error)
+            // On error, still generate synthetic ID
+            let combinedString = "\(song.name.lowercased())-\(song.artist.lowercased())"
+            let hashValue = abs(combinedString.hashValue)
+            song.trackId = hashValue
         }
     }
     

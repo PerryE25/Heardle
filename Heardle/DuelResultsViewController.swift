@@ -13,6 +13,12 @@ import UIKit
 import FirebaseAuth
 import FirebaseFirestore
 
+struct RoundResult {
+    let song: Song
+    let myScore: Int
+    let opponentScore: Int
+}
+
 // Displays duel results, scores, and a breakdown list for both players.
 class DuelResultsViewController: UIViewController, UITableViewDelegate, UITableViewDataSource {
 
@@ -41,7 +47,7 @@ class DuelResultsViewController: UIViewController, UITableViewDelegate, UITableV
     var myRoundsWon = 0
     var opponentRoundsWon = 0
     
-    var matchResultList: [Song] = []
+    var matchResultList: [RoundResult] = [] // List of correct songs from each round
     var player1ScoreValue: Int { myRoundsWon }
     var player2ScoreValue: Int { opponentRoundsWon }
     
@@ -63,7 +69,25 @@ class DuelResultsViewController: UIViewController, UITableViewDelegate, UITableV
         resultScoreView.layer.borderWidth = 1
         resultScoreView.layer.borderColor = UIColor.spotifyLightGrey.cgColor
         
-        matchResultList = prevGuesses
+        // Add the correct song from this round to the match breakdown
+        if let correctSong = correctSong {
+            print("[DUEL RESULTS] Adding correct song to breakdown: \(correctSong.name) by \(correctSong.artist)")
+            matchResultList.append(RoundResult(song: correctSong,
+                                               myScore: myRoundsWon,
+                                               opponentScore: opponentRoundsWon))
+            print("[DUEL RESULTS] Total songs in breakdown: \(matchResultList.count)")
+        } else {
+            print("[DUEL RESULTS] No correct song provided for this round")
+        }
+        
+        // Print all songs in the breakdown
+        print("[DUEL RESULTS] Current match breakdown:")
+        for (index, entry) in matchResultList.enumerated() {
+            print("   Round \(index + 1): \(entry.song.name) by \(entry.song.artist) — \(entry.myScore)-\(entry.opponentScore)")
+        }
+        
+        // Reset transition flag for new round
+        hasTransitioned = false
         
         configureButtonVisibility()
         
@@ -95,7 +119,9 @@ class DuelResultsViewController: UIViewController, UITableViewDelegate, UITableV
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-        
+        renderResultsUI()
+    }
+    private func renderResultsUI() {
         if isGameComplete {
             if myRoundsWon > opponentRoundsWon {
                 resultTitle.text = "VICTORY!"
@@ -117,15 +143,13 @@ class DuelResultsViewController: UIViewController, UITableViewDelegate, UITableV
                 homeButton?.configuration?.background.backgroundColor = UIColor.systemOrange
             }
         } else {
+            resultTitle.text = "ROUND \(currentRound)"
+            resultTitle.textColor = .white
             if didWin {
-                resultTitle.text = "ROUND \(currentRound) WON!"
-                resultTitle.textColor = UIColor.spotifyGreenGlow
                 player1Score.textColor = UIColor.spotifyGreen
                 player1ScoreSmall.textColor = UIColor.spotifyGreen
                 continueButtonLabel.configuration?.background.backgroundColor = UIColor.spotifyGreenGlow
             } else {
-                resultTitle.text = "ROUND \(currentRound) LOST"
-                resultTitle.textColor = UIColor.systemRed
                 player1Score.textColor = UIColor.systemRed
                 player1ScoreSmall.textColor = UIColor.systemRed
                 continueButtonLabel.configuration?.background.backgroundColor = UIColor.systemRed
@@ -161,16 +185,36 @@ class DuelResultsViewController: UIViewController, UITableViewDelegate, UITableV
         
         switch game.status {
         case .playing:
+            // Both players ready and new round started - transition back to game
             if !hasTransitioned {
+                print("[DUEL RESULTS] Game status is .playing, transitioning back to GameViewController")
+                print("hasTransitioned was: false, setting to true")
                 hasTransitioned = true
                 listener?.remove()
                 listener = nil
                 autoContinueTimer?.invalidate()
-                dismiss(animated: true)
+                performSegue(withIdentifier: "gameViewFromResult", sender: game)
+            } else {
+                print("[DUEL RESULTS] Game status is .playing but hasTransitioned is already true")
             }
         case .finished:
+            guard !hasTransitioned, !isGameComplete else { break }
+            hasTransitioned = true
+            print("[DUEL RESULTS] Game is finished — showing final results")
+            listener?.remove()
+            listener = nil
+            autoContinueTimer?.invalidate()
+            
+            isGameComplete = true
+            myRoundsWon = game.playerRoundsWon?[myUID] ?? myRoundsWon
+            if let opponentUID {
+                opponentRoundsWon = game.playerRoundsWon?[opponentUID] ?? opponentRoundsWon
+            }
+            configureButtonVisibility()
+            renderResultsUI()
             break
         default:
+            print("[DUEL RESULTS] Game status: \(game.status.rawValue)")
             break
         }
     }
@@ -213,27 +257,16 @@ class DuelResultsViewController: UIViewController, UITableViewDelegate, UITableV
         
         Task {
             do {
-                try await GameService.shared.markReady(code: gameCode)
-                let game = try await GameService.shared.fetchGame(code: gameCode)
-                
-                guard let myUID = Auth.auth().currentUser?.uid else { return }
-                let opponentUID = (game.hostId == myUID) ? game.guestId : game.hostId
-                
-                let myReady = game.playerReadyForNext?[myUID] ?? false
-                let opReady = game.playerReadyForNext?[opponentUID ?? ""] ?? false
-                let bothReady = myReady && opReady
-                
-                if bothReady {
-                    if (game.currentRound ?? 0) >= (game.totalRounds ?? 1) {
-                    } else {
-                        try? await Task.sleep(nanoseconds: 500_000_000)
-                        try? await GameService.shared.startNextRound(code: gameCode, playlist: songList)
-                    }
-                }
+                print("[DUEL RESULTS] Marking player as ready")
+                try await GameService.shared.markReady(code: gameCode, playlist: songs)
+                // If we were the second player ready, the transaction already advanced
+                // the round or finished the game. Both listeners react to the status change.
             } catch {
                 print("Error marking ready: \(error.localizedDescription)")
-                continueButtonLabel.isEnabled = true
-                hasMarkedReady = false
+                await MainActor.run {
+                    self.continueButtonLabel.isEnabled = true
+                    self.hasMarkedReady = false
+                }
             }
         }
     }
@@ -248,6 +281,24 @@ class DuelResultsViewController: UIViewController, UITableViewDelegate, UITableV
         }
     }
     
+    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
+        if segue.identifier == "gameViewFromResult" {
+            if let gameVC = segue.destination as? GameViewController {
+                gameVC.gameCode = gameCode
+                // The destination is a fresh instance — its own viewDidLoad
+                // resets currentAttempts / prevGuesses / didWin, so we only
+                // hand over identity and cross-round data.
+                gameVC.matchResultHistory = matchResultList
+                
+                print("[DUEL RESULTS] Passing match history to GameViewController:")
+                print("   Total rounds in history: \(matchResultList.count)")
+                for (index, entry) in matchResultList.enumerated() {
+                    print("   Round \(index + 1): \(entry.song.name) by \(entry.song.artist)")
+                }
+            }
+        }
+    }
+    
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         return matchResultList.count
     }
@@ -256,9 +307,10 @@ class DuelResultsViewController: UIViewController, UITableViewDelegate, UITableV
         let cell = tableView.dequeueReusableCell(withIdentifier: textCellIdentifier, for: indexPath) as! DuelResultsCustomTableViewCell
         
         let reversedIndex = matchResultList.count - 1 - indexPath.row
-        let song = matchResultList[reversedIndex]
+        let entry = matchResultList[reversedIndex]
+        let song = entry.song
         
-        cell.trackNumber.text = "TRACK \(reversedIndex + 1)"
+        cell.trackNumber.text = "ROUND \(reversedIndex + 1)"
         
         cell.songName.text = song.name
         
@@ -273,12 +325,12 @@ class DuelResultsViewController: UIViewController, UITableViewDelegate, UITableV
         cell.songImage.layer.cornerRadius = 8
         cell.songImage.clipsToBounds = true
         
-        cell.myScore.text = "\(myRoundsWon)"
-        cell.oppScore.text = "\(opponentRoundsWon)"
+        cell.myScore.text = "\(entry.myScore)"
+        cell.oppScore.text = "\(entry.opponentScore)"
         
-        if myRoundsWon > opponentRoundsWon {
+        if entry.myScore > entry.opponentScore {
             cell.myScore.textColor = UIColor.spotifyGreen
-        } else if myRoundsWon == opponentRoundsWon {
+        } else if entry.myScore == entry.opponentScore {
             cell.myScore.textColor = UIColor.white
         } else {
             cell.myScore.textColor = UIColor.systemRed
@@ -286,8 +338,9 @@ class DuelResultsViewController: UIViewController, UITableViewDelegate, UITableV
         
         cell.oppScore.textColor = UIColor.white
         
-        let isCorrectGuess = (song == correctSong)
-        if isCorrectGuess {
+        // Highlight the most recent round (current song)
+        let isCurrentRound = (reversedIndex == matchResultList.count - 1) && (song == correctSong)
+        if isCurrentRound {
             cell.backgroundColor = UIColor.spotifyGreen.withAlphaComponent(0.1)
         } else {
             cell.backgroundColor = UIColor.clear
