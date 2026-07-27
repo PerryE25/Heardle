@@ -272,7 +272,6 @@ class GameViewController: UIViewController, SearchViewDelegate {
         @IBAction func submitGuess(_ sender: Any) {
             if let answer = selectedSongCanidate {
                 prevGuesses.append(answer)
-
                 if session.isCorrect(answer) {
                     finishRound(won: true)
                     selectedSongCanidate = nil
@@ -284,6 +283,7 @@ class GameViewController: UIViewController, SearchViewDelegate {
                 }
             }
             currentAttempts += 1
+
             maxTimeLabel.text = formatTime(Double(currentMaxTime))
             selectedSongCanidate = nil
             showSelectedSearch()
@@ -396,12 +396,13 @@ class GameViewController: UIViewController, SearchViewDelegate {
             mysteryAlbum.layer.add(animation, forKey: "position")
         }
 
-
+        // Sets up the logic for the dynamic height for the previousAttemptsVC using detents
         override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
             if segue.identifier == "GameToPrevAttemptsSegueID" {
                 if let sheetVC = segue.destination as? PreviousAttemptsViewController {
                     sheetVC.validGuesses = prevGuesses.compactMap { $0 }
                     if let sheet = sheetVC.sheetPresentationController {
+                        // Im pretty sure this is only possible on iOS 16+
                         if #available(iOS 16.0, *) {
                             let dynamicDetent = UISheetPresentationController.Detent.custom { _ in
                                 let rowHeight: CGFloat = 85
@@ -410,6 +411,7 @@ class GameViewController: UIViewController, SearchViewDelegate {
                             }
                             sheet.detents = [dynamicDetent, .large()]
                         } else {
+                            // default to middle or entire screen height if older than iOS 16.0
                             sheet.detents = [.medium(), .large()]
                         }
                         sheet.prefersGrabberVisible = true
@@ -422,7 +424,7 @@ class GameViewController: UIViewController, SearchViewDelegate {
             if segue.identifier == wrongGuessSegueID {
                 // Pass current attempts to WrongGuessViewController
                 if let wrongGuessVC = segue.destination as? WrongGuessViewController {
-                    wrongGuessVC.currentAttempts = currentAttempts
+                    wrongGuessVC.currentAttempts = currentAttempts + 1
                 }
             }
 

@@ -25,7 +25,7 @@ class WrongGuessViewController: UIViewController {
     var xMarks: [UIImageView] = []
     
     // Data passed from GameViewController
-    var currentAttempts: Int = 0
+    var currentAttempts: Int!
     var wrongGuessCount: Int = 0
     
     override func viewDidLoad() {
@@ -33,9 +33,8 @@ class WrongGuessViewController: UIViewController {
         miniView.layer.cornerRadius = 30
         topText.font = UIFont.boldSystemFont(ofSize: 40.0)
         xMarks = [xMark1, xMark2, xMark3, xMark4, xMark5, xMark6]
-        
         // Set wrongGuessCount from passed data
-        wrongGuessCount = currentAttempts
+        wrongGuessCount  = currentAttempts
         
         // Makes it so that all previous guesses are gray and the current is also gray in the pre build
         if wrongGuessCount > 0 {
@@ -54,7 +53,7 @@ class WrongGuessViewController: UIViewController {
     @IBAction func returnToGame(_ sender: Any) {
         self.dismiss(animated: true)
     }
-    
+    // Updates the onscreen x marks 
     func updateXMarks(animated: Bool) {
         for (index, imageView) in xMarks.enumerated() {
             let isGuessed = index < wrongGuessCount

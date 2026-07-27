@@ -11,6 +11,7 @@
 
 import UIKit
 
+// Shows the rules for the game
 class RulesViewController: UIViewController {
     @IBOutlet weak var miniView: UIView!
     

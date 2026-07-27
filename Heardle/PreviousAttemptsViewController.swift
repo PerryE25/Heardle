@@ -36,7 +36,6 @@ class PreviousAttemptsViewController: UIViewController, UITableViewDelegate, UIT
         prevGuessesTitle.font = UIFont.systemFont(ofSize: 20, weight: .bold)
     }
     
-    
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         return validGuesses.count
     }
@@ -61,7 +60,7 @@ class PreviousAttemptsViewController: UIViewController, UITableViewDelegate, UIT
         return cell
     }
     
-    
+    // if the x button is pressed then return to the previous screen
     @IBAction func exitPressed(_ sender: Any) {
         self.dismiss(animated: true)
     }
