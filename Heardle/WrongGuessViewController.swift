@@ -58,21 +58,15 @@ class WrongGuessViewController: UIViewController {
         for (index, imageView) in xMarks.enumerated() {
             let isGuessed = index < wrongGuessCount
             let targetColor: UIColor = isGuessed ? .systemRed : .darkGray
-            
-            // Always ensure the color is correct immediately
             imageView.tintColor = targetColor
-            
             // Skip if this icon is already correctly styled and not the new one
             if !isGuessed || (imageView.alpha == 1.0 && imageView.transform == .identity && index != wrongGuessCount - 1) {
                 continue
             }
-            
             if animated && index == wrongGuessCount - 1 {
                 // Starts tiny and invisible
                 imageView.transform = CGAffineTransform(scaleX: 0.1, y: 0.1)
                 imageView.alpha = 0.0
-                
-                // Sets up the duration of the animation
                 UIView.animateKeyframes(withDuration: 0.75, delay: 0, options: .calculationModeCubic, animations: {
                     // Fade in and expand to be oversized
                     UIView.addKeyframe(withRelativeStartTime: 0.0, relativeDuration: 0.2) {
