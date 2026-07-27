@@ -230,6 +230,35 @@ class GameViewController: UIViewController, SearchViewDelegate {
             let secs = Int(seconds) % 60
             return String(format: "%02d:%02d", minutes, secs)
         }
+    
+    func updatePts() {
+        var pts = 6 - currentAttempts
+        guard let user = Auth.auth().currentUser else { return }
+        
+        let db = Firestore.firestore()
+        let userRef = db.collection("users").document(user.uid)
+
+        userRef.getDocument { snapshot, error in
+                if let error = error {
+                    print(error.localizedDescription)
+                    return
+                }
+
+                let data = snapshot?.data()
+                let savedPts = data?["points"] as? Int ?? 0
+                let newTotal = savedPts + pts
+
+                        userRef.updateData([
+                            "points": newTotal
+                        ]) { error in
+                            if let error = error {
+                                print("Failed to update points: \(error.localizedDescription)")
+                            } else {
+                                print("Points updated successfully!")
+                            }
+                        }
+            }
+    }
 
         func setupAudioPlayer(url: URL) {
             if let token = timeObserverToken {
@@ -480,6 +509,7 @@ class GameViewController: UIViewController, SearchViewDelegate {
             }
 
             if segue.identifier == duelResultSegueID {
+                updatePts()
                 // Multiplayer - pass to DuelResultsViewController
                 if let game = sender as? Game, let resultsVC = segue.destination as? DuelResultsViewController {
                     resultsVC.gameCode = gameCode
@@ -533,6 +563,7 @@ class GameViewController: UIViewController, SearchViewDelegate {
             
             if segue.identifier == gameOverSegueID {
                 // Solo game - pass to SoloGameResultsViewController
+                updatePts()
                 if let resultsVC = segue.destination as? SoloGameResultsViewController {
                     resultsVC.didWin = didWin
                     resultsVC.totalAttempts = totalAttempts

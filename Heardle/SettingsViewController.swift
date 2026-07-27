@@ -95,13 +95,15 @@ class SettingsViewController: UIViewController, PHPickerViewControllerDelegate {
                 let data = snapshot?.data()
                 let savedName = data?["displayName"] as? String ?? ""
                 let spotifyName = data?["spotifyDisplayName"] as? String ?? ""
+                let email = user.email ?? ""
+                let emailName = email.components(separatedBy: "@").first ?? ""
 
                 if !savedName.isEmpty {
                     self.nameTextField.text = savedName
                 } else if !spotifyName.isEmpty {
                     self.nameTextField.text = spotifyName
                 } else {
-                    self.nameTextField.text = user.displayName ?? ""
+                    self.nameTextField.text = emailName
                 }
             }
     }
