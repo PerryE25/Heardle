@@ -37,8 +37,6 @@ struct Game: Codable {
     var playlistName: String?
     var totalRounds: Int?
     var currentRound: Int?
-    var guessTimerOn: Bool?
-    var guessTimerSeconds: Int?
     var clipDurations: [Int]
     
     var playerAttempt: [String: Int]

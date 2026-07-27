@@ -88,7 +88,6 @@ class DuelMatchingViewController: UIViewController, UITextFieldDelegate {
     @IBOutlet weak var shareLinkButtonLabel: UIButton!
     @IBOutlet weak var playlistButtonLabel: UIButton!
     @IBOutlet weak var roundsButtonLabel: UIButton!
-    @IBOutlet weak var guessTimerButtonLabel: UIButton!
     @IBOutlet weak var inviteFriendView: UIStackView!
     @IBOutlet weak var inviteTextLabel: UILabel!
     @IBOutlet weak var continueButton: UIButton!
@@ -99,7 +98,6 @@ class DuelMatchingViewController: UIViewController, UITextFieldDelegate {
     
     let playlistOptions = [("Today's Favorites", UIColor.white), ("Top 50", UIColor.white), ("Top 100", UIColor.white), ("Top 200", UIColor.white), ("Top 500", UIColor.white), ("Top 1000", UIColor.white)]
     let songRoundOptions = [("1 Round", UIColor.white), ("2 Rounds", UIColor.white), ("3 Rounds", UIColor.white), ("4 Rounds", UIColor.white), ("5 Rounds", UIColor.white)]
-    let guessTimerOptions = [("On", UIColor.spotifyGreen), ("Off", UIColor.systemRed)]
     let explicitSongOptions = [("Allowed", UIColor.spotifyGreen), ("Restricted", UIColor.systemRed)]
     var settingOptions: [String: [(String, UIColor)]] = [:]
     var settingOptionsAnswers: [String: String]  = [:]
@@ -151,7 +149,7 @@ class DuelMatchingViewController: UIViewController, UITextFieldDelegate {
         }
         
         settingOptions = [
-            "Playlist": playlistOptions, "Song Round": songRoundOptions, "Guess Timer": guessTimerOptions, "Explicit": explicitSongOptions]
+            "Playlist": playlistOptions, "Song Round": songRoundOptions, "Explicit": explicitSongOptions]
         for (key, _) in settingOptions {
             settingOptionsAnswers[key] = ""
         }
@@ -254,7 +252,6 @@ class DuelMatchingViewController: UIViewController, UITextFieldDelegate {
         waitingForPlayerView.layer.addSublayer(dashedBorder)
         settingOptionAdd(button: playlistButtonLabel, options: playlistOptions, key: "Playlist")
         settingOptionAdd(button: roundsButtonLabel, options: songRoundOptions, key: "Song Round")
-        settingOptionAdd(button: guessTimerButtonLabel, options: guessTimerOptions, key: "Guess Timer")
     }
     
     @IBAction func copyButtonPressed(_ sender: Any) {
@@ -381,11 +378,6 @@ class DuelMatchingViewController: UIViewController, UITextFieldDelegate {
             print("   - Rounds: \(rounds)")
             roundsButtonLabel.configuration?.title = "\(rounds) Round\(rounds == 1 ? "" : "s")"
         }
-        
-        if let timer = game.guessTimerOn {
-            print("   - Timer: \(timer ? "On" : "Off")")
-            guessTimerButtonLabel.configuration?.title = timer ? "On" : "Off"
-        }
     }
     
     
@@ -451,8 +443,6 @@ class DuelMatchingViewController: UIViewController, UITextFieldDelegate {
             }
         case "Song Round":
             update["totalRounds"] = Int(value.prefix(1)) ?? 1
-        case "Guess Timer":
-            update["guessTimerOn"] = (value == "On")
         default:
             return
         }
@@ -471,7 +461,6 @@ class DuelMatchingViewController: UIViewController, UITextFieldDelegate {
     private func setSettingsEnabled(_ enabled: Bool) {
         playlistButtonLabel.isEnabled = enabled
         roundsButtonLabel.isEnabled = enabled
-        guessTimerButtonLabel.isEnabled = enabled
     }
     
     @IBAction func continueButtonPressed(_ sender: Any) {

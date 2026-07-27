@@ -818,7 +818,7 @@
                                 </subviews>
                             </stackView>
                             <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" distribution="equalCentering" alignment="top" spacing="10" translatesAutoresizingMaskIntoConstraints="NO" id="g7U-IX-E8Q">
-                                <rect key="frame" x="70" y="340" width="300" height="185.66666666666663"/>
+                                <rect key="frame" x="70" y="340" width="300" height="191"/>
                                 <subviews>
                                     <stackView opaque="NO" contentMode="scaleToFill" spacing="3" translatesAutoresizingMaskIntoConstraints="NO" id="Qgn-DL-tyH">
                                         <rect key="frame" x="12" y="12" width="156.66666666666666" height="20"/>
@@ -840,7 +840,7 @@
                                         </subviews>
                                     </stackView>
                                     <stackView opaque="NO" contentMode="scaleToFill" distribution="equalSpacing" translatesAutoresizingMaskIntoConstraints="NO" id="0zL-Wv-c3h">
-                                        <rect key="frame" x="12" y="55.333333333333314" width="276" height="62"/>
+                                        <rect key="frame" x="12" y="57" width="276" height="62"/>
                                         <subviews>
                                             <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" alignment="top" translatesAutoresizingMaskIntoConstraints="NO" id="8hZ-Lq-DYr">
                                                 <rect key="frame" x="0.0" y="0.0" width="107.33333333333333" height="62"/>
@@ -885,36 +885,13 @@
                                         </subviews>
                                     </stackView>
                                     <stackView opaque="NO" contentMode="scaleToFill" distribution="equalSpacing" translatesAutoresizingMaskIntoConstraints="NO" id="cYD-x8-jiG">
-                                        <rect key="frame" x="12" y="127.3333333333333" width="276" height="46.333333333333329"/>
-                                        <subviews>
-                                            <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" alignment="top" translatesAutoresizingMaskIntoConstraints="NO" id="6jT-tm-eD1">
-                                                <rect key="frame" x="0.0" y="0.0" width="276" height="46.333333333333336"/>
-                                                <subviews>
-                                                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="GUESS TIMER" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="rVb-Bx-4k3">
-                                                        <rect key="frame" x="0.0" y="0.0" width="70" height="12"/>
-                                                        <fontDescription key="fontDescription" type="system" weight="semibold" pointSize="10"/>
-                                                        <color key="textColor" white="0.66666666666666663" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
-                                                        <nil key="highlightedColor"/>
-                                                    </label>
-                                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="SyZ-fP-eim">
-                                                        <rect key="frame" x="0.0" y="12" width="65" height="34.333333333333336"/>
-                                                        <color key="tintColor" systemColor="systemRedColor"/>
-                                                        <state key="normal" title="Button"/>
-                                                        <buttonConfiguration key="configuration" style="plain" imagePlacement="trailing" title="Off" imagePadding="3">
-                                                            <imageReference key="image" image="chevron.down" catalog="system" symbolScale="small"/>
-                                                            <fontDescription key="titleFontDescription" type="system" weight="semibold" pointSize="15"/>
-                                                        </buttonConfiguration>
-                                                    </button>
-                                                </subviews>
-                                            </stackView>
-                                        </subviews>
+                                        <rect key="frame" x="12" y="129" width="276" height="49.999999999999972"/>
                                     </stackView>
                                 </subviews>
                                 <color key="backgroundColor" name="SpotifyGrey"/>
                                 <constraints>
                                     <constraint firstAttribute="trailingMargin" secondItem="cYD-x8-jiG" secondAttribute="trailing" id="7HP-7s-FEY"/>
                                     <constraint firstAttribute="trailingMargin" secondItem="0zL-Wv-c3h" secondAttribute="trailing" id="Gav-cb-ma6"/>
-                                    <constraint firstItem="8hZ-Lq-DYr" firstAttribute="leading" secondItem="6jT-tm-eD1" secondAttribute="leading" id="LLF-Fn-Lu2"/>
                                     <constraint firstItem="0zL-Wv-c3h" firstAttribute="leading" secondItem="g7U-IX-E8Q" secondAttribute="leadingMargin" id="sMI-mR-PFH"/>
                                     <constraint firstItem="cYD-x8-jiG" firstAttribute="leading" secondItem="g7U-IX-E8Q" secondAttribute="leadingMargin" id="wmc-b2-Bvx"/>
                                     <constraint firstAttribute="width" constant="300" id="zfa-oa-Vyo"/>
@@ -927,7 +904,7 @@
                                 </userDefinedRuntimeAttributes>
                             </stackView>
                             <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" alignment="center" spacing="10" translatesAutoresizingMaskIntoConstraints="NO" id="VEy-6n-vuB">
-                                <rect key="frame" x="70" y="576.66666666666663" width="300" height="150"/>
+                                <rect key="frame" x="70" y="582" width="300" height="150"/>
                                 <subviews>
                                     <stackView opaque="NO" contentMode="scaleToFill" spacing="3" translatesAutoresizingMaskIntoConstraints="NO" id="VCp-PV-rHh">
                                         <rect key="frame" x="12" y="12" width="276" height="20"/>
@@ -1011,7 +988,7 @@
                                 </userDefinedRuntimeAttributes>
                             </stackView>
                             <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" alignment="center" spacing="10" translatesAutoresizingMaskIntoConstraints="NO" id="FEd-tr-o9u">
-                                <rect key="frame" x="70" y="576.66666666666663" width="300" height="100"/>
+                                <rect key="frame" x="70" y="582" width="300" height="100"/>
                                 <subviews>
                                     <stackView opaque="NO" contentMode="scaleToFill" spacing="3" translatesAutoresizingMaskIntoConstraints="NO" id="LkW-zm-i4R">
                                         <rect key="frame" x="12" y="12" width="276" height="20"/>
@@ -1081,7 +1058,7 @@
                                 </userDefinedRuntimeAttributes>
                             </stackView>
                             <segmentedControl opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="top" segmentControlStyle="plain" selectedSegmentIndex="0" translatesAutoresizingMaskIntoConstraints="NO" id="foP-Bc-jMk">
-                                <rect key="frame" x="160" y="535.66666666666663" width="120" height="32"/>
+                                <rect key="frame" x="160" y="541" width="120" height="32"/>
                                 <segments>
                                     <segment title="INVITE"/>
                                     <segment title="JOIN"/>
@@ -1115,7 +1092,6 @@
                     <navigationItem key="navigationItem" id="tw7-8x-Yif"/>
                     <connections>
                         <outlet property="continueButton" destination="Gxc-f7-5qq" id="fb0-hu-TAl"/>
-                        <outlet property="guessTimerButtonLabel" destination="SyZ-fP-eim" id="T3c-6R-TAi"/>
                         <outlet property="inviteCodeLabel" destination="iYE-Gw-Eae" id="U5Z-RV-BGk"/>
                         <outlet property="inviteFriendView" destination="VEy-6n-vuB" id="JRL-6G-I2Y"/>
                         <outlet property="inviteJoinTextField" destination="D5w-f4-v5U" id="PG5-hJ-XVa"/>
