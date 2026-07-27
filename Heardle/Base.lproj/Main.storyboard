@@ -104,7 +104,7 @@
             <objects>
                 <viewController id="Kwy-bb-gbc" customClass="CreateAccountViewController" customModule="Heardle" customModuleProvider="target" sceneMemberID="viewController">
                     <view key="view" contentMode="scaleToFill" id="Xbs-2c-s3s">
-                        <rect key="frame" x="0.0" y="0.0" width="440" height="956"/>
+                        <rect key="frame" x="0.0" y="0.0" width="440" height="884"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="gZv-go-lLu">
@@ -219,7 +219,7 @@
             <objects>
                 <viewController id="Y6M-TE-w5W" customClass="CreatePasswordViewController" customModule="Heardle" customModuleProvider="target" sceneMemberID="viewController">
                     <view key="view" contentMode="scaleToFill" id="bhq-Ww-mFa">
-                        <rect key="frame" x="0.0" y="0.0" width="440" height="956"/>
+                        <rect key="frame" x="0.0" y="0.0" width="440" height="884"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" text="Create account" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="JqO-bd-8Uz">
@@ -371,6 +371,7 @@
                     <simulatedTabBarMetrics key="simulatedBottomBarMetrics"/>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="WN7-Ez-5fb" sceneMemberID="firstResponder"/>
+                <exit id="Z9y-r1-QaF" userLabel="Exit" sceneMemberID="exit"/>
             </objects>
             <point key="canvasLocation" x="4817.727272727273" y="114.85355648535565"/>
         </scene>
@@ -1145,7 +1146,7 @@
                         <rect key="frame" x="0.0" y="0.0" width="440" height="956"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
-                            <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" distribution="equalSpacing" translatesAutoresizingMaskIntoConstraints="NO" id="dZD-Cr-pqf">
+                            <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" distribution="equalSpacing" spacing="30" translatesAutoresizingMaskIntoConstraints="NO" id="dZD-Cr-pqf">
                                 <rect key="frame" x="40" y="792" width="360" height="130"/>
                                 <subviews>
                                     <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="ZWR-bT-QQ0">
@@ -1180,12 +1181,10 @@
                                             <action selector="continueButtonTouchDown:" destination="Cdx-EA-8HK" eventType="touchDown" id="wii-dv-jKr"/>
                                             <action selector="continueButtonTouchUp:" destination="Cdx-EA-8HK" eventType="touchUpOutside" id="50E-zg-5eB"/>
                                             <action selector="homeButtonPressed:" destination="kM9-F1-WH3" eventType="touchUpInside" id="HC4-xe-BoL"/>
+                                            <segue destination="Z9y-r1-QaF" kind="unwind" unwindAction="unwindToHome:" id="j36-Aa-6hk"/>
                                         </connections>
                                     </button>
                                 </subviews>
-                                <constraints>
-                                    <constraint firstAttribute="height" constant="130" id="TYD-wd-cA7"/>
-                                </constraints>
                             </stackView>
                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="VICTORY" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Tkj-Vi-f9d">
                                 <rect key="frame" x="103" y="62.000000000000007" width="234" height="65.666666666666686"/>
@@ -1808,11 +1807,11 @@
             <objects>
                 <viewController modalTransitionStyle="crossDissolve" modalPresentationStyle="overCurrentContext" id="IXp-DI-Sma" customClass="RulesViewController" customModule="Heardle" customModuleProvider="target" sceneMemberID="viewController">
                     <view key="view" contentMode="scaleToFill" id="ggH-R1-4ap">
-                        <rect key="frame" x="0.0" y="0.0" width="440" height="884"/>
+                        <rect key="frame" x="0.0" y="0.0" width="440" height="894"/>
                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                         <subviews>
                             <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="MH7-Nu-Oic">
-                                <rect key="frame" x="16" y="97" width="408" height="726"/>
+                                <rect key="frame" x="16" y="97" width="408" height="736"/>
                                 <subviews>
                                     <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="LogoImage" translatesAutoresizingMaskIntoConstraints="NO" id="QT5-FB-h3h">
                                         <rect key="frame" x="65" y="8" width="277" height="111.33333333333333"/>
@@ -1844,7 +1843,7 @@
                                         <color key="tintColor" name="SpotifyGreenGlow"/>
                                     </imageView>
                                     <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" translatesAutoresizingMaskIntoConstraints="NO" id="ngR-nS-vPF">
-                                        <rect key="frame" x="8" y="214" width="137" height="437"/>
+                                        <rect key="frame" x="8" y="214" width="137" height="447"/>
                                     </stackView>
                                     <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" text="Hearing a longer clip counts as 1 guess" lineBreakMode="tailTruncation" numberOfLines="2" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="myX-4a-vUd">
                                         <rect key="frame" x="164" y="329" width="198" height="47"/>
@@ -1875,10 +1874,10 @@
                                         <nil key="highlightedColor"/>
                                     </label>
                                     <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" translatesAutoresizingMaskIntoConstraints="NO" id="Eum-w3-s4W">
-                                        <rect key="frame" x="147" y="189" width="253" height="463"/>
+                                        <rect key="frame" x="147" y="189" width="253" height="473"/>
                                     </stackView>
                                     <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Uzd-3c-q3w">
-                                        <rect key="frame" x="47" y="669" width="314" height="35"/>
+                                        <rect key="frame" x="47" y="679" width="314" height="35"/>
                                         <color key="tintColor" name="SpotifyGreenGlow"/>
                                         <state key="normal" title="Button"/>
                                         <buttonConfiguration key="configuration" style="filled" title="Got it"/>
@@ -2424,14 +2423,15 @@
         </scene>
     </scenes>
     <inferredMetricsTieBreakers>
-        <segue reference="K3Q-8M-PM7"/>
+        <segue reference="JUH-et-ANC"/>
+        <segue reference="aMZ-4R-O37"/>
         <segue reference="i1r-4U-xdo"/>
         <segue reference="f4b-ZM-rzg"/>
-        <segue reference="GKt-vI-IEd"/>
+        <segue reference="DsA-I4-RRF"/>
         <segue reference="PAs-uB-ba5"/>
         <segue reference="pmw-PS-eta"/>
         <segue reference="Tzh-aD-koy"/>
-        <segue reference="4Eg-kg-jEC"/>
+        <segue reference="bV6-aH-5AP"/>
     </inferredMetricsTieBreakers>
     <resources>
         <image name="6.circle" catalog="system" width="128" height="123"/>

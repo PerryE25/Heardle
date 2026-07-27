@@ -68,8 +68,8 @@ final class GameService {
         let game = Game(
             hostId: uid,
             status: .waiting,
-            totalRounds: 6,
-            currentRound: 0, // Default to 3 rounds
+            totalRounds: 1, // Default to 1 round (host can change via UI)
+            currentRound: 0,
             clipDurations: Self.defaultClipDurations,
             playerAttempt: [uid: 0],
             playerStatus: [uid: .playing],
@@ -434,5 +434,16 @@ final class GameService {
         update["playerFinishedAt"] = [:]
         
         try await db.collection("games").document(code).updateData(update)
+    }
+    
+    func endGame(code: String) async throws {
+        guard Auth.auth().currentUser?.uid != nil else {
+            throw GameError.notSignedIn
+        }
+        
+        print("[GAME SERVICE] Ending game immediately")
+        try await db.collection("games").document(code).updateData([
+            "status": GameStatus.finished.rawValue
+        ])
     }
 }

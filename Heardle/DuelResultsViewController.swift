@@ -222,10 +222,23 @@ class DuelResultsViewController: UIViewController, UITableViewDelegate, UITableV
     private func updateContinueButton() {
         guard !isGameComplete else { return }
         
-        if opponentReady {
-            continueButtonLabel.setTitle("Continue (Opponent Ready)", for: .normal)
+        // Check if this is the last round
+        let isLastRound = (currentRound >= totalRounds)
+        
+        if isLastRound {
+            // On the last round, show "End Game"
+            if opponentReady {
+                continueButtonLabel.setTitle("End Game (Opponent Ready)", for: .normal)
+            } else {
+                continueButtonLabel.setTitle("End Game", for: .normal)
+            }
         } else {
-            continueButtonLabel.setTitle("Continue to Round \(currentRound + 1)", for: .normal)
+            // Not the last round, show next round number
+            if opponentReady {
+                continueButtonLabel.setTitle("Continue (Opponent Ready)", for: .normal)
+            } else {
+                continueButtonLabel.setTitle("Continue to Round \(currentRound + 1)", for: .normal)
+            }
         }
     }
     
@@ -255,17 +268,38 @@ class DuelResultsViewController: UIViewController, UITableViewDelegate, UITableV
         continueButtonLabel.isEnabled = false
         autoContinueTimer?.invalidate()
         
-        Task {
-            do {
-                print("[DUEL RESULTS] Marking player as ready")
-                try await GameService.shared.markReady(code: gameCode, playlist: songs)
-                // If we were the second player ready, the transaction already advanced
-                // the round or finished the game. Both listeners react to the status change.
-            } catch {
-                print("Error marking ready: \(error.localizedDescription)")
-                await MainActor.run {
-                    self.continueButtonLabel.isEnabled = true
-                    self.hasMarkedReady = false
+        // Check if this is the last round
+        let isLastRound = (currentRound >= totalRounds)
+        
+        if isLastRound {
+            // Last round - end the game immediately without waiting for opponent
+            print("[DUEL RESULTS] Last round - ending game immediately")
+            Task {
+                do {
+                    try await GameService.shared.endGame(code: gameCode)
+                    // The listener will handle the transition when status becomes .finished
+                } catch {
+                    print("Error ending game: \(error.localizedDescription)")
+                    await MainActor.run {
+                        self.continueButtonLabel.isEnabled = true
+                        self.hasMarkedReady = false
+                    }
+                }
+            }
+        } else {
+            // Not the last round - wait for both players to be ready
+            Task {
+                do {
+                    print("[DUEL RESULTS] Marking player as ready")
+                    try await GameService.shared.markReady(code: gameCode, playlist: songs)
+                    // If we were the second player ready, the transaction already advanced
+                    // the round or finished the game. Both listeners react to the status change.
+                } catch {
+                    print("Error marking ready: \(error.localizedDescription)")
+                    await MainActor.run {
+                        self.continueButtonLabel.isEnabled = true
+                        self.hasMarkedReady = false
+                    }
                 }
             }
         }
@@ -273,12 +307,34 @@ class DuelResultsViewController: UIViewController, UITableViewDelegate, UITableV
     
     @IBAction func homeButtonPressed(_ sender: Any) {
         guard isGameComplete else { return }
-        dismiss(animated: true) {
-            if let window = UIApplication.shared.windows.first,
-               let rootVC = window.rootViewController {
-                rootVC.dismiss(animated: false)
-            }
+        
+        print("[DUEL RESULTS] Home button pressed - unwind segue will handle navigation")
+        
+        // The unwind segue connected in the storyboard will automatically
+        // dismiss all the modal view controllers and return to HomeViewController.
+        // No code needed here - the segue handles everything!
+        
+        // Programmatic dismiss code commented out since we're using storyboard unwind segue:
+        /*
+        if let presentingVC = self.presentingViewController?.presentingViewController?.presentingViewController {
+            // We're 3 levels deep: DuelResults -> Game -> DuelMatching -> Home
+            // Dismiss all the way back to Home
+            print("[DUEL RESULTS] Dismissing 3 levels deep")
+            presentingVC.dismiss(animated: true, completion: nil)
+        } else if let presentingVC = self.presentingViewController?.presentingViewController {
+            // Try 2 levels deep
+            print("[DUEL RESULTS] Dismissing 2 levels deep")
+            presentingVC.dismiss(animated: true, completion: nil)
+        } else if let presentingVC = self.presentingViewController {
+            // Try 1 level deep
+            print("[DUEL RESULTS] Dismissing 1 level deep")
+            presentingVC.dismiss(animated: true, completion: nil)
+        } else {
+            // Last resort - just dismiss self
+            print("[DUEL RESULTS] Dismissing self only")
+            self.dismiss(animated: true, completion: nil)
         }
+        */
     }
     
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
@@ -358,4 +414,3 @@ class DuelResultsViewController: UIViewController, UITableViewDelegate, UITableV
         }.resume()
     }
 }
-

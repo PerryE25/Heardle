@@ -29,8 +29,8 @@ func setupSamplePlaylists() {
     }
     
     // Filter to only include songs with BOTH trackId AND previewURL (required for multiplayer)
-    let playableSongs = songs.filter { 
-        $0.trackId != nil && $0.previewURL != nil 
+    let playableSongs = songs.filter {
+        $0.trackId != nil && $0.previewURL != nil
     }
     
     guard !playableSongs.isEmpty else {
@@ -130,7 +130,7 @@ class DuelMatchingViewController: UIViewController, UITextFieldDelegate {
             print("   This could mean:")
             print("   - Songs haven't loaded from Spotify/Firebase yet")
             print("   - No songs have preview URLs")
-            showAlert(title: "No Playable Songs", 
+            showAlert(title: "No Playable Songs",
                      message: "Please wait for songs to load from your library, or make sure you have songs with preview URLs.")
         }
         
@@ -161,11 +161,20 @@ class DuelMatchingViewController: UIViewController, UITextFieldDelegate {
             print("[HOST] Generated game code: \(gameCode ?? "nil")")
             inviteTextLabel.text = gameCode
             
+            // Set default rounds to 1 Round
+            settingOptionsAnswers["Song Round"] = "1 Round"
+            roundsButtonLabel.configuration?.title = "1 Round"
+            
             Task {
                 do {
                     print("[HOST] Creating game in Firebase...")
                     try await GameService.shared.createGame(code: gameCode)
                     print("[HOST] Game created successfully!")
+                    
+                    // Push default settings to Firebase
+                    print("[HOST] Setting default to 1 Round")
+                    try await GameService.shared.updateSettings(code: gameCode, settings: ["totalRounds": 1])
+                    
                     startObserving()
                 } catch {
                     print("[HOST] Failed to create game: \(error)")
@@ -360,13 +369,6 @@ class DuelMatchingViewController: UIViewController, UITextFieldDelegate {
         if let playlist = game.playlistName {
             print("   - Playlist: \(playlist)")
             playlistButtonLabel.configuration?.title = playlist
-            playlistButtonLabel.configuration?.titleTextAttributesTransformer =
-                UIConfigurationTextAttributesTransformer { attributes in
-                    var result = attributes
-                    result.font = UIFont.systemFont(ofSize: 15, weight: .semibold)
-                    result.foregroundColor = UIColor.white
-                    return result
-                }
             
             // Guest also needs to update their local songList
             if let newPlaylist = samplePlaylists[playlist] {
@@ -378,25 +380,11 @@ class DuelMatchingViewController: UIViewController, UITextFieldDelegate {
         if let rounds = game.totalRounds {
             print("   - Rounds: \(rounds)")
             roundsButtonLabel.configuration?.title = "\(rounds) Round\(rounds == 1 ? "" : "s")"
-            roundsButtonLabel.configuration?.titleTextAttributesTransformer =
-                UIConfigurationTextAttributesTransformer { attributes in
-                    var result = attributes
-                    result.font = UIFont.systemFont(ofSize: 15, weight: .semibold)
-                    result.foregroundColor = UIColor.white
-                    return result
-                }
         }
         
         if let timer = game.guessTimerOn {
             print("   - Timer: \(timer ? "On" : "Off")")
             guessTimerButtonLabel.configuration?.title = timer ? "On" : "Off"
-            guessTimerButtonLabel.configuration?.titleTextAttributesTransformer =
-                UIConfigurationTextAttributesTransformer { attributes in
-                    var result = attributes
-                    result.font = UIFont.systemFont(ofSize: 15, weight: .semibold)
-                    result.foregroundColor = timer ? UIColor.spotifyGreen : UIColor.systemRed
-                    return result
-                }
         }
     }
     

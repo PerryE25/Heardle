@@ -17,5 +17,12 @@ class HomeViewController: UIViewController {
         super.viewDidLoad()
         // Do any additional setup after loading the view.
     }
+    
+    // Unwind segue action for returning to home from game results
+    @IBAction func unwindToHome(_ unwindSegue: UIStoryboardSegue) {
+        // This method allows other view controllers to unwind back to HomeViewController
+        print("[HOME] Unwound back to home from \(type(of: unwindSegue.source))")
+        // Any cleanup or refresh logic can go here
+    }
 
 }
