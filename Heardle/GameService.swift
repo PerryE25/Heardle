@@ -68,10 +68,13 @@ final class GameService {
         let game = Game(
             hostId: uid,
             status: .waiting,
+            currentRound: 0,
             clipDurations: Self.defaultClipDurations,
             playerAttempt: [uid: 0],
             playerStatus: [uid: .playing],
-            playerFinishedAt: [:]
+            playerFinishedAt: [:],
+            playerReadyForNext: [:],
+            playerRoundsWon: [uid: 0]
         )
 
         try await withCheckedThrowingContinuation { (cont: CheckedContinuation<Void, Error>) in
@@ -144,10 +147,10 @@ final class GameService {
             
             transaction.updateData([
                 "guestId": uid,
-                "status": GameStatus.playing.rawValue,
-                "startedAt": FieldValue.serverTimestamp(),
                 "playerAttempt.\(uid)": 0,
-                "playerStatus.\(uid)": PlayerStatus.playing.rawValue
+                "playerStatus.\(uid)": PlayerStatus.playing.rawValue,
+                "playerReadyForNext.\(uid)": false,
+                "playerRoundsWon.\(uid)": 0
             ], forDocument: ref)
             
             return nil
@@ -179,5 +182,189 @@ final class GameService {
                     onChange(.failure(error))
                 }
             }
+    }
+    
+    func updateSettings(code: String, settings: [String: Any]) async throws {
+        try await db.collection("games").document(code).updateData(settings)
+    }
+
+    func startGame(code: String, playlist: [Song]) async throws {
+        guard let uid = Auth.auth().currentUser?.uid else {
+            throw GameError.notSignedIn
+        }
+
+        let game = try await fetchGame(code: code)
+
+        guard game.hostId == uid else { throw GameError.cannotJoinOwnGame }
+        guard game.guestId != nil else { throw GameError.gameNotFound }
+
+        let song = try pickRandomSong(playlist: playlist)
+        guard let songTrackId = song.trackId,
+              let songPreviewURL = song.previewURL else {
+            throw GameError.invalidSongData
+        }
+
+        try await db.collection("games").document(code).updateData([
+            "trackId": String(songTrackId),
+            "trackTitle": song.name,
+            "trackArtist": song.artist,
+            "previewURL": songPreviewURL,
+            "status": GameStatus.playing.rawValue,
+            "currentRound": 1,
+            "startedAt": FieldValue.serverTimestamp(),
+            "roundStartedAt": FieldValue.serverTimestamp()
+        ])
+    }
+    
+    func recordAttempt(code: String, attempt: Int) async throws {
+            guard let uid = Auth.auth().currentUser?.uid else {
+                throw GameError.notSignedIn
+            }
+            try await db.collection("games").document(code).updateData([
+                "playerAttempt.\(uid)": attempt
+            ])
+        }
+
+        func recordFinish(code: String, won: Bool) async throws {
+            guard let uid = Auth.auth().currentUser?.uid else {
+                throw GameError.notSignedIn
+            }
+
+            let ref = db.collection("games").document(code)
+
+            _ = try await db.runTransaction { transaction, errorPointer -> Any? in
+                let snapshot: DocumentSnapshot
+                do {
+                    snapshot = try transaction.getDocument(ref)
+                } catch let error as NSError {
+                    errorPointer?.pointee = error
+                    return nil
+                }
+
+                guard let data = snapshot.data() else { return nil }
+
+                var statuses = data["playerStatus"] as? [String: String] ?? [:]
+                statuses[uid] = won ? PlayerStatus.won.rawValue : PlayerStatus.lost.rawValue
+
+                var update: [String: Any] = [
+                    "playerStatus.\(uid)": statuses[uid]!,
+                    "playerFinishedAt.\(uid)": FieldValue.serverTimestamp()
+                ]
+
+                let hostId = data["hostId"] as? String
+                let guestId = data["guestId"] as? String
+                let seats = [hostId, guestId].compactMap { $0 }
+
+                let everyoneDone = seats.count == 2 && seats.allSatisfy {
+                    statuses[$0] != nil && statuses[$0] != PlayerStatus.playing.rawValue
+                }
+                
+                if everyoneDone {
+                    if won {
+                        let currentWins = (data["playerRoundsWon"] as? [String: Int])?[uid] ?? 0
+                        update["playerRoundsWon.\(uid)"] = currentWins + 1
+                    }
+                    
+                    update["status"] = GameStatus.roundResults.rawValue
+                    
+                    for seat in seats {
+                        update["playerReadyForNext.\(seat)"] = false
+                    }
+                }
+
+                transaction.updateData(update, forDocument: ref)
+                return nil
+            }
+        }
+    
+    func markReady(code: String) async throws {
+        guard let uid = Auth.auth().currentUser?.uid else {
+            throw GameError.notSignedIn
+        }
+        
+        let ref = db.collection("games").document(code)
+        
+        _ = try await db.runTransaction { transaction, errorPointer -> Any? in
+            let snapshot: DocumentSnapshot
+            do {
+                snapshot = try transaction.getDocument(ref)
+            } catch let error as NSError {
+                errorPointer?.pointee = error
+                return nil
+            }
+            
+            guard let data = snapshot.data() else { return nil }
+            
+            var update: [String: Any] = [
+                "playerReadyForNext.\(uid)": true
+            ]
+            
+            var readyStates = data["playerReadyForNext"] as? [String: Bool] ?? [:]
+            readyStates[uid] = true
+            
+            let hostId = data["hostId"] as? String
+            let guestId = data["guestId"] as? String
+            let seats = [hostId, guestId].compactMap { $0 }
+            
+            let allReady = seats.count == 2 && seats.allSatisfy { readyStates[$0] == true }
+            
+            if allReady {
+                let currentRound = data["currentRound"] as? Int ?? 0
+                let totalRounds = data["totalRounds"] as? Int ?? 1
+                
+                if currentRound >= totalRounds {
+                    update["status"] = GameStatus.finished.rawValue
+                } else {
+
+                }
+            }
+            
+            transaction.updateData(update, forDocument: ref)
+            return nil
+        }
+    }
+    
+    func startNextRound(code: String, playlist: [Song]) async throws {
+        let game = try await fetchGame(code: code)
+        
+        let currentRound = game.currentRound ?? 0
+        let totalRounds = game.totalRounds ?? 1
+        
+        guard currentRound < totalRounds else {
+            try await db.collection("games").document(code).updateData([
+                "status": GameStatus.finished.rawValue
+            ])
+            return
+        }
+        
+        let song = try pickRandomSong(playlist: playlist)
+        guard let songTrackId = song.trackId,
+              let songPreviewURL = song.previewURL else {
+            throw GameError.invalidSongData
+        }
+        
+        let hostId = game.hostId
+        let guestId = game.guestId
+        let seats = [hostId, guestId].compactMap { $0 }
+        
+        var update: [String: Any] = [
+            "trackId": String(songTrackId),
+            "trackTitle": song.name,
+            "trackArtist": song.artist,
+            "previewURL": songPreviewURL,
+            "status": GameStatus.playing.rawValue,
+            "currentRound": currentRound + 1,
+            "roundStartedAt": FieldValue.serverTimestamp()
+        ]
+        
+        for seat in seats {
+            update["playerAttempt.\(seat)"] = 0
+            update["playerStatus.\(seat)"] = PlayerStatus.playing.rawValue
+            update["playerReadyForNext.\(seat)"] = false
+        }
+        
+        update["playerFinishedAt"] = [:]
+        
+        try await db.collection("games").document(code).updateData(update)
     }
 }

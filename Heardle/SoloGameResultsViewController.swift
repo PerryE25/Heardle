@@ -27,10 +27,15 @@ class SoloGameResultsViewController: UIViewController {
     @IBOutlet weak var resultLabel: UILabel!
     @IBOutlet weak var resultIcon: UIImageView!
     
+    // Data passed from GameViewController
+    var didWin: Bool = false
+    var totalAttempts: Int = 0
+    var currentSong: Song? = nil
+    var clipDurations: [Int] = [1, 2, 4, 7, 11, 16]  // Default song times
+    
     var audioPlayer: AVPlayer?
     var progressBlocks: [UIView] = []
-    let totalTries = songTimes.count
-    var currentSong: Song? = nil
+    var totalTries: Int { clipDurations.count }
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -40,34 +45,37 @@ class SoloGameResultsViewController: UIViewController {
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         
+        guard let currentSong = currentSong else {
+            print("Error: No song data provided")
+            return
+        }
+        
         startButtonAnimation()
         setupProgressBlocks()
-
-        currentSong = songs[currentSongIndex]
         
-        songLargeImage.image = UIImage(data: currentSong!.albumArtData!)
-        songSmallImage.image = UIImage(data: currentSong!.albumArtData!)
+        if let artworkData = currentSong.albumArtData {
+            songLargeImage.image = UIImage(data: artworkData)
+            songSmallImage.image = UIImage(data: artworkData)
+        } else if let artworkURL = currentSong.albumArt,
+                  let data = try? Data(contentsOf: artworkURL) {
+            songLargeImage.image = UIImage(data: data)
+            songSmallImage.image = UIImage(data: data)
+        }
         
-        if let url = currentSong?.audioURL {
-//            audioPlayer = try? AVAudioPlayer(contentsOf: url)
-//            audioPlayer?.prepareToPlay()
-            let playerItem = AVPlayerItem(url: songs[currentSongIndex].audioURL)
+        if let url = currentSong.audioURL {
+            let playerItem = AVPlayerItem(url: url)
             audioPlayer = AVPlayer(playerItem: playerItem)
         }
         
-        songNameLabel.text = currentSong?.name
-        songAuthorLabel.text = currentSong?.artist
-        if let url = currentSong?.albumArt, let data = try? Data(contentsOf: url) {
-            songSmallImage.image = UIImage(data: data)
-        }
+        songNameLabel.text = currentSong.name
+        songAuthorLabel.text = currentSong.artist
+        
         playButton.configurationUpdateHandler = { button in
             button.configuration?.background.backgroundColor = .clear
             if button.isSelected {
                 UIView.performWithoutAnimation {
                     button.configuration?.image = UIImage(systemName: "pause")
                 }
-                
-                
             }
             else {
                 UIView.performWithoutAnimation {
@@ -76,17 +84,22 @@ class SoloGameResultsViewController: UIViewController {
             }
         }
         
-        let blurredBackground = createAmbientBackground(image: songLargeImage.image!)
-        
-        blurredSongBackground.image = blurredBackground
+        if let image = songLargeImage.image {
+            let blurredBackground = createAmbientBackground(image: image)
+            blurredSongBackground.image = blurredBackground
+        }
         
         if didWin {
             resultLabel.text = "Correct"
             resultIcon.image = UIImage(systemName: "checkmark.circle")
             resultLabel.textColor = UIColor.spotifyGreen
             resultIcon.tintColor = UIColor.spotifyGreen
-            solvedAmountLabel.text = "Solved in \(globalTotalAttempts)/\(totalTries)"
-            solvedSecondsLabel.text = "NEEDED \(songTimes[globalTotalAttempts - 1]) SEC"
+            solvedAmountLabel.text = "Solved in \(totalAttempts)/\(totalTries)"
+            
+            // Show the time needed for the attempt they solved it on
+            if totalAttempts > 0 && totalAttempts <= clipDurations.count {
+                solvedSecondsLabel.text = "NEEDED \(clipDurations[totalAttempts - 1]) SEC"
+            }
         } else {
             resultLabel.text = "Wrong"
             resultIcon.image = UIImage(systemName: "x.circle")
@@ -162,13 +175,12 @@ class SoloGameResultsViewController: UIViewController {
     func setupProgressBlocks() {
         for num in 1...totalTries {
             let block = UIView()
-            if num <= globalTotalAttempts {
+            if num <= totalAttempts {
                 if didWin {
                     block.backgroundColor = UIColor.spotifyGreen
-                } else{
+                } else {
                     block.backgroundColor = .systemRed
                 }
-                
             }
             else {
                 block.backgroundColor = UIColor.spotifyLightGrey

@@ -24,26 +24,32 @@ class WrongGuessViewController: UIViewController {
     // Keeps track of all of the ImageViews (Could not get the Collection version working)
     var xMarks: [UIImageView] = []
     
-    var wrongGuessCount = globalTotalAttempts
+    // Data passed from GameViewController
+    var currentAttempts: Int = 0
+    var wrongGuessCount: Int = 0
     
     override func viewDidLoad() {
         super.viewDidLoad()
         miniView.layer.cornerRadius = 30
         topText.font = UIFont.boldSystemFont(ofSize: 40.0)
         xMarks = [xMark1, xMark2, xMark3, xMark4, xMark5, xMark6]
+        
+        // Set wrongGuessCount from passed data
+        wrongGuessCount = currentAttempts
+        
         // Makes it so that all previous guesses are gray and the current is also gray in the pre build
         if wrongGuessCount > 0 {
-                    wrongGuessCount -= 1
-                }
+            wrongGuessCount -= 1
+        }
         updateXMarks(animated: true)
     }
     
     // We need to create the board of X and then add the animation so we use viewDidAppear
     override func viewDidAppear(_ animated: Bool) {
-            super.viewDidAppear(animated)
-            wrongGuessCount = globalTotalAttempts
-            updateXMarks(animated: true)
-        }
+        super.viewDidAppear(animated)
+        wrongGuessCount = currentAttempts
+        updateXMarks(animated: true)
+    }
     
     @IBAction func returnToGame(_ sender: Any) {
         self.dismiss(animated: true)

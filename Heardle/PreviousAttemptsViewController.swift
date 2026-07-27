@@ -17,14 +17,17 @@ class PreviousAttemptsViewController: UIViewController, UITableViewDelegate, UIT
     @IBOutlet weak var tableView: UITableView!
     
     @IBOutlet weak var prevGuessesTitle: UILabel!
+    
     // This will hold only the actual failed guesses, no nils.
+    // Data passed from GameViewController
     var validGuesses: [Song] = []
     
     let cellID = "GuessCell"
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        validGuesses = prevGuesses.compactMap { $0 } // Removes the nils from the guesses array
+        // validGuesses is already set by GameViewController before presenting
+        // No need to access global variables
         tableView.delegate = self
         tableView.dataSource = self
         self.view.overrideUserInterfaceStyle = .dark
