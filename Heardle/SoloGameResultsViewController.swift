@@ -111,6 +111,21 @@ class SoloGameResultsViewController: UIViewController {
         playButtonButtonPressed(self)
     }
     
+    override func viewWillDisappear(_ animated: Bool) {
+        super.viewWillDisappear(animated)
+        // Stop the audio when leaving this screen
+        audioPlayer?.pause()
+        audioPlayer = nil
+        print("[RESULTS] Audio stopped and player cleaned up")
+    }
+    
+    deinit {
+        // Additional cleanup when the view controller is deallocated
+        audioPlayer?.pause()
+        audioPlayer = nil
+        print("[RESULTS] SoloGameResultsViewController deallocated")
+    }
+    
     @IBAction func continueButtonTouchDown(_ sender: Any) {
         stopButtonAnimation()
     }
@@ -163,6 +178,41 @@ class SoloGameResultsViewController: UIViewController {
         radiusAnimation.autoreverses = true
         radiusAnimation.repeatCount = .infinity
         continueButton.layer.add(radiusAnimation, forKey: "glowRadius")
+    }
+    
+    func makeShareText() -> String {
+        let filled = didWin ? totalAttempts : totalTries
+        let blocks = (1...totalTries).map { num -> String in
+            guard num <= filled else { return "⬜" }
+            return didWin ? "🟩" : "🟥"
+        }.joined()
+
+        if didWin {
+            var tagline = "Beat that 🔥"
+            if totalAttempts > 0, totalAttempts <= clipDurations.count {
+                tagline = "Needed only \(clipDurations[totalAttempts - 1]) sec 🔥"
+            }
+            return """
+            🎵 Heardle — \(totalAttempts)/\(totalTries)
+
+            \(blocks)
+            \(tagline)
+            """
+        } else {
+            return """
+            🎵 Heardle — X/\(totalTries)
+
+            \(blocks)
+            This one destroyed me. Your turn.
+            """
+        }
+    }
+    
+    @IBAction func shareButtonPressed(_ sender: Any) {
+        let vc = UIActivityViewController(activityItems: [makeShareText()],
+                                          applicationActivities: nil)
+        vc.popoverPresentationController?.sourceView = sender as? UIView
+        present(vc, animated: true)
     }
     
     func stopButtonAnimation() {

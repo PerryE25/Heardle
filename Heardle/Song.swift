@@ -64,7 +64,42 @@ class Song {
 // Returns true when two songs have the same title and artist.
 extension Song : Equatable {
     static func == (lhs: Song, rhs: Song) -> Bool {
-        // two songs are the same if they have the same name/artist
-        return lhs.name.lowercased() == rhs.name.lowercased() && lhs.artist.lowercased() == rhs.artist.lowercased()
+        // Normalize strings by removing extra whitespace and converting to lowercase
+        let lhsName = lhs.name.lowercased().trimmingCharacters(in: .whitespacesAndNewlines)
+        let rhsName = rhs.name.lowercased().trimmingCharacters(in: .whitespacesAndNewlines)
+        
+        let lhsArtist = lhs.artist.lowercased().trimmingCharacters(in: .whitespacesAndNewlines)
+        let rhsArtist = rhs.artist.lowercased().trimmingCharacters(in: .whitespacesAndNewlines)
+        
+        // First check: exact match on normalized strings
+        if lhsName == rhsName && lhsArtist == rhsArtist {
+            return true
+        }
+        
+        // Second check: normalize common variations in artist names
+        // (ft., feat., featuring, &, etc.)
+        let normalizedLhsArtist = normalizeArtistName(lhsArtist)
+        let normalizedRhsArtist = normalizeArtistName(rhsArtist)
+        
+        return lhsName == rhsName && normalizedLhsArtist == normalizedRhsArtist
+    }
+    
+    // Helper function to normalize artist names for better matching
+    private static func normalizeArtistName(_ artist: String) -> String {
+        var normalized = artist.lowercased().trimmingCharacters(in: .whitespacesAndNewlines)
+        
+        // Replace common variations of "featuring"
+        normalized = normalized.replacingOccurrences(of: " feat. ", with: " ft. ")
+        normalized = normalized.replacingOccurrences(of: " feat ", with: " ft. ")
+        normalized = normalized.replacingOccurrences(of: " featuring ", with: " ft. ")
+        normalized = normalized.replacingOccurrences(of: " ft ", with: " ft. ")
+        
+        // Handle "&" vs "and"
+        normalized = normalized.replacingOccurrences(of: " & ", with: " and ")
+        
+        // Remove extra spaces
+        normalized = normalized.replacingOccurrences(of: "  ", with: " ")
+        
+        return normalized
     }
 }

@@ -37,7 +37,16 @@ final class SoloSession: GameSession {
     }
 
     func isCorrect(_ guess: Song) -> Bool {
-        guess == answerProvider()
+        let answer = answerProvider()
+        let result = guess == answer
+        
+        // Debug logging to help diagnose comparison issues
+        print("[SOLO] Comparing guess to answer:")
+        print("[SOLO]   Guess: '\(guess.name)' by '\(guess.artist)'")
+        print("[SOLO]   Answer: '\(answer.name)' by '\(answer.artist)'")
+        print("[SOLO]   Result: \(result ? "✅ CORRECT" : "❌ WRONG")")
+        
+        return result
     }
 
     func recordAttempt(_ attempt: Int) { }

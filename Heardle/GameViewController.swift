@@ -114,8 +114,17 @@ class GameViewController: UIViewController, SearchViewDelegate {
                     }
                 }
             } else {
+                // Pick a random song for solo play
+                if !songs.isEmpty {
+                    currentSongIndex = Int.random(in: 0..<songs.count)
+                    print("[GAME] Solo mode - Selected random song: \(songs[currentSongIndex].name) by \(songs[currentSongIndex].artist)")
+                }
+                
                 session = SoloSession { [weak self] in
-                    songs[self?.currentSongIndex ?? 0]
+                    guard let self = self, !songs.isEmpty else {
+                        return songs.first ?? Song(name: "Unknown", artist: "Unknown", album: "Unknown")
+                    }
+                    return songs[self.currentSongIndex]
                 }
                 setupAudioPlayer(url: songs[currentSongIndex].audioURL)
             }
@@ -524,7 +533,19 @@ class GameViewController: UIViewController, SearchViewDelegate {
             
             if segue.identifier == gameOverSegueID {
                 // Solo game - pass to SoloGameResultsViewController
-                // TODO: Set up solo results view controller if needed
+                if let resultsVC = segue.destination as? SoloGameResultsViewController {
+                    resultsVC.didWin = didWin
+                    resultsVC.totalAttempts = totalAttempts
+                    resultsVC.clipDurations = clipDurations
+                    
+                    // Pass the current song
+                    if !songs.isEmpty && currentSongIndex < songs.count {
+                        resultsVC.currentSong = songs[currentSongIndex]
+                        print("[GAME→RESULTS] Passing song to results: \(songs[currentSongIndex].name) by \(songs[currentSongIndex].artist)")
+                    } else {
+                        print("[GAME→RESULTS] Warning: No valid song to pass to results")
+                    }
+                }
             }
         }
     }
