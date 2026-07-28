@@ -146,6 +146,8 @@ class SoloGameResultsViewController: UIViewController {
             audioPlayer?.pause()
         }
     }
+    
+    // Starts the glowing animation for the Continue button.
     func startButtonAnimation() {
         UIView.animate(
             withDuration: 1.5,
@@ -222,6 +224,7 @@ class SoloGameResultsViewController: UIViewController {
         }
     }
     
+    // Configures the progress blocks showing the player's attempts.
     func setupProgressBlocks() {
         for num in 1...totalTries {
             let block = UIView()
