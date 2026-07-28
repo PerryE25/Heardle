@@ -19,7 +19,7 @@ class Song {
     var album: String
     var audioURL: URL!
     var albumArt: URL!
-//    var audioData: Data?
+    //    var audioData: Data?
     var albumArtData: Data?
     
     // Firebase Storage metadata

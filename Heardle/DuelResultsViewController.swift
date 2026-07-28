@@ -242,7 +242,6 @@ class DuelResultsViewController: UIViewController, UITableViewDelegate, UITableV
         }
     }
     
-    
     private func startAutoContinueTimer() {
         autoContinueTimer = Timer.scheduledTimer(withTimeInterval: autoContinueDelay, repeats: false) { [weak self] _ in
             self?.autoContinue()
@@ -253,7 +252,6 @@ class DuelResultsViewController: UIViewController, UITableViewDelegate, UITableV
         guard !isGameComplete, !hasMarkedReady else { return }
         continueButtonPressed(self)
     }
-    
     
     @IBAction func continueButtonPressed(_ sender: Any) {
         guard let gameCode else {

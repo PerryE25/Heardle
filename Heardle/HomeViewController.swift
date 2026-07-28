@@ -19,6 +19,7 @@ import UIKit
 
 var gameUser = GameUser(displayName: "User25", points: 0, displayImage: nil)
 
+// A class for the home screen of the app
 class HomeViewController: UIViewController {
     
     @IBOutlet weak var displayNameLabel: UILabel!
@@ -27,13 +28,16 @@ class HomeViewController: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        // Do any additional setup after loading the view.
+        
+        displayImageView.frame.size.width = 100
+        displayImageView.frame.size.height = 100
+        displayImageView.layer.cornerRadius = displayImageView.frame.width / 2
     }
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         loadDisplayName()
-        loadDisplayImage()
+        loadProfilePicture()
         loadPoints()
     }
     
@@ -69,9 +73,10 @@ class HomeViewController: UIViewController {
             }
     }
     
-    func loadDisplayImage() {
+    // Loads the profile picture from Firestore/Spotify and displays it.
+    func loadProfilePicture() {
         guard let user = Auth.auth().currentUser else { return }
-        
+
         Firestore.firestore()
             .collection("users")
             .document(user.uid)
@@ -80,14 +85,34 @@ class HomeViewController: UIViewController {
                     print(error.localizedDescription)
                     return
                 }
-                
+
                 let data = snapshot?.data()
-                let savedImage = data?["displayImage"] as? String ?? ""
-                
-                if !savedImage.isEmpty {
-                    
-                } else {
+                let pictureURL =
+                    data?["profilePictureURL"] as? String
+                    ?? data?["spotifyProfilePictureURL"] as? String
+
+                guard let pictureURL = pictureURL,
+                    let url = URL(string: pictureURL)
+                else {
+                    // no img, use default instead
                     self.displayImageView.image = UIImage(named: "green_headphones")
+                    return
+                }
+
+                Task {
+                    do {
+                        let (data, _) = try await URLSession.shared.data(
+                            from: url
+                        )
+                        guard let image = UIImage(data: data) else { return }
+                        DispatchQueue.main.async {
+                            self.displayImageView.image = image
+                        }
+                    } catch {
+                        DispatchQueue.main.async {
+                            print(error.localizedDescription)
+                        }
+                    }
                 }
             }
     }

@@ -43,12 +43,9 @@ class CreateAccountViewController: UIViewController, SpotifyManagerDelegate {
         }
     }
     
-
     @IBOutlet weak var spotifyButton: UIButton!
     @IBOutlet weak var emailField: UITextField!
-    
     @IBOutlet weak var googleButton: UIButton!
-    
     @IBOutlet weak var appleButton: UIButton!
     
     @IBAction func continueButtonPressed(_ sender: Any) {
@@ -88,7 +85,6 @@ class CreateAccountViewController: UIViewController, SpotifyManagerDelegate {
             
         }
     }
-    
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -293,17 +289,5 @@ class CreateAccountViewController: UIViewController, SpotifyManagerDelegate {
             passwordVC.email = emailField.text!
         }
     }
-    
-    
-
-    /*
-    // MARK: - Navigation
-
-    // In a storyboard-based application, you will often want to do a little preparation before navigation
-    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-        // Get the new view controller using segue.destination.
-        // Pass the selected object to the new view controller.
-    }
-    */
 
 }

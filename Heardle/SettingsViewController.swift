@@ -136,6 +136,7 @@ class SettingsViewController: UIViewController, PHPickerViewControllerDelegate {
                 }
             }
     }
+    
     // Loads Spotify connection status and display name from Firestore.
     func loadSpotifyConnection() {
         guard let user = Auth.auth().currentUser else { return }
@@ -439,7 +440,11 @@ class SettingsViewController: UIViewController, PHPickerViewControllerDelegate {
 
                 guard let pictureURL = pictureURL,
                     let url = URL(string: pictureURL)
-                else { return }
+                else {
+                    // no img, use default instead
+                    self.profilePictureImageView.image = UIImage(named: "green_headphones")
+                    return
+                }
 
                 Task {
                     do {
@@ -480,15 +485,5 @@ class SettingsViewController: UIViewController, PHPickerViewControllerDelegate {
         editButton.layer.cornerRadius = editButton.bounds.height / 2
         editButton.clipsToBounds = true
     }
-
-    /*
-    // MARK: - Navigation
-    
-    // In a storyboard-based application, you will often want to do a little preparation before navigation
-    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-        // Get the new view controller using segue.destination.
-        // Pass the selected object to the new view controller.
-    }
-    */
 
 }

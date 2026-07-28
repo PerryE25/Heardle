@@ -45,12 +45,9 @@ class LoginViewController: UIViewController, SpotifyManagerDelegate {
             showError(message)
         }
     }
-    
 
     @IBOutlet weak var spotifyButton: UIButton!
-    
     @IBOutlet weak var googleButton: UIButton!
-    
     @IBOutlet weak var appleButton: UIButton!
     
     // Starts the Spotify login flow.
@@ -87,7 +84,6 @@ class LoginViewController: UIViewController, SpotifyManagerDelegate {
             
         }
     }
-    
     
     // Configures UI elements and sets up third-party login button icons.
     override func viewDidLoad() {
@@ -130,7 +126,6 @@ class LoginViewController: UIViewController, SpotifyManagerDelegate {
             appleButton.layer.borderWidth = 1.0
             appleButton.layer.cornerRadius = 6
         }
-        // Do any additional setup after loading the view.
     }
     
     // Dismisses loading and continues to load songs when Spotify login succeeds.
@@ -291,21 +286,6 @@ class LoginViewController: UIViewController, SpotifyManagerDelegate {
     private func goHome() {
         performSegue(withIdentifier: "loginToHomeSegue", sender: self)
     }
-    
-    
-
-
-    
-
-    /*
-    // MARK: - Navigation
-
-    // In a storyboard-based application, you will often want to do a little preparation before navigation
-    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-        // Get the new view controller using segue.destination.
-        // Pass the selected object to the new view controller.
-    }
-    */
 
 }
 

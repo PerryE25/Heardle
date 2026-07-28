@@ -75,9 +75,7 @@ func setupSamplePlaylists() {
 
 // Manages 1v1 matchmaking UI and configurable match settings before a duel.
 // Player order is always consistent: Host = Player 1, Guest = Player 2
-
 class DuelMatchingViewController: UIViewController, UITextFieldDelegate {
-    
     
     @IBOutlet weak var playerOneView: UIStackView!
     @IBOutlet weak var playerTwoView: UIStackView!

@@ -19,8 +19,10 @@ import MusicKit
 let db = Firestore.firestore()
 let storage = Storage.storage()
 
+// A class to manage getting songs list (with pics/audio) from FireSotre/Spotify/Locally
 class SongService {
 
+    // Give user their spotify songs or our default if not connected to spotify
     func fetchSongsForCurrentUser() async -> [Song] {
         if let user = Auth.auth().currentUser {
             let userDocument = db.collection("users").document(user.uid)
@@ -52,6 +54,7 @@ class SongService {
         return defaultSongs
     }
 
+    // Given a spotify userID, return a song list for them
     func fetchUserSongs(userID: String) async -> [Song] {
         do {
             let snapshot = try await db
@@ -320,16 +323,6 @@ class SongService {
         let (data, _) = try await URLSession.shared.data(from: url)
         return data
     }
-    
-    // Based on given song, return artwork (handle url retrieval)
-    //    func getAudio(of: Song) -> URL? {
-    //
-    //    }
-    
-    // Based on given song, return preview audio (handle url retrieval)
-    //    func getPreview(of: Song) -> UIImage? {
-    //
-    //    }
     
     // Given the 7 impoprted songs that are in the project,
     // return them in a list

@@ -9,8 +9,6 @@
 //  Course: CS371L
 //
 
-// App delegate responsible for app lifecycle setup and configuration.
-
 import UIKit
 import FirebaseCore
 import SpotifyiOS
