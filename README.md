@@ -29,7 +29,7 @@ Heardle
 |---|---|---|
 | Login / Create Account | Allows users to create an account and securely login to the application. | Haroon Memon (100%) |
 | Home Screen | Main landing screen for users after login. Provides navigation into the Heardle experience and displays primary app functionality. | Perry Ehimuh (100%) |
-| Game Screen | Implements the main Heardle gameplay experience including the music player, song selection/search functionality, and interaction flow for guessing songs. | Perry Ehimuh (100%) |
+| Game / Search Screens | Implements the main Heardle gameplay experience including the music player, song selection/search functionality, and interaction flow for guessing songs. | Perry Ehimuh (100%) |
 | Rules Screen | Provides users with instructions and rules explaining how to play Heardle. | Jeremiah Franklin (100%) |
 | Previous Attempts Screen | Displays previous guesses/attempt history during gameplay. | Jeremiah Franklin (100%) |
 | Wrong Guess Screen | Handles the UI and logic for incorrect guesses during gameplay. | Jeremiah Franklin (100%) |
