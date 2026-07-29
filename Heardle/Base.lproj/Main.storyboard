@@ -1607,7 +1607,7 @@
                                 <color key="backgroundColor" systemColor="systemBackgroundColor"/>
                             </view>
                             <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="FxB-6j-cci" userLabel="Unlock Popup View">
-                                <rect key="frame" x="68" y="400" width="323" height="167"/>
+                                <rect key="frame" x="68" y="400" width="323" height="205"/>
                                 <subviews>
                                     <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" image="lock" catalog="system" translatesAutoresizingMaskIntoConstraints="NO" id="gmf-jZ-bKa">
                                         <rect key="frame" x="55" y="37" width="212" height="115"/>
@@ -1659,7 +1659,7 @@
                             <constraint firstItem="6Uf-Zl-47K" firstAttribute="top" secondItem="bB0-DB-3s7" secondAttribute="bottom" constant="26" id="oF2-XW-b9f"/>
                             <constraint firstItem="Bgu-3D-u24" firstAttribute="leading" secondItem="SZs-Ab-te7" secondAttribute="leadingMargin" constant="-41.333333333333343" id="pOx-Da-sz3"/>
                             <constraint firstItem="gpc-Lh-qQI" firstAttribute="top" secondItem="ktv-Pi-cs2" secondAttribute="bottom" constant="20" id="tK7-QU-Dwd"/>
-                            <constraint firstItem="9eB-VM-qbf" firstAttribute="top" secondItem="FxB-6j-cci" secondAttribute="bottom" constant="46" id="tRy-4M-OJi"/>
+                            <constraint firstItem="9eB-VM-qbf" firstAttribute="top" secondItem="FxB-6j-cci" secondAttribute="bottom" constant="8" id="tRy-4M-OJi"/>
                             <constraint firstItem="Bgu-3D-u24" firstAttribute="centerX" secondItem="SZs-Ab-te7" secondAttribute="centerX" id="tb0-nP-hkH"/>
                             <constraint firstItem="Bgu-3D-u24" firstAttribute="top" secondItem="G6i-u5-LtF" secondAttribute="bottom" constant="8" symbolic="YES" id="uHd-yH-hXb"/>
                             <constraint firstItem="2n5-c6-sle" firstAttribute="top" secondItem="bB0-DB-3s7" secondAttribute="bottom" constant="26" id="uQM-0j-B9D"/>
@@ -1788,11 +1788,11 @@
             <objects>
                 <viewController modalTransitionStyle="crossDissolve" modalPresentationStyle="overCurrentContext" id="IXp-DI-Sma" customClass="RulesViewController" customModule="Heardle" customModuleProvider="target" sceneMemberID="viewController">
                     <view key="view" contentMode="scaleToFill" id="ggH-R1-4ap">
-                        <rect key="frame" x="0.0" y="0.0" width="440" height="884"/>
+                        <rect key="frame" x="0.0" y="0.0" width="440" height="894"/>
                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                         <subviews>
                             <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="MH7-Nu-Oic">
-                                <rect key="frame" x="16" y="97" width="408" height="726"/>
+                                <rect key="frame" x="16" y="97" width="408" height="736"/>
                                 <subviews>
                                     <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="LogoImage" translatesAutoresizingMaskIntoConstraints="NO" id="QT5-FB-h3h">
                                         <rect key="frame" x="65" y="8" width="277" height="111.33333333333333"/>
@@ -1824,7 +1824,7 @@
                                         <color key="tintColor" name="SpotifyGreenGlow"/>
                                     </imageView>
                                     <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" translatesAutoresizingMaskIntoConstraints="NO" id="ngR-nS-vPF">
-                                        <rect key="frame" x="8" y="214" width="137" height="437"/>
+                                        <rect key="frame" x="8" y="214" width="137" height="447"/>
                                     </stackView>
                                     <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" text="Hearing a longer clip counts as 1 guess" lineBreakMode="tailTruncation" numberOfLines="2" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="myX-4a-vUd">
                                         <rect key="frame" x="164" y="329" width="198" height="47"/>
@@ -1855,10 +1855,10 @@
                                         <nil key="highlightedColor"/>
                                     </label>
                                     <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" translatesAutoresizingMaskIntoConstraints="NO" id="Eum-w3-s4W">
-                                        <rect key="frame" x="147" y="189" width="253" height="463"/>
+                                        <rect key="frame" x="147" y="189" width="253" height="473"/>
                                     </stackView>
                                     <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Uzd-3c-q3w">
-                                        <rect key="frame" x="47" y="669" width="314" height="35"/>
+                                        <rect key="frame" x="47" y="679" width="314" height="35"/>
                                         <color key="tintColor" name="SpotifyGreenGlow"/>
                                         <state key="normal" title="Button"/>
                                         <buttonConfiguration key="configuration" style="filled" title="Got it"/>
@@ -2407,10 +2407,11 @@
         </scene>
     </scenes>
     <inferredMetricsTieBreakers>
+        <segue reference="oSe-2j-Mhu"/>
         <segue reference="aMZ-4R-O37"/>
         <segue reference="i1r-4U-xdo"/>
         <segue reference="f4b-ZM-rzg"/>
-        <segue reference="DsA-I4-RRF"/>
+        <segue reference="GKt-vI-IEd"/>
         <segue reference="PAs-uB-ba5"/>
         <segue reference="pmw-PS-eta"/>
         <segue reference="Tzh-aD-koy"/>
