@@ -10,6 +10,7 @@ Heardle
 - Xcode
 - Swift
 - Spotify iOS XC Framework
+- Iphone 17 Pro Max Simulator (Iphone 16 Pro Max Simulator for 2nd Screen)
 
 ## Special Instructions
 • Before running the project, download the Spotify iOS XC Framework from GitHub and add it to the project under:
@@ -19,7 +20,17 @@ Heardle
 
 • After adding the framework, clean and build the project before running.
 
-• Run the application using an iPhone simulator.
+• Run the application using an iPhone 17 Pro Max simulator.
+
+• For multiplayer, switch simulator iPhone and run the application using an iPhone 16 Pro Max simulator.
+
+
+## Test Accounts
+• Username: perryehimuh@gmail.com 
+• Password: password
+
+• Username: test@gmail.com   (has my Spotify connected to it)
+• Password: password
 
 ---
 
