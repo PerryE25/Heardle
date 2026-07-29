@@ -18,6 +18,7 @@ class GameUser {
     var points: Int
     var displayImage: String?
     
+    // Create a user with a name/points/profile-pic to display
     init(displayName: String, points: Int, displayImage: String? = nil) {
         self.displayName = displayName
         self.points = points

@@ -21,7 +21,8 @@ var playerStatus = ["host": 0, "guest": 0]
 // These playlists are populated from the global 'songs' array (loaded from Spotify/Firebase)
 var samplePlaylists: [String: [Song]] = [:]
 
-// Helper function to create playlists from the loaded songs
+// Creates predefined multiplayer playlists from the loaded songs collection,
+// filtering out songs that cannot be played in multiplayer mode.
 func setupSamplePlaylists() {
     guard !songs.isEmpty else {
         print("[PLAYLISTS] Cannot setup playlists - songs array is empty")
@@ -73,8 +74,8 @@ func setupSamplePlaylists() {
     print("   - Top 1000: \(samplePlaylists["Top 1000"]?.count ?? 0) songs")
 }
 
-// Manages 1v1 matchmaking UI and configurable match settings before a duel.
-// Player order is always consistent: Host = Player 1, Guest = Player 2
+// Configures the multiplayer lobby, handles player matching,
+// and manages duel settings before the game begins.
 class DuelMatchingViewController: UIViewController, UITextFieldDelegate {
     
     @IBOutlet weak var playerOneView: UIStackView!
@@ -94,19 +95,24 @@ class DuelMatchingViewController: UIViewController, UITextFieldDelegate {
     @IBOutlet weak var segmentedControlOutlet: UISegmentedControl!
     @IBOutlet weak var joinFriendView: UIStackView!
     
+    // Stores the available playlist, round, and explicit-content options used in the lobby settings menu.
     let playlistOptions = [("Today's Favorites", UIColor.white), ("Top 50", UIColor.white), ("Top 100", UIColor.white), ("Top 200", UIColor.white), ("Top 500", UIColor.white), ("Top 1000", UIColor.white)]
     let songRoundOptions = [("1 Round", UIColor.white), ("2 Rounds", UIColor.white), ("3 Rounds", UIColor.white), ("4 Rounds", UIColor.white), ("5 Rounds", UIColor.white)]
     let explicitSongOptions = [("Allowed", UIColor.spotifyGreen), ("Restricted", UIColor.systemRed)]
+    // Stores the currently selected lobby settings and their values.
     var settingOptions: [String: [(String, UIColor)]] = [:]
     var settingOptionsAnswers: [String: String]  = [:]
     var gameCode: String!
     var hasTransitioned = false
+    // Tracks whether the current player is creating a lobby or joining an existing lobby.
     var isCreating = true
     
     private var listener: ListenerRegistration?
     private var hasAnimatedPlayerTwo = false
     private var isObserving = false
     
+    // Initializes the multiplayer lobby, loads playlists, configures UI controls,
+    // and creates or joins a Firebase game session.
     override func viewDidLoad() {
         super.viewDidLoad()
         
@@ -127,7 +133,7 @@ class DuelMatchingViewController: UIViewController, UITextFieldDelegate {
             print("   - Songs haven't loaded from Spotify/Firebase yet")
             print("   - No songs have preview URLs")
             showAlert(title: "No Playable Songs",
-                     message: "Please wait for songs to load from your library, or make sure you have songs with preview URLs.")
+                      message: "Please wait for songs to load from your library, or make sure you have songs with preview URLs.")
         }
         
         inviteJoinTextField?.delegate = self
@@ -151,7 +157,7 @@ class DuelMatchingViewController: UIViewController, UITextFieldDelegate {
         for (key, _) in settingOptions {
             settingOptionsAnswers[key] = ""
         }
-
+        
         if isCreating {
             gameCode = GameService.shared.generateCode()
             print("[HOST] Generated game code: \(gameCode ?? "nil")")
@@ -183,6 +189,7 @@ class DuelMatchingViewController: UIViewController, UITextFieldDelegate {
         }
     }
     
+    // Configures the appearance and text styling of the invite/join segmented control.
     private func setupSegmentedControl() {
         let normalAttributes: [NSAttributedString.Key: Any] = [
             .foregroundColor: UIColor.white,
@@ -200,6 +207,7 @@ class DuelMatchingViewController: UIViewController, UITextFieldDelegate {
         print("[SEGMENT] Configured - Normal: white text, Selected: black text")
     }
     
+    // Starts listening for Firebase game updates to synchronize lobby state between players.
     private func startObserving() {
         guard !isObserving else {
             print("[MULTIPLAYER] Already observing game \(gameCode ?? "unknown") - skipping")
@@ -220,12 +228,14 @@ class DuelMatchingViewController: UIViewController, UITextFieldDelegate {
         }
     }
     
+    // Removes Firebase listeners and releases resources when the lobby controller is destroyed.
     deinit {
         print("[MULTIPLAYER] DuelMatchingViewController deallocating")
         listener?.remove()
         isObserving = false
     }
     
+    // Applies lobby styling, borders, and menu configurations when the view appears.
     override func viewDidAppear(_ animated: Bool) {
         matchSettingsView.layer.borderWidth = 1
         matchSettingsView.layer.borderColor = UIColor.spotifyLightGrey.cgColor
@@ -252,10 +262,12 @@ class DuelMatchingViewController: UIViewController, UITextFieldDelegate {
         settingOptionAdd(button: roundsButtonLabel, options: songRoundOptions, key: "Song Round")
     }
     
+    // Copies the current game invite code to the device clipboard.
     @IBAction func copyButtonPressed(_ sender: Any) {
         UIPasteboard.general.string = inviteTextLabel.text
     }
     
+    // Opens the share sheet allowing players to send the invite code to another user.
     @IBAction func shareButtonPressed(_ sender: Any) {
         let vc = UIActivityViewController(activityItems: ["""
             Think you can beat me at Heardle? Join my 1v1 with code: \(String(describing: inviteTextLabel.text))
@@ -264,6 +276,7 @@ class DuelMatchingViewController: UIViewController, UITextFieldDelegate {
         present(vc, animated: true)
     }
     
+    // Opens the share sheet allowing players to send the invite code to another user.
     func render(_ game: Game) {
         guard let myUID = Auth.auth().currentUser?.uid else {
             print("[MULTIPLAYER] Cannot render - no user UID")
@@ -273,7 +286,7 @@ class DuelMatchingViewController: UIViewController, UITextFieldDelegate {
         let guestJoined = (game.guestId != nil)
         
         print("[RENDER] Status: \(game.status.rawValue) | I am: \(isHost ? "HOST" : "GUEST") | Guest joined: \(guestJoined)")
-
+        
         switch game.status {
         case .waiting:
             print("[WAITING] In lobby - Guest: \(guestJoined ? "YES" : "NO")")
@@ -312,7 +325,7 @@ class DuelMatchingViewController: UIViewController, UITextFieldDelegate {
                     self.segmentedControlOutlet.isHidden = false
                     print("[UI] Showing segmented control and \(self.isCreating ? "invite" : "join") view")
                 }
-
+                
                 self.setSettingsEnabled(isHost)
                 print("[SETTINGS] Settings \(isHost ? "ENABLED" : "DISABLED") for \(isHost ? "host" : "guest")")
                 
@@ -322,13 +335,13 @@ class DuelMatchingViewController: UIViewController, UITextFieldDelegate {
                 if isHost && guestJoined {
                     print("[HOST] Continue button enabled - both players ready")
                 }
-
+                
                 if !isHost {
                     print("[GUEST] Applying host's settings")
                     self.applyRemoteSettings(game)
                 }
             }
-
+            
         case .playing:
             guard !hasTransitioned else {
                 print("[PLAYING] Already transitioned - ignoring")
@@ -347,7 +360,7 @@ class DuelMatchingViewController: UIViewController, UITextFieldDelegate {
                 
                 self.performSegue(withIdentifier: "showGame", sender: self.gameCode)
             }
-
+            
         case .roundResults:
             print("[ROUND_RESULTS] Round finished")
             
@@ -355,9 +368,10 @@ class DuelMatchingViewController: UIViewController, UITextFieldDelegate {
             print("[FINISHED] Game over")
             break
         }
-
+        
     }
-
+    
+    // Applies host-selected game settings to the guest player's lobby interface.
     private func applyRemoteSettings(_ game: Game) {
         print("[GUEST_SETTINGS] Applying remote settings from host")
         
@@ -378,7 +392,7 @@ class DuelMatchingViewController: UIViewController, UITextFieldDelegate {
         }
     }
     
-    
+    // Applies host-selected game settings to the guest player's lobby interface.
     private func animatePlayerTwoJoining() {
         print("[ANIMATION] Animating player 2 joining the lobby")
         
@@ -400,6 +414,7 @@ class DuelMatchingViewController: UIViewController, UITextFieldDelegate {
         }
     }
     
+    // Animates the second player's appearance when they join the lobby.
     func settingOptionAdd(button: UIButton, options: [(String, UIColor)], key: String) {
         var actions: [UIAction] = []
         for option in options {
@@ -408,12 +423,12 @@ class DuelMatchingViewController: UIViewController, UITextFieldDelegate {
                 self.settingOptionsAnswers[key] = option.0
                 button.configuration?.title = option.0
                 button.configuration?.titleTextAttributesTransformer =
-                    UIConfigurationTextAttributesTransformer { attributes in
-                        var result = attributes
-                        result.font = UIFont.systemFont(ofSize: 15, weight: .semibold)
-                        result.foregroundColor = option.1
-                        return result
-                    }
+                UIConfigurationTextAttributesTransformer { attributes in
+                    var result = attributes
+                    result.font = UIFont.systemFont(ofSize: 15, weight: .semibold)
+                    result.foregroundColor = option.1
+                    return result
+                }
                 self.pushSetting(key: key, value: option.0)
             }
             actions.append(element)
@@ -422,12 +437,13 @@ class DuelMatchingViewController: UIViewController, UITextFieldDelegate {
         button.showsMenuAsPrimaryAction = true
     }
     
+    // Creates a dropdown menu for a lobby setting button and handles selection changes.
     private func pushSetting(key: String, value: String) {
         guard isCreating else {
             print("[SETTINGS] Guest attempted to change settings - blocked")
             return
         }
-
+        
         var update: [String: Any] = [:]
         switch key {
         case "Playlist":
@@ -444,7 +460,7 @@ class DuelMatchingViewController: UIViewController, UITextFieldDelegate {
         default:
             return
         }
-
+        
         print("[HOST_SETTINGS] Updating \(key) to '\(value)'")
         Task {
             do {
@@ -456,11 +472,13 @@ class DuelMatchingViewController: UIViewController, UITextFieldDelegate {
         }
     }
     
+    // Sends updated host-selected settings to Firebase and updates local playlist data.
     private func setSettingsEnabled(_ enabled: Bool) {
         playlistButtonLabel.isEnabled = enabled
         roundsButtonLabel.isEnabled = enabled
     }
     
+    // Enables or disables lobby setting controls depending on the player's role.
     @IBAction func continueButtonPressed(_ sender: Any) {
         print("[HOST] Continue button pressed - starting game!")
         print("   - Current gameCode: \(gameCode ?? "nil")")
@@ -486,6 +504,7 @@ class DuelMatchingViewController: UIViewController, UITextFieldDelegate {
         }
     }
     
+    // Starts the multiplayer game after the host confirms the lobby is ready.
     @IBAction func joinButtonPressed(_ sender: Any) {
         print("[GUEST] Join button PRESSED!")
         print("   - Button sender: \(sender)")
@@ -540,6 +559,7 @@ class DuelMatchingViewController: UIViewController, UITextFieldDelegate {
         }
     }
     
+    // Allows a guest player to join an existing multiplayer game using an invite code.
     @IBAction func segmentControlAction(_ sender: UISegmentedControl) {
         print("[SEGMENT] Segment changed to index: \(sender.selectedSegmentIndex)")
         
@@ -552,12 +572,14 @@ class DuelMatchingViewController: UIViewController, UITextFieldDelegate {
         }
     }
     
+    // Switches between invite and join modes in the multiplayer lobby.
     private func showAlert(title: String, message: String) {
         let alert = UIAlertController(title: title, message: message, preferredStyle: .alert)
         alert.addAction(UIAlertAction(title: "OK", style: .default))
         present(alert, animated: true)
     }
     
+    // Displays an alert message to inform the user of errors or important events.
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
         if segue.identifier == "showGame",
            let vc = segue.destination as? GameViewController,
@@ -567,7 +589,7 @@ class DuelMatchingViewController: UIViewController, UITextFieldDelegate {
         }
     }
     
-    
+    // Passes the multiplayer game code to the game screen during navigation.
     private func showInviteMode() {
         print("[MODE] Switching to INVITE mode")
         isCreating = true
@@ -597,6 +619,7 @@ class DuelMatchingViewController: UIViewController, UITextFieldDelegate {
         }
     }
     
+    // Configures the lobby for creating a new game and generates an invite code.
     private func showJoinMode() {
         print("[MODE] Switching to JOIN mode")
         isCreating = false
@@ -632,7 +655,7 @@ class DuelMatchingViewController: UIViewController, UITextFieldDelegate {
         }
     }
     
-    
+    // Restricts invite code input to valid uppercase letters and numbers while formatting input.
     func textField(_ textField: UITextField, shouldChangeCharactersIn range: NSRange, replacementString string: String) -> Bool {
         guard textField == inviteJoinTextField else { return true }
         
@@ -647,7 +670,6 @@ class DuelMatchingViewController: UIViewController, UITextFieldDelegate {
             textField.text = updatedText
             return false
         }
-        
         return characterSet.isSubset(of: allowedCharacters)
     }
 }

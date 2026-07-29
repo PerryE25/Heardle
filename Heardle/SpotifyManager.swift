@@ -15,12 +15,6 @@ import FirebaseFunctions
 import Foundation
 import SpotifyLogin
 
-protocol SpotifyManagerDelegate {
-    func spotifyLoadingStarted()
-    func spotifyLoginSucceeded()
-    func spotifyLoginFailed(error: Error?)
-}
-
 let spotifyManager = SpotifyManager()
 
 // Manages Spotify authentication and Firebase sign-in/connection flows.
@@ -50,9 +44,7 @@ class SpotifyManager: NSObject, SessionManagerDelegate {
     }
 
     var delegate: SpotifyManagerDelegate?
-
     var sessionManager: SessionManager!
-
     var connectingExistingAccount = false
 
     // Initializes the Spotify session manager with client credentials.
@@ -93,7 +85,6 @@ class SpotifyManager: NSObject, SessionManagerDelegate {
             with: scopes,
             authorizationFlow: .default
         )
-
     }
 
     // Forwards the OAuth callback URL to the session manager.
@@ -233,6 +224,7 @@ class SpotifyManager: NSObject, SessionManagerDelegate {
             }
         }
     }
+    
     // Connects Spotify to an existing Firebase account and finalizes setup.
     func connectSpotify(spotifyAccessToken: String) {
         print("connecting spotify")

@@ -12,6 +12,7 @@
 import UIKit
 import AVFoundation
 
+// Displays the results screen after a solo game has finished.
 class SoloGameResultsViewController: UIViewController {
     
     @IBOutlet weak var progressStack: UIStackView!
@@ -37,11 +38,12 @@ class SoloGameResultsViewController: UIViewController {
     var progressBlocks: [UIView] = []
     var totalTries: Int { clipDurations.count }
     
+    // Sets up the results screen when the view is first loaded.
     override func viewDidLoad() {
         super.viewDidLoad()
-        
     }
     
+    // Updates the interface with the completed game's results before the view appears.
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         
@@ -50,6 +52,7 @@ class SoloGameResultsViewController: UIViewController {
             return
         }
         
+        totalAttempts += 1  // Off by one error fix
         startButtonAnimation()
         setupProgressBlocks()
         
@@ -111,14 +114,15 @@ class SoloGameResultsViewController: UIViewController {
         playButtonButtonPressed(self)
     }
     
+    // Stops audio playback and releases the audio player before the view disappears.
     override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
         // Stop the audio when leaving this screen
         audioPlayer?.pause()
         audioPlayer = nil
-        print("[RESULTS] Audio stopped and player cleaned up")
     }
     
+    // Cleans up audio resources when the view controller is deallocated.
     deinit {
         // Additional cleanup when the view controller is deallocated
         audioPlayer?.pause()
@@ -126,23 +130,25 @@ class SoloGameResultsViewController: UIViewController {
         print("[RESULTS] SoloGameResultsViewController deallocated")
     }
     
+    // Stops the Continue button animation when the button is pressed.
     @IBAction func continueButtonTouchDown(_ sender: Any) {
         stopButtonAnimation()
     }
     
+    // Restarts the Continue button animation when the button is released.
     @IBAction func continueButtonTouchUp(_ sender: Any) {
         startButtonAnimation()
     }
     
+    // Plays or pauses the song preview when the Play button is tapped.
     @IBAction func playButtonButtonPressed(_ sender: Any) {
         UIView.performWithoutAnimation {
             playButton.isSelected.toggle()
         }
         if playButton.isSelected {
             audioPlayer?.play()
-            print(currentSong?.audioURL.absoluteString ?? "test")
         }
-        else{
+        else {
             audioPlayer?.pause()
         }
     }
@@ -182,6 +188,7 @@ class SoloGameResultsViewController: UIViewController {
         continueButton.layer.add(radiusAnimation, forKey: "glowRadius")
     }
     
+    // Creates the text that will be shared through the system share sheet.
     func makeShareText() -> String {
         let filled = didWin ? totalAttempts : totalTries
         let blocks = (1...totalTries).map { num -> String in
@@ -210,6 +217,7 @@ class SoloGameResultsViewController: UIViewController {
         }
     }
     
+    // Opens the system share sheet to share the game results.
     @IBAction func shareButtonPressed(_ sender: Any) {
         let vc = UIActivityViewController(activityItems: [makeShareText()],
                                           applicationActivities: nil)
@@ -217,6 +225,7 @@ class SoloGameResultsViewController: UIViewController {
         present(vc, animated: true)
     }
     
+    // Stops the glowing animation on the Continue button.
     func stopButtonAnimation() {
         continueButton.layer.removeAllAnimations()
         UIView.animate(withDuration: 0.2) {
@@ -247,6 +256,7 @@ class SoloGameResultsViewController: UIViewController {
         }
     }
     
+    // Creates a blurred version of the album artwork for the background.
     func createAmbientBackground(image: UIImage) -> UIImage {
         let ciImage = CIImage(image: image)!
         

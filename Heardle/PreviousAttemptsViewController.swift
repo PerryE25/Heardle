@@ -11,11 +11,11 @@
 
 import UIKit
 
+// A class to help user see all previous wrong song guesses
 class PreviousAttemptsViewController: UIViewController, UITableViewDelegate, UITableViewDataSource {
+    
     @IBOutlet weak var exitButton: UIButton!
-    
     @IBOutlet weak var tableView: UITableView!
-    
     @IBOutlet weak var prevGuessesTitle: UILabel!
     
     // This will hold only the actual failed guesses, no nils.
@@ -36,12 +36,13 @@ class PreviousAttemptsViewController: UIViewController, UITableViewDelegate, UIT
         prevGuessesTitle.font = UIFont.systemFont(ofSize: 20, weight: .bold)
     }
     
+    // Let there be only valid guesses as total rows
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         return validGuesses.count
     }
     
+    // Return the cell with song info
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        
         let cell = tableView.dequeueReusableCell(withIdentifier: cellID, for: indexPath)
         let song = validGuesses[indexPath.row]
         var content = cell.defaultContentConfiguration()

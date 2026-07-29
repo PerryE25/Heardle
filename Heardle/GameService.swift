@@ -3,6 +3,10 @@
 //  Heardle
 //
 //  Created by Sanchez, Victor J on 7/24/26.
+//  Project: Heardle
+//  Team Number: 3
+//  Team Members: Jeremiah Franklin, Victor Sanchez, Haroon Memon, Perry Ehimuh
+//  Course: CS371L
 //
 
 import Foundation
@@ -10,6 +14,7 @@ import FirebaseCore
 import FirebaseAuth
 import FirebaseFirestore
 
+// Represents possible errors that can occur during game operations.
 enum GameError: LocalizedError {
     case notSignedIn
     case gameNotFound
@@ -32,11 +37,12 @@ enum GameError: LocalizedError {
             return "No songs available"
         case .invalidSongData:
             return "That song is missing data needed to play"
-        
+            
         }
     }
 }
 
+// Provides shared Firebase services for creating, joining, and managing games.
 final class GameService {
     static let shared = GameService()
     private let db = Firestore.firestore()
@@ -47,12 +53,14 @@ final class GameService {
         
     }
     
+    // Generates a unique game code used for joining multiplayer games.
     func generateCode() -> String {
         String((0..<Self.codeLength).map { _ in
             Self.alphabet.randomElement()!
         })
     }
     
+    // Selects a random song from the available playlist.
     func pickRandomSong(playlist: [Song]) throws -> Song {
         guard let song = playlist.randomElement() else {
             throw GameError.noSongsAvailable
@@ -60,11 +68,12 @@ final class GameService {
         return song
     }
     
+    // Creates a new multiplayer game and stores it in Firestore.
     func createGame(code: String) async throws {
         guard let uid = Auth.auth().currentUser?.uid else {
             throw GameError.notSignedIn
         }
-
+        
         let game = Game(
             hostId: uid,
             status: .waiting,
@@ -77,7 +86,7 @@ final class GameService {
             playerReadyForNext: [:],
             playerRoundsWon: [uid: 0]
         )
-
+        
         try await withCheckedThrowingContinuation { (cont: CheckedContinuation<Void, Error>) in
             do {
                 try db.collection("games").document(code).setData(from: game) { error in
@@ -87,6 +96,7 @@ final class GameService {
         }
     }
     
+    // Retrieves a multiplayer game from Firestore using its game code.
     func fetchGame(code: String) async throws -> Game {
         let snapshot = try await db.collection("games")
             .document(code)
@@ -98,6 +108,7 @@ final class GameService {
         return try snapshot.data(as: Game.self)
     }
     
+    // Allows a player to join an existing multiplayer game.
     func joinGame(code: String) async throws -> Game {
         guard let uid = Auth.auth().currentUser?.uid else {
             throw GameError.notSignedIn
@@ -164,6 +175,7 @@ final class GameService {
         return try await fetchGame(code: normalized)
     }
     
+    // Observes real-time updates for a multiplayer game.
     func observeGame(
         code: String,
         onChange: @escaping (Result<Game, Error>) -> Void) -> ListenerRegistration {
@@ -183,28 +195,30 @@ final class GameService {
                     onChange(.failure(error))
                 }
             }
-    }
+        }
     
+    // Updates configurable game settings in Firestore.
     func updateSettings(code: String, settings: [String: Any]) async throws {
         try await db.collection("games").document(code).updateData(settings)
     }
-
+    
+    // Starts a multiplayer game by selecting the first song and updating game state.
     func startGame(code: String, playlist: [Song]) async throws {
         guard let uid = Auth.auth().currentUser?.uid else {
             throw GameError.notSignedIn
         }
-
+        
         let game = try await fetchGame(code: code)
-
+        
         guard game.hostId == uid else { throw GameError.cannotJoinOwnGame }
         guard game.guestId != nil else { throw GameError.gameNotFound }
-
+        
         let song = try pickRandomSong(playlist: playlist)
         guard let songTrackId = song.trackId,
               let songPreviewURL = song.previewURL else {
             throw GameError.invalidSongData
         }
-
+        
         try await db.collection("games").document(code).updateData([
             "trackId": String(songTrackId),
             "trackTitle": song.name,
@@ -217,119 +231,24 @@ final class GameService {
         ])
     }
     
+    // Records a player's current attempt count in Firestore.
     func recordAttempt(code: String, attempt: Int) async throws {
-            guard let uid = Auth.auth().currentUser?.uid else {
-                throw GameError.notSignedIn
-            }
-            try await db.collection("games").document(code).updateData([
-                "playerAttempt.\(uid)": attempt
-            ])
-        }
-
-        func recordFinish(code: String, won: Bool) async throws {
-            guard let uid = Auth.auth().currentUser?.uid else {
-                throw GameError.notSignedIn
-            }
-
-            let ref = db.collection("games").document(code)
-
-            _ = try await db.runTransaction { transaction, errorPointer -> Any? in
-                let snapshot: DocumentSnapshot
-                do {
-                    snapshot = try transaction.getDocument(ref)
-                } catch let error as NSError {
-                    errorPointer?.pointee = error
-                    return nil
-                }
-
-                guard let data = snapshot.data() else { return nil }
-
-                var statuses = data["playerStatus"] as? [String: String] ?? [:]
-                statuses[uid] = won ? PlayerStatus.won.rawValue : PlayerStatus.lost.rawValue
-
-                var update: [String: Any] = [
-                    "playerStatus.\(uid)": statuses[uid]!,
-                    "playerFinishedAt.\(uid)": FieldValue.serverTimestamp()
-                ]
-
-                let hostId = data["hostId"] as? String
-                let guestId = data["guestId"] as? String
-                let seats = [hostId, guestId].compactMap { $0 }
-
-                let everyoneDone = seats.count == 2 && seats.allSatisfy {
-                    statuses[$0] != nil && statuses[$0] != PlayerStatus.playing.rawValue
-                }
-                
-                if everyoneDone {
-                    // Determine round winner based on attempts
-                    let playerAttempts = data["playerAttempt"] as? [String: Int] ?? [:]
-                    
-                    guard let hostId = hostId, let guestId = guestId else { return nil }
-                    
-                    let hostAttempts = playerAttempts[hostId] ?? 999
-                    let guestAttempts = playerAttempts[guestId] ?? 999
-                    let hostWon = statuses[hostId] == PlayerStatus.won.rawValue
-                    let guestWon = statuses[guestId] == PlayerStatus.won.rawValue
-                    
-                    var currentRoundsWon = data["playerRoundsWon"] as? [String: Int] ?? [:]
-                    let hostCurrentWins = currentRoundsWon[hostId] ?? 0
-                    let guestCurrentWins = currentRoundsWon[guestId] ?? 0
-                    
-                    // Scoring logic:
-                    // - Both wrong: no points
-                    // - Both correct with same attempts: TIE - both get 1 point
-                    // - Both correct with different attempts: fewest attempts wins 1 point
-                    // - Only one correct: that player gets 1 point
-                    
-                    if hostWon && guestWon {
-                        // Both got it right
-                        if hostAttempts == guestAttempts {
-                            // TIE - both gain 1 point
-                            update["playerRoundsWon.\(hostId)"] = hostCurrentWins + 1
-                            update["playerRoundsWon.\(guestId)"] = guestCurrentWins + 1
-                        } else if hostAttempts < guestAttempts {
-                            // Host wins (fewer attempts)
-                            update["playerRoundsWon.\(hostId)"] = hostCurrentWins + 1
-                        } else {
-                            // Guest wins (fewer attempts)
-                            update["playerRoundsWon.\(guestId)"] = guestCurrentWins + 1
-                        }
-                    } else if hostWon {
-                        // Only host got it right
-                        update["playerRoundsWon.\(hostId)"] = hostCurrentWins + 1
-                    } else if guestWon {
-                        // Only guest got it right
-                        update["playerRoundsWon.\(guestId)"] = guestCurrentWins + 1
-                    }
-                    // else: both lost - no points awarded
-                    
-                    update["status"] = GameStatus.roundResults.rawValue
-                    
-                    for seat in seats {
-                        update["playerReadyForNext.\(seat)"] = false
-                    }
-                }
-
-                transaction.updateData(update, forDocument: ref)
-                return nil
-            }
-        }
-    
-    func markReady(code: String, playlist: [Song]) async throws {
         guard let uid = Auth.auth().currentUser?.uid else {
             throw GameError.notSignedIn
         }
-
-        // Picked up front; only used if this call completes the pair
-        // and rounds remain. Transactions can retry, so the closure stays pure.
-        let candidate = try pickRandomSong(playlist: playlist)
-        guard let candidateId = candidate.trackId,
-              let candidateURL = candidate.previewURL else {
-            throw GameError.invalidSongData
+        try await db.collection("games").document(code).updateData([
+            "playerAttempt.\(uid)": attempt
+        ])
+    }
+    
+    // Records a player's completed round result and updates scoring.
+    func recordFinish(code: String, won: Bool) async throws {
+        guard let uid = Auth.auth().currentUser?.uid else {
+            throw GameError.notSignedIn
         }
-
+        
         let ref = db.collection("games").document(code)
-
+        
         _ = try await db.runTransaction { transaction, errorPointer -> Any? in
             let snapshot: DocumentSnapshot
             do {
@@ -338,29 +257,127 @@ final class GameService {
                 errorPointer?.pointee = error
                 return nil
             }
-
+            
             guard let data = snapshot.data() else { return nil }
-
-            var readyStates = data["playerReadyForNext"] as? [String: Bool] ?? [:]
-            readyStates[uid] = true
-
+            
+            var statuses = data["playerStatus"] as? [String: String] ?? [:]
+            statuses[uid] = won ? PlayerStatus.won.rawValue : PlayerStatus.lost.rawValue
+            
+            var update: [String: Any] = [
+                "playerStatus.\(uid)": statuses[uid]!,
+                "playerFinishedAt.\(uid)": FieldValue.serverTimestamp()
+            ]
+            
             let hostId = data["hostId"] as? String
             let guestId = data["guestId"] as? String
             let seats = [hostId, guestId].compactMap { $0 }
-
+            
+            let everyoneDone = seats.count == 2 && seats.allSatisfy {
+                statuses[$0] != nil && statuses[$0] != PlayerStatus.playing.rawValue
+            }
+            
+            if everyoneDone {
+                // Determine round winner based on attempts
+                let playerAttempts = data["playerAttempt"] as? [String: Int] ?? [:]
+                
+                guard let hostId = hostId, let guestId = guestId else { return nil }
+                
+                let hostAttempts = playerAttempts[hostId] ?? 999
+                let guestAttempts = playerAttempts[guestId] ?? 999
+                let hostWon = statuses[hostId] == PlayerStatus.won.rawValue
+                let guestWon = statuses[guestId] == PlayerStatus.won.rawValue
+                
+                var currentRoundsWon = data["playerRoundsWon"] as? [String: Int] ?? [:]
+                let hostCurrentWins = currentRoundsWon[hostId] ?? 0
+                let guestCurrentWins = currentRoundsWon[guestId] ?? 0
+                
+                // Scoring logic:
+                // - Both wrong: no points
+                // - Both correct with same attempts: TIE - both get 1 point
+                // - Both correct with different attempts: fewest attempts wins 1 point
+                // - Only one correct: that player gets 1 point
+                
+                if hostWon && guestWon {
+                    // Both got it right
+                    if hostAttempts == guestAttempts {
+                        // TIE - both gain 1 point
+                        update["playerRoundsWon.\(hostId)"] = hostCurrentWins + 1
+                        update["playerRoundsWon.\(guestId)"] = guestCurrentWins + 1
+                    } else if hostAttempts < guestAttempts {
+                        // Host wins (fewer attempts)
+                        update["playerRoundsWon.\(hostId)"] = hostCurrentWins + 1
+                    } else {
+                        // Guest wins (fewer attempts)
+                        update["playerRoundsWon.\(guestId)"] = guestCurrentWins + 1
+                    }
+                } else if hostWon {
+                    // Only host got it right
+                    update["playerRoundsWon.\(hostId)"] = hostCurrentWins + 1
+                } else if guestWon {
+                    // Only guest got it right
+                    update["playerRoundsWon.\(guestId)"] = guestCurrentWins + 1
+                }
+                // else: both lost - no points awarded
+                
+                update["status"] = GameStatus.roundResults.rawValue
+                
+                for seat in seats {
+                    update["playerReadyForNext.\(seat)"] = false
+                }
+            }
+            
+            transaction.updateData(update, forDocument: ref)
+            return nil
+        }
+    }
+    
+    // Marks a player as ready and starts the next round when both players are ready.
+    func markReady(code: String, playlist: [Song]) async throws {
+        guard let uid = Auth.auth().currentUser?.uid else {
+            throw GameError.notSignedIn
+        }
+        
+        // Picked up front; only used if this call completes the pair
+        // and rounds remain. Transactions can retry, so the closure stays pure.
+        let candidate = try pickRandomSong(playlist: playlist)
+        guard let candidateId = candidate.trackId,
+              let candidateURL = candidate.previewURL else {
+            throw GameError.invalidSongData
+        }
+        
+        let ref = db.collection("games").document(code)
+        
+        _ = try await db.runTransaction { transaction, errorPointer -> Any? in
+            let snapshot: DocumentSnapshot
+            do {
+                snapshot = try transaction.getDocument(ref)
+            } catch let error as NSError {
+                errorPointer?.pointee = error
+                return nil
+            }
+            
+            guard let data = snapshot.data() else { return nil }
+            
+            var readyStates = data["playerReadyForNext"] as? [String: Bool] ?? [:]
+            readyStates[uid] = true
+            
+            let hostId = data["hostId"] as? String
+            let guestId = data["guestId"] as? String
+            let seats = [hostId, guestId].compactMap { $0 }
+            
             let allReady = seats.count == 2 && seats.allSatisfy { readyStates[$0] == true }
-
+            
             var update: [String: Any] = [
                 "playerReadyForNext.\(uid)": true
             ]
-
+            
             if allReady {
                 let currentRound = data["currentRound"] as? Int ?? 0
                 let totalRounds = data["totalRounds"] as? Int ?? 1
                 
                 print("🎲 [GAME SERVICE] Both players ready!")
                 print("   Current round: \(currentRound), Total rounds: \(totalRounds)")
-
+                
                 // Check if we've completed all rounds
                 if currentRound >= totalRounds {
                     print("🏁 [GAME SERVICE] All rounds complete, marking game as finished")
@@ -377,7 +394,7 @@ final class GameService {
                     update["status"] = GameStatus.playing.rawValue
                     update["currentRound"] = currentRound + 1
                     update["roundStartedAt"] = FieldValue.serverTimestamp()
-
+                    
                     for seat in seats {
                         update["playerAttempt.\(seat)"] = 0
                         update["playerStatus.\(seat)"] = PlayerStatus.playing.rawValue
@@ -386,12 +403,13 @@ final class GameService {
                     update["playerFinishedAt"] = [String: Any]()
                 }
             }
-
+            
             transaction.updateData(update, forDocument: ref)
             return nil
         }
     }
     
+    // Starts the next round of a multiplayer game.
     func startNextRound(code: String, playlist: [Song]) async throws {
         let game = try await fetchGame(code: code)
         
@@ -436,6 +454,7 @@ final class GameService {
         try await db.collection("games").document(code).updateData(update)
     }
     
+    // Ends a multiplayer game and updates its status to finished.
     func endGame(code: String) async throws {
         guard Auth.auth().currentUser?.uid != nil else {
             throw GameError.notSignedIn

@@ -19,13 +19,14 @@ import UIKit
 
 var gameUser = GameUser(displayName: "User25", points: 0, displayImage: nil)
 
-// A class for the home screen of the app
+// Displays the home screen and manages the user's profile information.
 class HomeViewController: UIViewController {
     
     @IBOutlet weak var displayNameLabel: UILabel!
     @IBOutlet weak var displayImageView: UIImageView!
     @IBOutlet weak var displayPtsButton: UIButton!
     
+    // Displays the home screen and manages the user's profile information.
     override func viewDidLoad() {
         super.viewDidLoad()
         
@@ -34,6 +35,7 @@ class HomeViewController: UIViewController {
         displayImageView.layer.cornerRadius = displayImageView.frame.width / 2
     }
     
+    // Refreshes the user's profile information whenever the view appears.
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         loadDisplayName()
@@ -117,6 +119,7 @@ class HomeViewController: UIViewController {
             }
     }
     
+    // Loads the user's point total from Firestore and updates the display.
     func loadPoints() {
         guard let user = Auth.auth().currentUser else { return }
         
@@ -136,10 +139,10 @@ class HomeViewController: UIViewController {
     }
     
     // Unwind segue action for returning to home from game results
-    @IBAction func unwindToHome(_ unwindSegue: UIStoryboardSegue) {
-        // This method allows other view controllers to unwind back to HomeViewController
-        print("[HOME] Unwound back to home from \(type(of: unwindSegue.source))")
-        // Any cleanup or refresh logic can go here
-    }
+        @IBAction func unwindToHome(_ unwindSegue: UIStoryboardSegue) {
+            // This method allows other view controllers to unwind back to HomeViewController
+            print("[HOME] Unwound back to home from \(type(of: unwindSegue.source))")
+            // Any cleanup or refresh logic can go here
+        }
 
 }

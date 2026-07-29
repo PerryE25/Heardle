@@ -19,16 +19,10 @@ class Song {
     var album: String
     var audioURL: URL!
     var albumArt: URL!
-    //    var audioData: Data?
     var albumArtData: Data?
-    
-    // Firebase Storage metadata
-    var firebaseStorageAudioURL: URL?
-    var firebaseStorageArtworkURL: URL?
     
     // iTunes metadata
     var trackId: Int?
-    var genre: String?
     var previewURL: String?
     var itunesArtworkURL: String?
     

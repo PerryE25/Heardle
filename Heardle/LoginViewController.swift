@@ -18,72 +18,11 @@ import FirebaseCore
 // Handles user login via Spotify, Google, and email/password.
 class LoginViewController: UIViewController, SpotifyManagerDelegate {
 
-    private var spotifyLoadingAlert: UIAlertController?
-
-    // Presents a loading alert while Spotify songs are being prepared.
-    func spotifyLoadingStarted() {
-        let alert = UIAlertController(
-            title: "Loading Your Spotify Songs...",
-            message: "This may take a few seconds.",
-            preferredStyle: .alert
-        )
-
-        spotifyLoadingAlert = alert
-        present(alert, animated: true)
-    }
-
-    // Dismisses the loading alert (if shown) and presents an error.
-    func spotifyLoginFailed(error: Error?) {
-        let message = error?.localizedDescription ?? "Spotify login failed."
-
-        if let alert = spotifyLoadingAlert {
-            alert.dismiss(animated: true) {
-                self.spotifyLoadingAlert = nil
-                self.showError(message)
-            }
-        } else {
-            showError(message)
-        }
-    }
-
     @IBOutlet weak var spotifyButton: UIButton!
     @IBOutlet weak var googleButton: UIButton!
     @IBOutlet weak var appleButton: UIButton!
     
-    // Starts the Spotify login flow.
-    @IBAction func spotifyButtonPressed(_ sender: Any) {
-        spotifyManager.login()
-    }
-
-    // Prompts the user to log in with email and password.
-    @IBAction func emailLoginButtonPressed(_ sender: Any) {
-        presentEmailLoginAlert()
-    }
-    
-    // Starts the Google sign-in flow and signs into Firebase.
-    @IBAction func googleButtonPressed(_ sender: Any) {
-        guard let clientID = FirebaseApp.app()?.options.clientID else { return }
-        GIDSignIn.sharedInstance.configuration = GIDConfiguration(clientID: clientID)
-        GIDSignIn.sharedInstance.signIn(withPresenting: self){ result, error in
-            guard error == nil else{
-                return
-            }
-            guard let user = result?.user, let idToken = user.idToken?.tokenString else { return }
-            
-            let credential = GoogleAuthProvider.credential(withIDToken: idToken, accessToken: user.accessToken.tokenString)
-            
-            Auth.auth().signIn(with: credential) { authResult, error in
-                guard error == nil else {
-                    return
-                }
-                guard let user = authResult?.user else{
-                    return
-                }
-                self.checkSpotifyConnection(for: user, loginProvider: "google")
-            }
-            
-        }
-    }
+    private var spotifyLoadingAlert: UIAlertController?
     
     // Configures UI elements and sets up third-party login button icons.
     override func viewDidLoad() {
@@ -125,6 +64,67 @@ class LoginViewController: UIViewController, SpotifyManagerDelegate {
             appleButton.layer.borderColor = UIColor.darkGray.cgColor
             appleButton.layer.borderWidth = 1.0
             appleButton.layer.cornerRadius = 6
+        }
+    }
+    
+    // Presents a loading alert while Spotify songs are being prepared.
+    func spotifyLoadingStarted() {
+        let alert = UIAlertController(
+            title: "Loading Your Spotify Songs...",
+            message: "This may take a few seconds.",
+            preferredStyle: .alert
+        )
+
+        spotifyLoadingAlert = alert
+        present(alert, animated: true)
+    }
+
+    // Dismisses the loading alert (if shown) and presents an error.
+    func spotifyLoginFailed(error: Error?) {
+        let message = error?.localizedDescription ?? "Spotify login failed."
+
+        if let alert = spotifyLoadingAlert {
+            alert.dismiss(animated: true) {
+                self.spotifyLoadingAlert = nil
+                self.showError(message)
+            }
+        } else {
+            showError(message)
+        }
+    }
+    
+    // Starts the Spotify login flow.
+    @IBAction func spotifyButtonPressed(_ sender: Any) {
+        spotifyManager.login()
+    }
+
+    // Prompts the user to log in with email and password.
+    @IBAction func emailLoginButtonPressed(_ sender: Any) {
+        presentEmailLoginAlert()
+    }
+    
+    // Starts the Google sign-in flow and signs into Firebase.
+    @IBAction func googleButtonPressed(_ sender: Any) {
+        guard let clientID = FirebaseApp.app()?.options.clientID else { return }
+        GIDSignIn.sharedInstance.configuration = GIDConfiguration(clientID: clientID)
+        GIDSignIn.sharedInstance.signIn(withPresenting: self){ result, error in
+            guard error == nil else{
+                return
+            }
+            guard let user = result?.user, let idToken = user.idToken?.tokenString else { return }
+            
+            let credential = GoogleAuthProvider.credential(withIDToken: idToken, accessToken: user.accessToken.tokenString)
+            
+            Auth.auth().signIn(with: credential) { authResult, error in
+                guard error == nil else {
+                    return
+                }
+                guard let user = authResult?.user else{
+                    return
+                }
+                self.checkSpotifyConnection(for: user, loginProvider: "google")
+            }
+            
         }
     }
     
@@ -286,6 +286,5 @@ class LoginViewController: UIViewController, SpotifyManagerDelegate {
     private func goHome() {
         performSegue(withIdentifier: "loginToHomeSegue", sender: self)
     }
-
 }
 

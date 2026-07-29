@@ -11,6 +11,7 @@
 
 import UIKit
 
+// A class to show feedback of an incorrect guess
 class WrongGuessViewController: UIViewController {
     @IBOutlet weak var xMark1: UIImageView!
     @IBOutlet weak var xMark2: UIImageView!

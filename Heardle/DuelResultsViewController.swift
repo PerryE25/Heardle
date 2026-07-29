@@ -13,13 +13,15 @@ import UIKit
 import FirebaseAuth
 import FirebaseFirestore
 
+// Represents the result of one completed round, including the song played and both players' scores.
 struct RoundResult {
     let song: Song
     let myScore: Int
     let opponentScore: Int
 }
 
-// Displays duel results, scores, and a breakdown list for both players.
+// Stores and displays duel results, manages round transitions, tracks opponent readiness,
+// and shows the match history between players.
 class DuelResultsViewController: UIViewController, UITableViewDelegate, UITableViewDataSource {
 
     @IBOutlet weak var tableView: UITableView!
@@ -47,8 +49,13 @@ class DuelResultsViewController: UIViewController, UITableViewDelegate, UITableV
     var myRoundsWon = 0
     var opponentRoundsWon = 0
     
-    var matchResultList: [RoundResult] = [] // List of correct songs from each round
+    // Stores the list of songs and scores from completed rounds for the match breakdown display.
+    var matchResultList: [RoundResult] = []
+
+    // Provides the current player's total round wins.
     var player1ScoreValue: Int { myRoundsWon }
+
+    // Provides the opponent's total round wins.
     var player2ScoreValue: Int { opponentRoundsWon }
     
     let textCellIdentifier = "TextCell"
@@ -60,6 +67,8 @@ class DuelResultsViewController: UIViewController, UITableViewDelegate, UITableV
     private var hasMarkedReady = false
     private var hasTransitioned = false
     
+    // Configures the results screen, initializes table view delegates,
+    // updates UI styling, starts multiplayer observers, and begins automatic continuation handling.
     override func viewDidLoad() {
         super.viewDidLoad()
         tableView.delegate = self
@@ -102,11 +111,13 @@ class DuelResultsViewController: UIViewController, UITableViewDelegate, UITableV
         }
     }
     
+    // Removes active listeners and invalidates timers when the view controller is released.
     deinit {
         listener?.remove()
         autoContinueTimer?.invalidate()
     }
     
+    // Updates button visibility based on whether the duel has ended or another round can continue.
     private func configureButtonVisibility() {
         if isGameComplete {
             continueButtonLabel.isHidden = true
@@ -117,10 +128,13 @@ class DuelResultsViewController: UIViewController, UITableViewDelegate, UITableV
         }
     }
     
+    // Refreshes the displayed results whenever the view becomes visible.
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         renderResultsUI()
     }
+    
+    // Updates labels, colors, scores, and button appearance based on the duel outcome and game state.
     private func renderResultsUI() {
         if isGameComplete {
             if myRoundsWon > opponentRoundsWon {
@@ -161,6 +175,7 @@ class DuelResultsViewController: UIViewController, UITableViewDelegate, UITableV
         player2ScoreSmall.text = String(player2ScoreValue)
     }
         
+    // Starts listening for Firestore game updates to detect opponent readiness and round changes.
     private func startObserving(code: String) {
         listener = GameService.shared.observeGame(code: code) { [weak self] result in
             guard let self else { return }
@@ -173,6 +188,7 @@ class DuelResultsViewController: UIViewController, UITableViewDelegate, UITableV
         }
     }
     
+    // Processes multiplayer game changes and handles transitions between rounds and final results.
     private func handleGameUpdate(_ game: Game) {
         guard let myUID = Auth.auth().currentUser?.uid else { return }
         let opponentUID = (game.hostId == myUID) ? game.guestId : game.hostId
@@ -219,6 +235,7 @@ class DuelResultsViewController: UIViewController, UITableViewDelegate, UITableV
         }
     }
     
+    // Updates the continue button title based on the current round and whether the opponent is ready.
     private func updateContinueButton() {
         guard !isGameComplete else { return }
         
@@ -242,17 +259,20 @@ class DuelResultsViewController: UIViewController, UITableViewDelegate, UITableV
         }
     }
     
+    // Starts a countdown timer that automatically continues if the player does not press the button.
     private func startAutoContinueTimer() {
         autoContinueTimer = Timer.scheduledTimer(withTimeInterval: autoContinueDelay, repeats: false) { [weak self] _ in
             self?.autoContinue()
         }
     }
     
+    // Automatically triggers the continue action after the timer expires.
     private func autoContinue() {
         guard !isGameComplete, !hasMarkedReady else { return }
         continueButtonPressed(self)
     }
     
+    // Marks the player as ready for the next round or ends the game after the final round.
     @IBAction func continueButtonPressed(_ sender: Any) {
         guard let gameCode else {
             dismiss(animated: true)
@@ -303,38 +323,19 @@ class DuelResultsViewController: UIViewController, UITableViewDelegate, UITableV
         }
     }
     
+    // Have it return home
     @IBAction func homeButtonPressed(_ sender: Any) {
-        guard isGameComplete else { return }
-        
-        print("[DUEL RESULTS] Home button pressed - unwind segue will handle navigation")
-        
-        // The unwind segue connected in the storyboard will automatically
-        // dismiss all the modal view controllers and return to HomeViewController.
-        // No code needed here - the segue handles everything!
-        
-        // Programmatic dismiss code commented out since we're using storyboard unwind segue:
-        /*
-        if let presentingVC = self.presentingViewController?.presentingViewController?.presentingViewController {
-            // We're 3 levels deep: DuelResults -> Game -> DuelMatching -> Home
-            // Dismiss all the way back to Home
-            print("[DUEL RESULTS] Dismissing 3 levels deep")
-            presentingVC.dismiss(animated: true, completion: nil)
-        } else if let presentingVC = self.presentingViewController?.presentingViewController {
-            // Try 2 levels deep
-            print("[DUEL RESULTS] Dismissing 2 levels deep")
-            presentingVC.dismiss(animated: true, completion: nil)
-        } else if let presentingVC = self.presentingViewController {
-            // Try 1 level deep
-            print("[DUEL RESULTS] Dismissing 1 level deep")
-            presentingVC.dismiss(animated: true, completion: nil)
-        } else {
-            // Last resort - just dismiss self
-            print("[DUEL RESULTS] Dismissing self only")
-            self.dismiss(animated: true, completion: nil)
+            guard isGameComplete else { return }
+            
+            print("[DUEL RESULTS] Home button pressed - unwind segue will handle navigation")
+            
+            // The unwind segue connected in the storyboard will automatically
+            // dismiss all the modal view controllers and return to HomeViewController.
+            // No code needed here - the segue handles everything!
+
         }
-        */
-    }
     
+    // Passes multiplayer game information and round history to the next game screen.
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
         if segue.identifier == "gameViewFromResult" {
             if let gameVC = segue.destination as? GameViewController {
@@ -353,10 +354,12 @@ class DuelResultsViewController: UIViewController, UITableViewDelegate, UITableV
         }
     }
     
+    // Returns the number of completed rounds displayed in the match history table.
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         return matchResultList.count
     }
     
+    // Configures each match history table cell with round information, artwork, and score results.
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: textCellIdentifier, for: indexPath) as! DuelResultsCustomTableViewCell
         
@@ -403,6 +406,7 @@ class DuelResultsViewController: UIViewController, UITableViewDelegate, UITableV
         return cell
     }
     
+    // Downloads album artwork from a URL and updates the provided image view asynchronously.
     private func loadImage(from url: URL, into imageView: UIImageView) {
         URLSession.shared.dataTask(with: url) { data, response, error in
             guard let data = data, error == nil else { return }
