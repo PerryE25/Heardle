@@ -29,7 +29,7 @@ class SearchViewController: UIViewController, UITableViewDelegate, UITableViewDa
     // Sets up delegates and applies dark appearance for the search experience.
     override func viewDidLoad() {
         super.viewDidLoad()
-
+        
         songTableView.delegate = self
         songTableView.dataSource = self
         searchBar.delegate = self
@@ -41,7 +41,7 @@ class SearchViewController: UIViewController, UITableViewDelegate, UITableViewDa
         super.viewDidAppear(animated)
         searchBar.searchTextField.becomeFirstResponder()
     }
-
+    
     // MARK: - Actions
     
     // Dismisses the search and returns to the game screen.
@@ -68,7 +68,7 @@ class SearchViewController: UIViewController, UITableViewDelegate, UITableViewDa
         if let data = song.albumArtData {
             content.image = UIImage(data: data)
         } else {
-            content.image = UIImage(systemName: "music.note")            
+            content.image = UIImage(systemName: "music.note")
         }
         
         content.imageProperties.cornerRadius = 10
@@ -114,7 +114,7 @@ class SearchViewController: UIViewController, UITableViewDelegate, UITableViewDa
                 await songService.updateAlbumArtData(songs: searchedSongResults)
                 filteredSongs = songs.filter { matchesQuery($0, query: searchText) }
             }
-
+            
             songTableView.reloadData()
         }
     }

@@ -20,7 +20,7 @@ protocol SearchViewDelegate: AnyObject {
 
 // A custom view that detects taps and notifies its delegate to present the full-screen search interface.
 class SearchView: UIView {
-
+    
     weak var delegate: SearchViewDelegate?
     
     // Adds a tap gesture recognizer after the view is loaded from the storyboard.
@@ -30,7 +30,7 @@ class SearchView: UIView {
         let tap = UITapGestureRecognizer(target: self, action: #selector(didTapSearch))
         addGestureRecognizer(tap)
     }
-
+    
     // Notifies the delegate when the search view is tapped.
     @objc private func didTapSearch() {
         delegate?.searchViewDidTapSearch(self)

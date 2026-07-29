@@ -195,7 +195,7 @@ class SoloGameResultsViewController: UIViewController {
             guard num <= filled else { return "⬜" }
             return didWin ? "🟩" : "🟥"
         }.joined()
-
+        
         if didWin {
             var tagline = "Beat that 🔥"
             if totalAttempts > 0, totalAttempts <= clipDurations.count {
@@ -203,14 +203,14 @@ class SoloGameResultsViewController: UIViewController {
             }
             return """
             🎵 Heardle — \(totalAttempts)/\(totalTries)
-
+            
             \(blocks)
             \(tagline)
             """
         } else {
             return """
             🎵 Heardle — X/\(totalTries)
-
+            
             \(blocks)
             This one destroyed me. Your turn.
             """

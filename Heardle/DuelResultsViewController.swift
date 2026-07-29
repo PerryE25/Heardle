@@ -23,7 +23,7 @@ struct RoundResult {
 // Stores and displays duel results, manages round transitions, tracks opponent readiness,
 // and shows the match history between players.
 class DuelResultsViewController: UIViewController, UITableViewDelegate, UITableViewDataSource {
-
+    
     @IBOutlet weak var tableView: UITableView!
     @IBOutlet weak var resultTitle: UILabel!
     @IBOutlet weak var player1Score: UILabel!
@@ -51,10 +51,10 @@ class DuelResultsViewController: UIViewController, UITableViewDelegate, UITableV
     
     // Stores the list of songs and scores from completed rounds for the match breakdown display.
     var matchResultList: [RoundResult] = []
-
+    
     // Provides the current player's total round wins.
     var player1ScoreValue: Int { myRoundsWon }
-
+    
     // Provides the opponent's total round wins.
     var player2ScoreValue: Int { opponentRoundsWon }
     
@@ -174,7 +174,7 @@ class DuelResultsViewController: UIViewController, UITableViewDelegate, UITableV
         player1ScoreSmall.text = String(player1ScoreValue)
         player2ScoreSmall.text = String(player2ScoreValue)
     }
-        
+    
     // Starts listening for Firestore game updates to detect opponent readiness and round changes.
     private func startObserving(code: String) {
         listener = GameService.shared.observeGame(code: code) { [weak self] result in
@@ -325,15 +325,15 @@ class DuelResultsViewController: UIViewController, UITableViewDelegate, UITableV
     
     // Have it return home
     @IBAction func homeButtonPressed(_ sender: Any) {
-            guard isGameComplete else { return }
-            
-            print("[DUEL RESULTS] Home button pressed - unwind segue will handle navigation")
-            
-            // The unwind segue connected in the storyboard will automatically
-            // dismiss all the modal view controllers and return to HomeViewController.
-            // No code needed here - the segue handles everything!
-
-        }
+        guard isGameComplete else { return }
+        
+        print("[DUEL RESULTS] Home button pressed - unwind segue will handle navigation")
+        
+        // The unwind segue connected in the storyboard will automatically
+        // dismiss all the modal view controllers and return to HomeViewController.
+        // No code needed here - the segue handles everything!
+        
+    }
     
     // Passes multiplayer game information and round history to the next game screen.
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {

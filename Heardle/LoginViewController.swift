@@ -17,7 +17,7 @@ import FirebaseCore
 
 // Handles user login via Spotify, Google, and email/password.
 class LoginViewController: UIViewController, SpotifyManagerDelegate {
-
+    
     @IBOutlet weak var spotifyButton: UIButton!
     @IBOutlet weak var googleButton: UIButton!
     @IBOutlet weak var appleButton: UIButton!
@@ -28,7 +28,7 @@ class LoginViewController: UIViewController, SpotifyManagerDelegate {
     override func viewDidLoad() {
         super.viewDidLoad()
         spotifyManager.delegate = self
-        if let icon = UIImage(named: "spotify-xxl"){
+        if let icon = UIImage(named: "spotify-xxl") {
             let size = CGSize(width: 30, height: 30)
             let resized = UIGraphicsImageRenderer(size: size).image { _ in
                 icon.draw(in: CGRect(origin: .zero, size: size))
@@ -74,15 +74,15 @@ class LoginViewController: UIViewController, SpotifyManagerDelegate {
             message: "This may take a few seconds.",
             preferredStyle: .alert
         )
-
+        
         spotifyLoadingAlert = alert
         present(alert, animated: true)
     }
-
+    
     // Dismisses the loading alert (if shown) and presents an error.
     func spotifyLoginFailed(error: Error?) {
         let message = error?.localizedDescription ?? "Spotify login failed."
-
+        
         if let alert = spotifyLoadingAlert {
             alert.dismiss(animated: true) {
                 self.spotifyLoadingAlert = nil
@@ -97,7 +97,7 @@ class LoginViewController: UIViewController, SpotifyManagerDelegate {
     @IBAction func spotifyButtonPressed(_ sender: Any) {
         spotifyManager.login()
     }
-
+    
     // Prompts the user to log in with email and password.
     @IBAction func emailLoginButtonPressed(_ sender: Any) {
         presentEmailLoginAlert()
@@ -139,7 +139,7 @@ class LoginViewController: UIViewController, SpotifyManagerDelegate {
             loadSongsAndGoHome()
         }
     }
-
+    
     // Presents an alert to capture email and password for login.
     private func presentEmailLoginAlert() {
         let alert = UIAlertController(
@@ -147,38 +147,38 @@ class LoginViewController: UIViewController, SpotifyManagerDelegate {
             message: "Enter your email and password.",
             preferredStyle: .alert
         )
-
+        
         alert.addTextField { field in
             field.placeholder = "Email"
             field.keyboardType = .emailAddress
             field.autocapitalizationType = .none
         }
-
+        
         alert.addTextField { field in
             field.placeholder = "Password"
             field.isSecureTextEntry = true
         }
-
+        
         let emailField = alert.textFields![0]
         let passwordField = alert.textFields![1]
-
+        
         alert.addAction(UIAlertAction(title: "Cancel", style: .cancel))
         alert.addAction(UIAlertAction(title: "Log in", style: .default) { _ in
             let email = emailField.text?
                 .trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
             let password = passwordField.text ?? ""
-
+            
             guard !email.isEmpty, !password.isEmpty else {
                 self.showError("Enter your email and password.")
                 return
             }
-
+            
             self.signInWithEmail(email, password: password)
         })
-
+        
         present(alert, animated: true)
     }
-
+    
     // Signs in with email/password and checks Spotify connection.
     private func signInWithEmail(_ email: String, password: String) {
         Auth.auth().signIn(withEmail: email, password: password) { result, error in
@@ -186,57 +186,57 @@ class LoginViewController: UIViewController, SpotifyManagerDelegate {
                 self.showError(error.localizedDescription)
                 return
             }
-
+            
             guard let user = result?.user else {
                 self.showError("The account could not be loaded.")
                 return
             }
-
+            
             self.checkSpotifyConnection(for: user, loginProvider: "email")
         }
     }
-
+    
     // Ensures a Firestore user document exists and prompts to connect Spotify if needed.
     private func checkSpotifyConnection(for user: User, loginProvider: String) {
         let document = Firestore.firestore().collection("users").document(user.uid)
-            document.getDocument { snapshot, error in
-                if let error {
-                    self.showError(error.localizedDescription)
-                    return
-                }
-                
-                if snapshot?.exists != true {
-                    document.setData([
-                        "email": user.email ?? "",
-                        "displayName": user.displayName ?? "",
-                        "loginProvider": loginProvider,
-                        "spotifyConnected": false,
-                        "songsImported": false
-                    ]) { error in
-                        if let error = error {
-                            self.showError(error.localizedDescription)
-                            return
-                        }
-
-                        self.presentConnectSpotifyAlert()
+        document.getDocument { snapshot, error in
+            if let error {
+                self.showError(error.localizedDescription)
+                return
+            }
+            
+            if snapshot?.exists != true {
+                document.setData([
+                    "email": user.email ?? "",
+                    "displayName": user.displayName ?? "",
+                    "loginProvider": loginProvider,
+                    "spotifyConnected": false,
+                    "songsImported": false
+                ]) { error in
+                    if let error = error {
+                        self.showError(error.localizedDescription)
+                        return
                     }
-                    return
-                }
-
-                let data = snapshot?.data()
-                let spotifyConnected =
-                    data?["spotifyConnected"] as? Bool ?? false
-                let songsImported =
-                    data?["songsImported"] as? Bool ?? false
-
-                if spotifyConnected && songsImported {
-                    self.loadSongsAndGoHome()
-                } else {
+                    
                     self.presentConnectSpotifyAlert()
                 }
+                return
             }
+            
+            let data = snapshot?.data()
+            let spotifyConnected =
+            data?["spotifyConnected"] as? Bool ?? false
+            let songsImported =
+            data?["songsImported"] as? Bool ?? false
+            
+            if spotifyConnected && songsImported {
+                self.loadSongsAndGoHome()
+            } else {
+                self.presentConnectSpotifyAlert()
+            }
+        }
     }
-
+    
     // Prompts the user to connect Spotify or skip.
     private func presentConnectSpotifyAlert() {
         let alert = UIAlertController(
@@ -244,18 +244,18 @@ class LoginViewController: UIViewController, SpotifyManagerDelegate {
             message: "Connect Spotify so Heardle can use your favorite songs.",
             preferredStyle: .alert
         )
-
+        
         alert.addAction(UIAlertAction(title: "Connect Spotify", style: .default) {
             _ in spotifyManager.connect()
         })
-
+        
         alert.addAction(UIAlertAction(title: "Not Now", style: .cancel) {
             _ in self.loadSongsAndGoHome()
         })
-
+        
         present(alert, animated: true)
     }
-
+    
     // Shows a generic login error alert with the provided message.
     private func showError(_ message: String) {
         let alert = UIAlertController(
@@ -266,22 +266,22 @@ class LoginViewController: UIViewController, SpotifyManagerDelegate {
         alert.addAction(UIAlertAction(title: "OK", style: .default))
         present(alert, animated: true)
     }
-
+    
     // Loads the user's songs and navigates to the home screen.
     private func loadSongsAndGoHome() {
         Task {
             let loadedSongs = await songService.fetchSongsForCurrentUser()
-
+            
             guard !loadedSongs.isEmpty else {
                 self.showError("Songs could not be loaded.")
                 return
             }
-
+            
             songs = loadedSongs
             self.goHome()
         }
     }
-
+    
     // Performs the segue to the home screen.
     private func goHome() {
         performSegue(withIdentifier: "loginToHomeSegue", sender: self)

@@ -46,7 +46,7 @@ class HomeViewController: UIViewController {
     // Loads the display name from Firestore (or Spotify/user defaults as fallback).
     func loadDisplayName() {
         guard let user = Auth.auth().currentUser else { return }
-
+        
         Firestore.firestore()
             .collection("users")
             .document(user.uid)
@@ -55,13 +55,13 @@ class HomeViewController: UIViewController {
                     print(error.localizedDescription)
                     return
                 }
-
+                
                 let data = snapshot?.data()
                 let savedName = data?["displayName"] as? String ?? ""
                 let spotifyName = data?["spotifyDisplayName"] as? String ?? ""
                 let email = user.email ?? ""
                 let emailName = email.components(separatedBy: "@").first ?? ""
-
+                
                 if !savedName.isEmpty {
                     self.displayNameLabel.text = savedName
                     gameUser.displayName = savedName
@@ -78,7 +78,7 @@ class HomeViewController: UIViewController {
     // Loads the profile picture from Firestore/Spotify and displays it.
     func loadProfilePicture() {
         guard let user = Auth.auth().currentUser else { return }
-
+        
         Firestore.firestore()
             .collection("users")
             .document(user.uid)
@@ -87,20 +87,20 @@ class HomeViewController: UIViewController {
                     print(error.localizedDescription)
                     return
                 }
-
+                
                 let data = snapshot?.data()
                 let pictureURL =
-                    data?["profilePictureURL"] as? String
-                    ?? data?["spotifyProfilePictureURL"] as? String
-
+                data?["profilePictureURL"] as? String
+                ?? data?["spotifyProfilePictureURL"] as? String
+                
                 guard let pictureURL = pictureURL,
-                    let url = URL(string: pictureURL)
+                      let url = URL(string: pictureURL)
                 else {
                     // no img, use default instead
                     self.displayImageView.image = UIImage(named: "green_headphones")
                     return
                 }
-
+                
                 Task {
                     do {
                         let (data, _) = try await URLSession.shared.data(
@@ -139,10 +139,10 @@ class HomeViewController: UIViewController {
     }
     
     // Unwind segue action for returning to home from game results
-        @IBAction func unwindToHome(_ unwindSegue: UIStoryboardSegue) {
-            // This method allows other view controllers to unwind back to HomeViewController
-            print("[HOME] Unwound back to home from \(type(of: unwindSegue.source))")
-            // Any cleanup or refresh logic can go here
-        }
-
+    @IBAction func unwindToHome(_ unwindSegue: UIStoryboardSegue) {
+        // This method allows other view controllers to unwind back to HomeViewController
+        print("[HOME] Unwound back to home from \(type(of: unwindSegue.source))")
+        // Any cleanup or refresh logic can go here
+    }
+    
 }

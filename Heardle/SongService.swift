@@ -21,23 +21,23 @@ let storage = Storage.storage()
 
 // A class to manage getting songs list (with pics/audio) from FireSotre/Spotify/Locally
 class SongService {
-
+    
     // Give user their spotify songs or our default if not connected to spotify
     func fetchSongsForCurrentUser() async -> [Song] {
         if let user = Auth.auth().currentUser {
             let userDocument = db.collection("users").document(user.uid)
-
+            
             do {
                 let snapshot = try await userDocument.getDocument()
                 let data = snapshot.data()
                 let spotifyConnected =
-                    data?["spotifyConnected"] as? Bool ?? false
+                data?["spotifyConnected"] as? Bool ?? false
                 let songsImported =
-                    data?["songsImported"] as? Bool ?? false
-
+                data?["songsImported"] as? Bool ?? false
+                
                 if spotifyConnected && songsImported {
                     let userSongs = await fetchUserSongs(userID: user.uid)
-
+                    
                     if !userSongs.isEmpty {
                         print("Loaded \(userSongs.count) Spotify songs")
                         return userSongs
@@ -47,13 +47,13 @@ class SongService {
                 print("Could not check user songs: \(error.localizedDescription)")
             }
         }
-
+        
         let defaultSongs = await fetchDefaults()
         await updateAlbumArtData(songs: defaultSongs)
         print("Loaded \(defaultSongs.count) default songs")
         return defaultSongs
     }
-
+    
     // Given a spotify userID, return a song list for them
     func fetchUserSongs(userID: String) async -> [Song] {
         do {
@@ -63,9 +63,9 @@ class SongService {
                 .collection("songs")
                 .order(by: "order")
                 .getDocuments()
-
+            
             var userSongs: [Song] = []
-
+            
             for document in snapshot.documents {
                 let data = document.data()
                 
@@ -84,7 +84,7 @@ class SongService {
                 else {
                     continue
                 }
-
+                
                 let song = Song(
                     name: name,
                     artist: artist,
@@ -110,7 +110,7 @@ class SongService {
                 
                 userSongs.append(song)
             }
-
+            
             return userSongs
         } catch {
             print("Could not load user songs: \(error.localizedDescription)")
@@ -171,7 +171,7 @@ class SongService {
             guard let artworkURL = curSong.itunesArtworkURL else {
                 continue
             }
-
+            
             do {
                 curSong.albumArtData = try await downloadData(from: artworkURL)
             } catch {
@@ -260,26 +260,26 @@ class SongService {
     func fetchArtworkAndPreview(song: Song) async {
         let searchTerm = "\(song.name) \(song.artist)"
             .addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed)!
-
+        
         let searchURL = "https://itunes.apple.com/search?term=\(searchTerm)&entity=song&limit=1"
-
+        
         guard let url = URL(string: searchURL) else { return }
-
+        
         do {
             let (data, _) = try await URLSession.shared.data(from: url)
-
+            
             print("search url is \(searchURL)")
             
             if let json = try JSONSerialization.jsonObject(with: data) as? [String: Any],
                let results = json["results"] as? [[String: Any]],
                let first = results.first {
-
+                
                 print(json["resultCount"] ?? "none")
                 song.itunesArtworkURL = first["artworkUrl100"] as? String
                 // make high resolution for large album display
                 song.itunesArtworkURL = song.itunesArtworkURL?.replacingOccurrences(of: "100x100bb", with: "600x600bb")
                 song.previewURL = first["previewUrl"] as? String
-
+                
                 if let preview = song.previewURL {
                     song.audioURL = URL(string: preview)
                 }

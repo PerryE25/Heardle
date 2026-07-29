@@ -14,7 +14,7 @@ import UIKit
 // A customizable button that supports reusable styles throughout the app.
 @IBDesignable
 class CustomButton: UIButton {
-
+    
     // Adjusts the corner radius of the button from Interface Builder.
     @IBInspectable var cornerRadius: CGFloat = 0 {
         didSet {
@@ -30,7 +30,7 @@ class CustomButton: UIButton {
     }
     
     private static let submitButtonFont =
-        UIFont(name: "Arial Rounded MT Bold", size: 20.0)
+    UIFont(name: "Arial Rounded MT Bold", size: 20.0)
     
     // Configures the Rules button with its icon and appearance.
     static func rulesButtonConfig(_ rulesButton: CustomButton) {
@@ -101,5 +101,5 @@ class CustomButton: UIButton {
         super.layoutSubviews()
         layer.cornerRadius = cornerRadius
     }
-
+    
 }

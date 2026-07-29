@@ -20,7 +20,7 @@ class RulesViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         miniView.layer.cornerRadius = 30
-
+        
         // Do any additional setup after loading the view.
     }
     
@@ -28,5 +28,4 @@ class RulesViewController: UIViewController {
     @IBAction func returnToPrevious(_ sender: Any) {
         self.dismiss(animated: true)
     }
-
 }

@@ -34,7 +34,7 @@ class CreateAccountViewController: UIViewController, SpotifyManagerDelegate {
         emailField.layer.borderWidth = 1.0
         emailField.layer.cornerRadius = 6
         
-        if let icon = UIImage(named: "spotify-xxl"){
+        if let icon = UIImage(named: "spotify-xxl") {
             let size = CGSize(width: 30, height: 30)
             let resized = UIGraphicsImageRenderer(size: size).image { _ in
                 icon.draw(in: CGRect(origin: .zero, size: size))

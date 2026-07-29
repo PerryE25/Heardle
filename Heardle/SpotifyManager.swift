@@ -25,14 +25,14 @@ class SpotifyManager: NSObject, SessionManagerDelegate {
         didInitiate session: SpotifyLogin.Session
     ) {
         delegate?.spotifyLoadingStarted()
-
+        
         if connectingExistingAccount {
             connectSpotify(spotifyAccessToken: session.accessToken)
         } else {
             signIntoFirebase(spotifyAccessToken: session.accessToken)
         }
     }
-
+    
     // Called when Spotify auth fails; notifies the delegate of the error.
     func sessionManager(
         manager: SpotifyLogin.SessionManager,
@@ -42,39 +42,39 @@ class SpotifyManager: NSObject, SessionManagerDelegate {
         print("spotify auth failed: \(error.localizedDescription)")
         delegate?.spotifyLoginFailed(error: error)
     }
-
+    
     var delegate: SpotifyManagerDelegate?
     var sessionManager: SessionManager!
     var connectingExistingAccount = false
-
+    
     // Initializes the Spotify session manager with client credentials.
     override init() {
         super.init()
-
+        
         let configuration = Configuration(
             clientID: "488a5b1453634b68bc6a0905dcc0f0c9",
             redirectURL: URL(string: "utcs.heardle://spotify-login-callback")!
         )
-
+        
         sessionManager = SessionManager(
             configuration: configuration,
             delegate: self
         )
     }
-
+    
     // Starts the Spotify login flow for new sign-ins.
     func login() {
         print("login is called")
         connectingExistingAccount = false
         startSpotifyAuthorization()
     }
-
+    
     // Starts the Spotify connect flow for existing users.
     func connect() {
         connectingExistingAccount = true
         startSpotifyAuthorization()
     }
-
+    
     // Initiates Spotify authorization with required scopes.
     func startSpotifyAuthorization() {
         let scopes: [Scope] = [
@@ -86,12 +86,12 @@ class SpotifyManager: NSObject, SessionManagerDelegate {
             authorizationFlow: .default
         )
     }
-
+    
     // Forwards the OAuth callback URL to the session manager.
     func handleCallback(url: URL) {
         sessionManager.openURL(url)
     }
-
+    
     // Imports songs if needed and notifies the delegate upon completion.
     func finishSpotifySetup(
         user: User,
@@ -103,7 +103,7 @@ class SpotifyManager: NSObject, SessionManagerDelegate {
                 spotifyAccessToken: spotifyAccessToken,
                 user: user
             )
-
+            
             if success {
                 self.delegate?.spotifyLoginSucceeded()
             } else {
@@ -111,7 +111,7 @@ class SpotifyManager: NSObject, SessionManagerDelegate {
             }
         }
     }
-
+    
     // Retrieves the user's Spotify profile picture URL.
     func fetchSpotifyProfilePicture(
         spotifyAccessToken: String,
@@ -122,18 +122,18 @@ class SpotifyManager: NSObject, SessionManagerDelegate {
             completion(nil)
             return
         }
-
+        
         var request = URLRequest(url: url)
         request.setValue(
             "Bearer \(spotifyAccessToken)",
             forHTTPHeaderField: "Authorization"
         )
-
+        
         Task {
             do {
                 let (data, _) = try await URLSession.shared.data(for: request)
                 let json = try JSONSerialization.jsonObject(with: data)
-                    as? [String: Any]
+                as? [String: Any]
                 let images = json?["images"] as? [[String: Any]]
                 completion(images?.first?["url"] as? String)
             } catch {
@@ -141,25 +141,25 @@ class SpotifyManager: NSObject, SessionManagerDelegate {
             }
         }
     }
-
+    
     // Exchanges the Spotify token for a Firebase custom token and signs in.
     func signIntoFirebase(spotifyAccessToken: String) {
         print("signIntoFirebase is called")
         let function = Functions.functions()
             .httpsCallable("spotifySignIn")
-
+        
         function.call([
             "accessToken": spotifyAccessToken
         ]) { result, error in
-
+            
             if let error = error {
                 print(error.localizedDescription)
                 self.delegate?.spotifyLoginFailed(error: error)
                 return
             }
-
+            
             let data = result?.data as? [String: Any]
-
+            
             guard
                 let customToken =
                     data?["customToken"] as? String,
@@ -170,27 +170,27 @@ class SpotifyManager: NSObject, SessionManagerDelegate {
                 self.delegate?.spotifyLoginFailed(error: nil)
                 return
             }
-
+            
             let displayName =
-                data?["spotifyDisplayName"] as? String
-                ?? "Spotify User"
-
+            data?["spotifyDisplayName"] as? String
+            ?? "Spotify User"
+            
             Auth.auth().signIn(
                 withCustomToken: customToken
             ) { authResult, error in
-
+                
                 if let error = error {
                     print(error.localizedDescription)
                     self.delegate?.spotifyLoginFailed(error: error)
                     return
                 }
-
+                
                 guard let user = authResult?.user else {
                     print("Firebase user missing")
                     self.delegate?.spotifyLoginFailed(error: nil)
                     return
                 }
-
+                
                 self.fetchSpotifyProfilePicture(
                     spotifyAccessToken: spotifyAccessToken
                 ) { profilePictureURL in
@@ -200,11 +200,11 @@ class SpotifyManager: NSObject, SessionManagerDelegate {
                         "spotifyAccountID": spotifyID,
                         "spotifyDisplayName": displayName,
                     ]
-
+                    
                     if let profilePictureURL = profilePictureURL {
                         userData["spotifyProfilePictureURL"] = profilePictureURL
                     }
-
+                    
                     Firestore.firestore()
                         .collection("users")
                         .document(user.uid)
@@ -214,7 +214,7 @@ class SpotifyManager: NSObject, SessionManagerDelegate {
                                 self.delegate?.spotifyLoginFailed(error: error)
                                 return
                             }
-
+                            
                             self.finishSpotifySetup(
                                 user: user,
                                 spotifyAccessToken: spotifyAccessToken
@@ -235,11 +235,11 @@ class SpotifyManager: NSObject, SessionManagerDelegate {
         }
         print("access token: \(spotifyAccessToken)")
         let function = Functions.functions().httpsCallable("spotifySignIn")
-
+        
         function.call(["accessToken": spotifyAccessToken]) { result, error in
             if let error = error {
                 print("ERROR:", error)
-
+                
                 if let error = error as NSError? {
                     print("Domain:", error.domain)
                     print("Code:", error.code)
@@ -250,21 +250,21 @@ class SpotifyManager: NSObject, SessionManagerDelegate {
                 self.delegate?.spotifyLoginFailed(error: error)
                 return
             }
-
+            
             print("Cloud Function result:")
             print(result?.data ?? "nil")
-
+            
             let data = result?.data as? [String: Any]
             print("Parsed data:", data ?? [:])
-
+            
             guard let spotifyID = data?["spotifyAccountID"] as? String else {
                 print("Spotify ID missing")
                 self.delegate?.spotifyLoginFailed(error: nil)
                 return
             }
-
+            
             let spotifyName = data?["spotifyDisplayName"] as? String ?? ""
-
+            
             self.fetchSpotifyProfilePicture(
                 spotifyAccessToken: spotifyAccessToken
             ) { profilePictureURL in
@@ -273,11 +273,11 @@ class SpotifyManager: NSObject, SessionManagerDelegate {
                     "spotifyAccountID": spotifyID,
                     "spotifyDisplayName": spotifyName,
                 ]
-
+                
                 if let profilePictureURL = profilePictureURL {
                     userData["spotifyProfilePictureURL"] = profilePictureURL
                 }
-
+                
                 Firestore.firestore()
                     .collection("users")
                     .document(user.uid)
@@ -287,7 +287,7 @@ class SpotifyManager: NSObject, SessionManagerDelegate {
                             self.delegate?.spotifyLoginFailed(error: error)
                             return
                         }
-
+                        
                         self.finishSpotifySetup(
                             user: user,
                             spotifyAccessToken: spotifyAccessToken
@@ -296,5 +296,5 @@ class SpotifyManager: NSObject, SessionManagerDelegate {
             }
         }
     }
-
+    
 }
