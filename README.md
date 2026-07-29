@@ -27,9 +27,11 @@ Heardle
 
 ## Test Accounts
 • Username: perryehimuh@gmail.com 
+
 • Password: password
 
 • Username: test@gmail.com   (has my Spotify connected to it)
+
 • Password: password
 
 ---
