@@ -34,7 +34,17 @@ class CustomButton: UIButton {
     
     // Configures the Rules button with its icon and appearance.
     static func rulesButtonConfig(_ rulesButton: CustomButton) {
-        var configuration = UIButton.Configuration.clearGlass()
+        var configuration: UIButton.Configuration
+        
+        if #available(iOS 26.0, *) {
+            configuration = .clearGlass()
+        } else {
+            configuration = .plain()
+            configuration.image = UIImage(systemName: "questionmark.circle.dashed")
+            configuration.baseForegroundColor = .white
+            configuration.baseBackgroundColor = .clear
+        }
+        
         configuration.image = UIImage(systemName: "questionmark.circle.dashed")
         configuration.baseForegroundColor = .white
         configuration.baseBackgroundColor = .clear
@@ -77,7 +87,13 @@ class CustomButton: UIButton {
     
     // Configures the Previous Attempts button.
     static func prevAttemptButtonConfig(_ prevAttemptsButton: CustomButton) {
-        var configuration = UIButton.Configuration.clearGlass()
+        var configuration: UIButton.Configuration
+        if #available(iOS 26.0, *) {
+            configuration = .clearGlass()
+        } else {
+            configuration = .plain()
+        }
+        
         configuration.baseForegroundColor = .white
         configuration.title = "Attempt 0 / 6 "
         configuration.image = UIImage(systemName: "info.circle")

@@ -95,6 +95,7 @@ class GameViewController: UIViewController, SearchViewDelegate {
     override func viewDidLoad() {
         super.viewDidLoad()
         
+        configureAudioSession()
         prevGuesses = []
         if let gameCode {
             skipSongButton.isHidden = true
@@ -144,6 +145,18 @@ class GameViewController: UIViewController, SearchViewDelegate {
             timeObserverToken = nil
         }
         listener?.remove()
+    }
+    
+    // Allow real iPhone to play audio fine
+    private func configureAudioSession() {
+        let audioSession = AVAudioSession.sharedInstance()
+
+        do {
+            try audioSession.setCategory(.playback, mode: .moviePlayback)
+            try audioSession.setActive(true)
+        } catch {
+            print("Failed to configure audio session: \(error.localizedDescription)")
+        }
     }
     
     // Starts a new multiplayer round using the provided game data.
