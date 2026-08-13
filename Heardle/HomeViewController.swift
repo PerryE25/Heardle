@@ -26,6 +26,8 @@ class HomeViewController: UIViewController {
     @IBOutlet weak var displayImageView: UIImageView!
     @IBOutlet weak var displayPtsButton: UIButton!
     
+    let homeToSettingsSegue = "HomeToSettingsSegueID"
+    
     // Displays the home screen and manages the user's profile information.
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -136,6 +138,18 @@ class HomeViewController: UIViewController {
                 let savedPts = data?["points"] as? Int ?? 0
                 self.displayPtsButton.setTitle(String(savedPts), for: .normal)
             }
+    }
+    
+    // Go to settings to update image (most likely).
+    @IBAction func imageTapped(_ sender: Any) {
+        print("image was tapped!")
+        performSegue(withIdentifier: homeToSettingsSegue, sender: sender)
+    }
+    
+    // Go to settings to update display name.
+    @IBAction func labelTapped(_ sender: Any) {
+        print("label was tapped!")
+        performSegue(withIdentifier: homeToSettingsSegue, sender: sender)
     }
     
     // Unwind segue action for returning to home from game results

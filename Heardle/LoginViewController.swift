@@ -65,6 +65,13 @@ class LoginViewController: UIViewController, SpotifyManagerDelegate {
             appleButton.layer.borderWidth = 1.0
             appleButton.layer.cornerRadius = 6
         }
+        
+        // Skip signing-in if logined before
+        Auth.auth().addStateDidChangeListener { auth, user in
+            if user != nil {
+                self.goHome()
+            }
+        }
     }
     
     // Presents a loading alert while Spotify songs are being prepared.

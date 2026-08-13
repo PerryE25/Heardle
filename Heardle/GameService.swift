@@ -287,7 +287,7 @@ final class GameService {
                 let hostWon = statuses[hostId] == PlayerStatus.won.rawValue
                 let guestWon = statuses[guestId] == PlayerStatus.won.rawValue
                 
-                var currentRoundsWon = data["playerRoundsWon"] as? [String: Int] ?? [:]
+                let currentRoundsWon = data["playerRoundsWon"] as? [String: Int] ?? [:]
                 let hostCurrentWins = currentRoundsWon[hostId] ?? 0
                 let guestCurrentWins = currentRoundsWon[guestId] ?? 0
                 
