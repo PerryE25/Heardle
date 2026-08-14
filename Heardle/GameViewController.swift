@@ -404,6 +404,7 @@ class GameViewController: UIViewController, SearchViewDelegate {
         CustomButton.prevAttemptButtonConfig(prevAttemptsButton as! CustomButton)
         selectedSongCardView.layer.cornerRadius = 10
         selectedSongCardView.layer.sublayers?[0].cornerRadius = 10
+        searchView.layer.cornerRadius = 10
     }
     
     // Positions the next album artwork off screen before the transition animation.

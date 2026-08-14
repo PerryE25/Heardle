@@ -110,6 +110,7 @@ class HomeViewController: UIViewController {
                         )
                         guard let image = UIImage(data: data) else { return }
                         DispatchQueue.main.async {
+                            gameUser.displayImageData = data
                             self.displayImageView.image = image
                         }
                     } catch {
@@ -136,6 +137,7 @@ class HomeViewController: UIViewController {
                 
                 let data = snapshot?.data()
                 let savedPts = data?["points"] as? Int ?? 0
+                gameUser.points = savedPts
                 self.displayPtsButton.setTitle(String(savedPts), for: .normal)
             }
     }
