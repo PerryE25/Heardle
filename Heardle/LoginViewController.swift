@@ -69,7 +69,7 @@ class LoginViewController: UIViewController, SpotifyManagerDelegate {
         // Skip signing-in if logined before
         Auth.auth().addStateDidChangeListener { auth, user in
             if user != nil {
-                self.goHome()
+                self.checkSpotifyConnection(for: user!, loginProvider: "email")
             }
         }
     }
