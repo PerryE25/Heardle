@@ -24,16 +24,6 @@ Heardle
 
 • For multiplayer, switch simulator iPhone and run the application using an iPhone 16 Pro Max simulator.
 
-
-## Test Accounts
-• Username: perryehimuh@gmail.com 
-
-• Password: password
-
-• Username: test@gmail.com   (has my Spotify connected to it)
-
-• Password: password
-
 ---
 
 ## Feature Description
